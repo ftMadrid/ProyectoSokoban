@@ -3,6 +3,8 @@ package proyectosokoban.recursos;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +16,8 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private Texture jugadorTex, cajaTex, sueloTex, paredTex;
+    private Music musicafondo;
+    private Sound audiomove;
 
     private final int TILE = 100; // size de cada celda en pixeles
     private final int FILAS = 8;
@@ -22,19 +26,30 @@ public class Main extends ApplicationAdapter {
     // 0 = suelo, 1 = pared
     private int[][] mapa = {
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 1, 0, 1, 0, 1, 0, 1},
-        {1, 0, 1, 1, 0, 1, 1, 1, 0, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+        {1, 0, 0, 1, 1, 1, 0, 1, 0, 1},
         {1, 0, 0, 0, 0, 1, 1, 1, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+        {1, 0, 0, 1, 1, 1, 0, 0, 0, 1},
+        {1, 0, 0, 1, 0, 1, 1, 1, 0, 1},
         {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
         {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},};
 
     private int jugadorX = 2, jugadorY = 2;
-    private int cajaX = 4, cajaY = 2;
+    private int cajaX = 4, cajaY = 6;
+
+    private float tiempoDesdeUltimoMovimiento = 0f;
+    private final float delayMovimiento = 0.2f; // segundos
 
     @Override
     public void create() {
+
+        musicafondo = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
+        musicafondo.setLooping(true);
+        musicafondo.setVolume(0.5f);
+
+        audiomove = Gdx.audio.newSound(Gdx.files.internal("movimiento.mp3"));
+
+        musicafondo.play();
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         jugadorTex = new Texture("muneco.png");
@@ -72,17 +87,36 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            moverJugador(1, 0);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            moverJugador(-1, 0);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            moverJugador(0, 1);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            moverJugador(0, -1);
+
+        float delta = Gdx.graphics.getDeltaTime();
+        tiempoDesdeUltimoMovimiento += delta;
+
+        if (tiempoDesdeUltimoMovimiento >= delayMovimiento) {
+
+            boolean seMovio = false;
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+                moverJugador(1, 0);
+                seMovio = true;
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+                moverJugador(-1, 0);
+                seMovio = true;
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                moverJugador(0, 1);
+                seMovio = true;
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+                moverJugador(0, -1);
+                seMovio = true;
+            }
+
+            if (seMovio) {
+                audiomove.play(0.6f);
+                tiempoDesdeUltimoMovimiento = 0f;
+            }
+
         }
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
