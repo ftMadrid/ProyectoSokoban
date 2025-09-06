@@ -23,6 +23,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameScreen implements Screen {
 
@@ -33,59 +36,74 @@ public class GameScreen implements Screen {
     private Music musicafondo;
     private Sound audiomove, sonidoVictoria;
 
-    private final int TILE = 100;
+    private final int TILE = 90;
     private final int FILAS = 8;
-    private final int COLUMNAS = 10;
-    private int movimientos = 0;
+    private final int COLUMNAS = 12;
+    private volatile int movimientos = 0;
 
     Label cantmoves;
 
     private int[][] mapa = {
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-        {1, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-        {1, 0, 1, 1, 1, 1, 1, 0, 0, 1},
-        {1, 0, 0, 0, 1, 0, 1, 0, 0, 1},
-        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1},
+        {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+        {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+        {1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1},
+        {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
 
-    // posiciones logicas
-    private int jugadorX = 2, jugadorY = 2;
-    private int cajaX = 4, cajaY = 6;
+    // Posiciones lógicas (thread-safe)
+    private volatile int jugadorX = 2, jugadorY = 2;
+    private volatile int cajaX = 4, cajaY = 6;
 
-    // posiciones para las animaciones
-    private float jugadorRenderX = 2 * TILE, jugadorRenderY = 2 * TILE;
-    private float cajaRenderX = 4 * TILE, cajaRenderY = 6 * TILE;
+    // Posiciones para las animaciones
+    private volatile float jugadorRenderX = 2 * TILE, jugadorRenderY = 2 * TILE;
+    private volatile float cajaRenderX = 4 * TILE, cajaRenderY = 6 * TILE;
 
-    // var para la animacion pue
-    private boolean estaMoviendose = false;
-    private float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.15f; // aqui seteo la duracion (estoy en testing todavia por si se buguea)
+    // Variables para la animación
+    private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
+    private volatile float tiempoAnimacion = 0f;
+    private final float duracionAnimacion = 0.3f;
 
-    // obtenemos la psocion de inicio para evitar errores graficos
-    private float jugadorStartX, jugadorStartY, jugadorTargetX, jugadorTargetY;
-    private float cajaStartX, cajaStartY, cajaTargetX, cajaTargetY;
-    private boolean cajaSeMovioTambien = false;
+    // Posiciones de inicio y destino
+    private volatile float jugadorStartX, jugadorStartY, jugadorTargetX, jugadorTargetY;
+    private volatile float cajaStartX, cajaStartY, cajaTargetX, cajaTargetY;
+    private final AtomicBoolean cajaSeMovioTambien = new AtomicBoolean(false);
 
-    // contorl de la direccion
-    private boolean jugadorMiraIzquierda = false; // 'true' mira izquierda y 'false' mira derecha
+    // Control de la dirección
+    private volatile boolean jugadorMiraIzquierda = false;
 
-    // posicion donde seteo la caja
-    private int objetivoX = 8, objetivoY = 6;
+    // Posición objetivo
+    private final int objetivoX = 8, objetivoY = 6;
 
-    private float tiempoDesdeUltimoMovimiento = 0f;
+    private volatile float tiempoDesdeUltimoMovimiento = 0f;
     private final float delayMovimiento = 0.2f;
 
-    private boolean juegoGanado = false;
+    private final AtomicBoolean juegoGanado = new AtomicBoolean(false);
 
     private Stage stage;
     private Skin skin;
 
+    // Hilos para manejo de eventos en tiempo real
+    private ExecutorService collisionDetector;
+    private ExecutorService animationUpdater;
+    private final AtomicBoolean gameRunning = new AtomicBoolean(true);
+
+    // Flags para comunicación entre hilos
+    private final AtomicBoolean needsVictoryCheck = new AtomicBoolean(false);
+    private final AtomicBoolean playMoveSound = new AtomicBoolean(false);
+
     public GameScreen(final Main main) {
         this.main = main;
 
+        initializeResources();
+        initializeUI();
+        initializeThreads();
+    }
+
+    private void initializeResources() {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
@@ -93,7 +111,6 @@ public class GameScreen implements Screen {
         cajaTex = new Texture("caja.png");
         sueloTex = new Texture("suelo.png");
         paredTex = new Texture("pared.png");
-
         objetivoTex = new Texture("objetivo.png");
 
         musicafondo = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
@@ -108,7 +125,9 @@ public class GameScreen implements Screen {
         } catch (Exception e) {
             sonidoVictoria = null;
         }
+    }
 
+    private void initializeUI() {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
@@ -136,6 +155,7 @@ public class GameScreen implements Screen {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
             }
         });
+
         stage.addActor(botonVolver);
         stage.addActor(cantmoves);
 
@@ -144,16 +164,110 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(multiplexer);
     }
 
-    private void moverJugador(int dx, int dy) {
-        if (juegoGanado || estaMoviendose) {
-            return; // bloqueamos movimientos mientras se cargan otras cosas
+    private void initializeThreads() {
+        // Hilo para detección de colisiones en tiempo real
+        collisionDetector = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "CollisionDetector");
+            t.setDaemon(true);
+            return t;
+        });
+
+        // Hilo para actualización de animaciones
+        animationUpdater = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "AnimationUpdater");
+            t.setDaemon(true);
+            return t;
+        });
+
+        startCollisionDetectionThread();
+        startAnimationUpdateThread();
+    }
+
+    private void startCollisionDetectionThread() {
+        collisionDetector.submit(() -> {
+            while (gameRunning.get()) {
+                try {
+                    // Verificar victoria continuamente
+                    if (!juegoGanado.get() && cajaX == objetivoX && cajaY == objetivoY) {
+                        needsVictoryCheck.set(true);
+                    }
+
+                    Thread.sleep(50); // Verificar cada 50ms
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    System.err.println("Error en CollisionDetector: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void startAnimationUpdateThread() {
+        animationUpdater.submit(() -> {
+            long lastTime = System.nanoTime();
+            while (gameRunning.get()) {
+                try {
+                    if (estaMoviendose.get()) {
+                        long currentTime = System.nanoTime();
+                        float delta = (currentTime - lastTime) / 1000000000f;
+                        lastTime = currentTime;
+
+                        updateAnimationInThread(delta);
+                    } else {
+                        lastTime = System.nanoTime(); // Reset cuando no se está moviendo
+                    }
+
+                    Thread.sleep(16); // ~60 FPS
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    System.err.println("Error en AnimationUpdater: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void updateAnimationInThread(float delta) {
+        tiempoAnimacion += delta;
+
+        float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1.0f);
+        progreso = 1f - (1f - progreso) * (1f - progreso);
+
+        // Actualizar posiciones de renderizado
+        jugadorRenderX = MathUtils.lerp(jugadorStartX, jugadorTargetX, progreso);
+        jugadorRenderY = MathUtils.lerp(jugadorStartY, jugadorTargetY, progreso);
+
+        if (cajaSeMovioTambien.get()) {
+            cajaRenderX = MathUtils.lerp(cajaStartX, cajaTargetX, progreso);
+            cajaRenderY = MathUtils.lerp(cajaStartY, cajaTargetY, progreso);
         }
 
-        // actualizar sprite (pa la animacion)
+        // Verificar si la animación terminó
+        if (progreso >= 1.0f) {
+            estaMoviendose.set(false);
+
+            jugadorRenderX = jugadorTargetX;
+            jugadorRenderY = jugadorTargetY;
+            if (cajaSeMovioTambien.get()) {
+                cajaRenderX = cajaTargetX;
+                cajaRenderY = cajaTargetY;
+            }
+        }
+    }
+
+    // Método para mover jugador (ejecutado en el hilo principal)
+    private void moverJugador(int dx, int dy) {
+        if (juegoGanado.get() || estaMoviendose.get()) {
+            return;
+        }
+
+        // Actualizar dirección del sprite
         if (dx > 0) {
-            jugadorMiraIzquierda = false; // ve derecha
+            jugadorMiraIzquierda = false;
         } else if (dx < 0) {
-            jugadorMiraIzquierda = true;  // ve izquierda
+            jugadorMiraIzquierda = true;
         }
 
         int nuevoX = jugadorX + dx;
@@ -163,97 +277,57 @@ public class GameScreen implements Screen {
             return;
         }
 
-        // setear posiiciones de inicio
+        // Configurar posiciones de inicio
         jugadorStartX = jugadorRenderX;
         jugadorStartY = jugadorRenderY;
         cajaStartX = cajaRenderX;
         cajaStartY = cajaRenderY;
-        cajaSeMovioTambien = false;
+        cajaSeMovioTambien.set(false);
 
         if (nuevoX == cajaX && nuevoY == cajaY) {
             int nuevoCajaX = cajaX + dx;
             int nuevoCajaY = cajaY + dy;
 
             if (mapa[nuevoCajaY][nuevoCajaX] == 0) {
-                // update de posiciones
                 cajaX = nuevoCajaX;
                 cajaY = nuevoCajaY;
                 jugadorX = nuevoX;
                 jugadorY = nuevoY;
 
-                // destinos de animacion
                 jugadorTargetX = jugadorX * TILE;
                 jugadorTargetY = jugadorY * TILE;
                 cajaTargetX = cajaX * TILE;
                 cajaTargetY = cajaY * TILE;
-                cajaSeMovioTambien = true;
+                cajaSeMovioTambien.set(true);
 
-                // ready la animacion
-                estaMoviendose = true;
+                estaMoviendose.set(true);
                 tiempoAnimacion = 0f;
             }
         } else {
             jugadorX = nuevoX;
             jugadorY = nuevoY;
 
-            // destino anima
             jugadorTargetX = jugadorX * TILE;
             jugadorTargetY = jugadorY * TILE;
 
-            estaMoviendose = true;
+            estaMoviendose.set(true);
             tiempoAnimacion = 0f;
         }
 
         movimientos++;
-    }
-
-    private void actualizarAnimacion(float delta) {
-        if (estaMoviendose) {
-            tiempoAnimacion += delta;
-
-            // progreso de animacion (tengo que testear pq no se si se puede buguear el calculo?)
-            float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1.0f);
-
-            // NO TOCAR
-            progreso = 1f - (1f - progreso) * (1f - progreso);
-
-            // obtengo posiciones de la animacion
-            jugadorRenderX = MathUtils.lerp(jugadorStartX, jugadorTargetX, progreso);
-            jugadorRenderY = MathUtils.lerp(jugadorStartY, jugadorTargetY, progreso);
-
-            // lo mismo de arriba pero para la caja
-            if (cajaSeMovioTambien) {
-                cajaRenderX = MathUtils.lerp(cajaStartX, cajaTargetX, progreso);
-                cajaRenderY = MathUtils.lerp(cajaStartY, cajaTargetY, progreso);
-            }
-
-            // ver si animacion termino
-            if (progreso >= 1.0f) {
-                estaMoviendose = false;
-
-                // pequeno chequeo de posiciones
-                jugadorRenderX = jugadorTargetX;
-                jugadorRenderY = jugadorTargetY;
-                if (cajaSeMovioTambien) {
-                    cajaRenderX = cajaTargetX;
-                    cajaRenderY = cajaTargetY;
-                    verificarVictoria();
-                }
-            }
-        }
+        playMoveSound.set(true);
     }
 
     private void verificarVictoria() {
-        if (cajaX == objetivoX && cajaY == objetivoY && !juegoGanado) {
-            juegoGanado = true;
-
-            if (sonidoVictoria != null) {
-                sonidoVictoria.play(0.3f);
-            }
-
-            musicafondo.pause();
-            mostrarDialogoVictoria();
+        if (juegoGanado.getAndSet(true)) {
+            return; // Ya se procesó
         }
+
+        if (sonidoVictoria != null) {
+            sonidoVictoria.play(0.3f);
+        }
+        musicafondo.pause();
+        mostrarDialogoVictoria();
     }
 
     private void mostrarDialogoVictoria() {
@@ -263,10 +337,10 @@ public class GameScreen implements Screen {
 
         Label mensajeLabel = new Label(mensaje, skin);
         mensajeLabel.setWrap(true);
-        
+
         TextButton botonJugarDeNuevo = new TextButton("Jugar de nuevo", skin);
         TextButton botonVolver = new TextButton("Volver al menu", skin);
-        
+
         botonJugarDeNuevo.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -275,6 +349,7 @@ public class GameScreen implements Screen {
                 dispose();
                 dialogo.hide();
             }
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
@@ -294,6 +369,7 @@ public class GameScreen implements Screen {
                 dispose();
                 dialogo.hide();
             }
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
@@ -319,12 +395,19 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        // Verificar flags de los hilos secundarios
+        if (needsVictoryCheck.getAndSet(false)) {
+            verificarVictoria();
+        }
 
-        actualizarAnimacion(delta);
+        if (playMoveSound.getAndSet(false)) {
+            audiomove.play(0.6f);
+        }
 
         tiempoDesdeUltimoMovimiento += delta;
 
-        if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !juegoGanado && !estaMoviendose) {
+        // Manejar entrada del usuario
+        if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !juegoGanado.get() && !estaMoviendose.get()) {
             boolean seMovio = false;
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
@@ -345,13 +428,13 @@ public class GameScreen implements Screen {
             }
 
             if (seMovio) {
-                audiomove.play(0.6f);
                 tiempoDesdeUltimoMovimiento = 0f;
             }
-
-            cantmoves.setText("Movimientos: " + movimientos);
         }
 
+        cantmoves.setText("Movimientos: " + movimientos);
+
+        // Renderizado
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -367,7 +450,6 @@ public class GameScreen implements Screen {
             }
         }
 
-        // objetivo para caja
         batch.draw(objetivoTex, objetivoX * TILE + 30, objetivoY * TILE + 30, 40, 40);
 
         int jugadorWidth = 84;
@@ -378,19 +460,16 @@ public class GameScreen implements Screen {
         float jugadorPosX = jugadorRenderX + offsetX;
         float jugadorPosY = jugadorRenderY + offsetY;
 
-        // efecto espejo para las direcciones
         if (jugadorMiraIzquierda) {
             batch.draw(jugadorTex,
                     jugadorPosX + jugadorWidth, jugadorPosY,
                     -jugadorWidth, jugadorHeight);
         } else {
-            // imagen en estado defautl
             batch.draw(jugadorTex,
                     jugadorPosX, jugadorPosY,
                     jugadorWidth, jugadorHeight);
         }
 
-        // colorear si esta en posicion de encaje
         if (cajaX == objetivoX && cajaY == objetivoY) {
             batch.setColor(0.5f, 1f, 0.5f, 1f);
         }
@@ -429,6 +508,15 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        gameRunning.set(false);
+
+        if (collisionDetector != null && !collisionDetector.isShutdown()) {
+            collisionDetector.shutdown();
+        }
+        if (animationUpdater != null && !animationUpdater.isShutdown()) {
+            animationUpdater.shutdown();
+        }
+
         batch.dispose();
         shapeRenderer.dispose();
         jugadorTex.dispose();
