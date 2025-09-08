@@ -14,7 +14,7 @@ public class Caja {
     // Variables para la animación
     private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.3f;
+    private final float duracionAnimacion = 0.7f;
     private volatile float startX, startY, targetX, targetY;
 
     private final int TILE = 90;

@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Jugador {
 
     private Texture[] texturasNormales; // Arriba, abajo, izquierda, derecha
-    private Texture[] texturasEmpuje; // Animación de empuje
+    private Texture[][] texturasEmpuje; // Animaciones de empuje [direccion][frame]
+    private Texture[][] texturasMovimiento; // Animaciones de movimiento normal [direccion][frame]
 
     private volatile int x, y;
     private volatile float renderX, renderY;
@@ -17,14 +18,20 @@ public class Jugador {
     private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
     private final AtomicBoolean estaEmpujando = new AtomicBoolean(false);
 
-    // Variables para la animación
+    // Duraciones adaptadas
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.3f;
+    private final float duracionAnimacion = 0.8f; // Duración total de un movimiento (más lenta que antes)
 
-    // Variables específicas para la animación del jugador empujando
+// Animación de movimiento normal
+    private volatile float tiempoAnimacionMovimiento = 0f;
+    private final float duracionFrameMovimiento = duracionAnimacion / 4f; // 4 frames por movimiento
+    private volatile int frameActualMovimiento = 0;
+
+// Animación de empuje
     private volatile float tiempoAnimacionEmpuje = 0f;
-    private final float duracionFrameEmpuje = 0.05f; // Duración de cada frame (50ms)
+    private final int FRAMES_EMPUEJE = 6;
     private volatile int frameActualEmpuje = 0;
+    private final float duracionFrameEmpuje = duracionAnimacion / FRAMES_EMPUEJE; // Sincronizado con el movimiento
 
     // Posiciones de inicio y destino
     private volatile float startX, startY, targetX, targetY;
@@ -41,33 +48,42 @@ public class Jugador {
     }
 
     private void cargarTexturas() {
-        // Cargar texturas del jugador
+        // Texturas normales
         texturasNormales = new Texture[4];
         texturasNormales[0] = new Texture("muneco/south.png"); // Abajo
         texturasNormales[1] = new Texture("muneco/north.png"); // Arriba
         texturasNormales[2] = new Texture("muneco/west.png");  // Izquierda
         texturasNormales[3] = new Texture("muneco/east.png");  // Derecha
 
-        // Cargar texturas de animación de empuje
-        texturasEmpuje = new Texture[6];
-        texturasEmpuje[0] = new Texture("caja/frame_000.png");
-        texturasEmpuje[1] = new Texture("caja/frame_001.png");
-        texturasEmpuje[2] = new Texture("caja/frame_002.png");
-        texturasEmpuje[3] = new Texture("caja/frame_003.png");
-        texturasEmpuje[4] = new Texture("caja/frame_004.png");
-        texturasEmpuje[5] = new Texture("caja/frame_005.png");
+        // Animación de empuje (4 direcciones × 6 frames)
+        texturasEmpuje = new Texture[4][6];
+        for (int i = 0; i < 6; i++) {
+            texturasEmpuje[0][i] = new Texture("muneco/caja/south_00" + i + ".png");
+            texturasEmpuje[1][i] = new Texture("muneco/caja/north_00" + i + ".png");
+            texturasEmpuje[2][i] = new Texture("muneco/caja/west_00" + i + ".png");
+            texturasEmpuje[3][i] = new Texture("muneco/caja/east_00" + i + ".png");
+        }
+
+        // Animación de movimiento normal (4 direcciones × 4 frames)
+        texturasMovimiento = new Texture[4][4];
+        for (int i = 0; i < 4; i++) {
+            texturasMovimiento[0][i] = new Texture("muneco/moves/south_00" + i + ".png");
+            texturasMovimiento[1][i] = new Texture("muneco/moves/north_00" + i + ".png");
+            texturasMovimiento[2][i] = new Texture("muneco/moves/west_00" + i + ".png");
+            texturasMovimiento[3][i] = new Texture("muneco/moves/east_00" + i + ".png");
+        }
     }
 
     public boolean mover(int dx, int dy, Nivel nivel) {
-        // Actualizar dirección del sprite según el movimiento
+        // Actualizar dirección
         if (dx > 0) {
-            direccion = 3; // Derecha
+            direccion = 3;
         } else if (dx < 0) {
-            direccion = 2; // Izquierda  
+            direccion = 2;
         } else if (dy > 0) {
-            direccion = 1; // Arriba
+            direccion = 1;
         } else if (dy < 0) {
-            direccion = 0; // Abajo
+            direccion = 0;
         }
 
         int nuevoX = x + dx;
@@ -77,11 +93,9 @@ public class Jugador {
             return false;
         }
 
-        // Configurar posiciones de inicio
         startX = renderX;
         startY = renderY;
 
-        // Verificar si va a empujar una caja
         if (nivel.hayCajaEn(nuevoX, nuevoY)) {
             int nuevoCajaX = nuevoX + dx;
             int nuevoCajaY = nuevoY + dy;
@@ -94,7 +108,6 @@ public class Jugador {
                 targetX = x * TILE;
                 targetY = y * TILE;
 
-                // Iniciar animación de empuje del jugador
                 estaEmpujando.set(true);
                 frameActualEmpuje = 0;
                 tiempoAnimacionEmpuje = 0f;
@@ -106,16 +119,14 @@ public class Jugador {
             }
             return false;
         } else {
-            // Movimiento normal (sin empujar caja)
+            // Movimiento normal
             x = nuevoX;
             y = nuevoY;
 
             targetX = x * TILE;
             targetY = y * TILE;
 
-            // No iniciar animación de empuje
             estaEmpujando.set(false);
-
             estaMoviendose.set(true);
             tiempoAnimacion = 0f;
 
@@ -124,88 +135,92 @@ public class Jugador {
     }
 
     public void actualizar(float delta) {
-        // La lógica de animación se maneja en actualizarAnimacion
+        actualizarAnimacion(delta);
     }
 
     public void actualizarAnimacion(float delta) {
-        // Actualizar animación de movimiento
+        // Animación movimiento
         if (estaMoviendose.get()) {
             tiempoAnimacion += delta;
-
             float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1.0f);
             progreso = 1f - (1f - progreso) * (1f - progreso);
-
-            // Actualizar posiciones de renderizado
             renderX = com.badlogic.gdx.math.MathUtils.lerp(startX, targetX, progreso);
             renderY = com.badlogic.gdx.math.MathUtils.lerp(startY, targetY, progreso);
 
-            // Verificar si la animación terminó
+            // Animación de frames normales si no empuja
+            if (!estaEmpujando.get()) {
+                tiempoAnimacionMovimiento += delta;
+                if (tiempoAnimacionMovimiento >= duracionFrameMovimiento) {
+                    frameActualMovimiento = (frameActualMovimiento + 1) % texturasMovimiento[direccion].length;
+                    tiempoAnimacionMovimiento = 0f;
+                }
+            }
+
+            // Fin de movimiento
             if (progreso >= 1.0f) {
                 estaMoviendose.set(false);
                 renderX = targetX;
                 renderY = targetY;
 
-                // Detener la animación de empuje cuando termina el movimiento
+                frameActualMovimiento = 0;
+                tiempoAnimacionMovimiento = 0f;
+
                 estaEmpujando.set(false);
                 frameActualEmpuje = 0;
                 tiempoAnimacionEmpuje = 0f;
             }
         }
 
-        // Actualizar animación de frames del jugador empujando
+        // Animación de empuje
         if (estaEmpujando.get()) {
             tiempoAnimacionEmpuje += delta;
-
             if (tiempoAnimacionEmpuje >= duracionFrameEmpuje) {
-                frameActualEmpuje = (frameActualEmpuje + 1) % texturasEmpuje.length;
+                frameActualEmpuje = (frameActualEmpuje + 1) % texturasEmpuje[direccion].length;
                 tiempoAnimacionEmpuje = 0f;
             }
         }
     }
 
     private Texture getTexturaActual() {
-        // Si está empujando, usar la animación de empuje
         if (estaEmpujando.get()) {
-            return texturasEmpuje[frameActualEmpuje];
+            return texturasEmpuje[direccion][frameActualEmpuje];
+        } else if (estaMoviendose.get()) {
+            return texturasMovimiento[direccion][frameActualMovimiento];
         }
-
-        // Si no está empujando, usar las texturas direccionales normales
         return texturasNormales[direccion];
     }
 
-    public void render() {
-        SpriteBatch batch = new SpriteBatch();
-        batch.begin();
-
+    public void render(SpriteBatch batch) {
         int jugadorWidth = 140;
         int jugadorHeight = 140;
         float offsetX = (TILE - jugadorWidth) / 2f;
         float offsetY = (TILE - jugadorHeight) / 2f;
-
         float jugadorPosX = renderX + offsetX;
         float jugadorPosY = renderY + offsetY;
 
-        Texture texturaJugadorActual = getTexturaActual();
-        batch.draw(texturaJugadorActual, jugadorPosX, jugadorPosY, jugadorWidth, jugadorHeight);
-
-        batch.end();
+        batch.draw(getTexturaActual(), jugadorPosX, jugadorPosY, jugadorWidth, jugadorHeight);
     }
 
     public void dispose() {
-        // Liberar texturas
         for (Texture tex : texturasNormales) {
             if (tex != null) {
                 tex.dispose();
             }
         }
-        for (Texture tex : texturasEmpuje) {
-            if (tex != null) {
-                tex.dispose();
+        for (int dir = 0; dir < 4; dir++) {
+            for (Texture tex : texturasEmpuje[dir]) {
+                if (tex != null) {
+                    tex.dispose();
+                }
+            }
+            for (Texture tex : texturasMovimiento[dir]) {
+                if (tex != null) {
+                    tex.dispose();
+                }
             }
         }
     }
 
-    // Getters y setters
     public int getX() {
         return x;
     }

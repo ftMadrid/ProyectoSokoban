@@ -4,6 +4,7 @@ import proyectosokoban.recursos.Eventos.Juego;
 import proyectosokoban.recursos.Main;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +16,7 @@ public class Sokoban extends Juego {
     private Music musicafondo;
     private Sound audiomove;
     private Sound sonidoVictoria;
+    private SpriteBatch batch;
 
     // Hilos para manejo de eventos en tiempo real
     private ExecutorService collisionDetector;
@@ -36,7 +38,9 @@ public class Sokoban extends Juego {
     public void inicializarRecursos() {
         // Inicialización específica de Sokoban
         nivelActual = new Nivel(1); // Nivel por defecto
-        jugador = new Jugador(nivelActual.getPosicionJugadorX(), nivelActual.getPosicionJugadorY());
+        jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY());
+
+        batch = new SpriteBatch();
 
         // Cargar sonidos
         musicafondo = com.badlogic.gdx.Gdx.audio.newMusic(com.badlogic.gdx.Gdx.files.internal("audiofondo.mp3"));
@@ -160,9 +164,13 @@ public class Sokoban extends Juego {
 
     @Override
     public void renderizar() {
-        // Renderizado específico de Sokoban
-        nivelActual.render();
-        jugador.render();
+        com.badlogic.gdx.Gdx.gl.glClearColor(0, 0, 0, 1);
+        com.badlogic.gdx.Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.begin();
+        nivelActual.render(batch);
+        jugador.render(batch);
+        batch.end();
     }
 
     public int getMovimientos() {
@@ -232,6 +240,9 @@ public class Sokoban extends Juego {
         }
         if (sonidoVictoria != null) {
             sonidoVictoria.dispose();
+        }
+        if (batch != null) {
+            batch.dispose();
         }
     }
 }

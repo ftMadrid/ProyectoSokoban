@@ -1,10 +1,6 @@
 package proyectosokoban.recursos.Eventos;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import proyectosokoban.recursos.Eventos.Pared;
-import proyectosokoban.recursos.Eventos.Suelo;
-import proyectosokoban.recursos.Eventos.Caja;
-import proyectosokoban.recursos.Eventos.Objetivo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +11,11 @@ public class Nivel {
     private List<Pared> paredes;
     private List<Suelo> suelos;
     private List<Caja> cajas;
-    private Objetivo objetivo;
+    private List<Objetivo> objetivos;
     private boolean completado = false;
+
+    private int spawnJugadorX;
+    private int spawnJugadorY;
 
     private final int TILE = 90;
     private final int FILAS = 8;
@@ -28,10 +27,13 @@ public class Nivel {
     }
 
     private void inicializar() {
-        // Inicializar el nivel según el número
+        paredes = new ArrayList<>();
+        suelos = new ArrayList<>();
+        cajas = new ArrayList<>();
+        objetivos = new ArrayList<>();
 
         switch (numero) {
-            case 1: // Nivel 1
+            case 1:
                 mapa = new int[][]{
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
@@ -42,23 +44,44 @@ public class Nivel {
                     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
                 };
+                spawnJugadorX = 2;
+                spawnJugadorY = 2;
+
+                // Cajas
+                cajas.add(new Caja(7, 3, 8, 6));
+
+                // Objetivos
+                objetivos.add(new Objetivo(8, 6));
                 break;
-            case 2: // Nivel 2
-            case 3: // Nivel 3
-            case 4: // Nivel 4
-            case 5: // Nivel 5
-            case 6: // Nivel 6
-            case 7: // Nivel 7
+
+            case 2:
+                mapa = new int[][]{
+                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+                    {1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1},
+                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+                    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
+                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+                };
+                spawnJugadorX = 1;
+                spawnJugadorY = 1;
+
+                cajas.add(new Caja(3, 3, 5, 5));
+                cajas.add(new Caja(2, 4, 6, 4));
+
+                objetivos.add(new Objetivo(5, 5));
+                objetivos.add(new Objetivo(6, 4));
+                break;
+
+            // Agregar más niveles con sus cajas, objetivos y spawn
             default:
-                System.out.println("Nada");
-                break;
+                System.out.println("Nivel no definido");
+                return;
         }
 
-        // Crear entidades basadas en el mapa
-        paredes = new ArrayList<>();
-        suelos = new ArrayList<>();
-        cajas = new ArrayList<>();
-
+        // Crear paredes y suelos
         for (int y = 0; y < FILAS; y++) {
             for (int x = 0; x < COLUMNAS; x++) {
                 if (mapa[y][x] == 1) {
@@ -68,10 +91,30 @@ public class Nivel {
                 }
             }
         }
+    }
 
-        // Añadir caja y objetivo (estos vendrían definidos en el nivel)
-        cajas.add(new Caja(4, 6, 8, 6));
-        objetivo = new Objetivo(8, 6);
+    // Renderizado ahora recibe el SpriteBatch desde Sokoban
+    public void render(SpriteBatch batch) {
+
+        // Renderizar suelos
+        for (Suelo suelo : suelos) {
+            suelo.render(batch, TILE);
+        }
+
+        // Renderizar paredes
+        for (Pared pared : paredes) {
+            pared.render(batch, TILE);
+        }
+
+        // Renderizar objetivos
+        for (Objetivo obj : objetivos) {
+            obj.render(batch, TILE);
+        }
+
+        // Renderizar cajas
+        for (Caja caja : cajas) {
+            caja.render(batch);
+        }
     }
 
     public boolean verificarVictoria() {
@@ -121,35 +164,9 @@ public class Nivel {
     }
 
     public void actualizarAnimacionCajas(float delta) {
-        // Las cajas se actualizan en el hilo de animación
         for (Caja caja : cajas) {
             caja.actualizar(delta);
         }
-    }
-
-    public void render() {
-        SpriteBatch batch = new SpriteBatch();
-        batch.begin();
-
-        // Renderizar suelos
-        for (Suelo suelo : suelos) {
-            suelo.render(batch, TILE);
-        }
-
-        // Renderizar paredes
-        for (Pared pared : paredes) {
-            pared.render(batch, TILE);
-        }
-
-        // Renderizar objetivo
-        objetivo.render(batch, TILE);
-
-        // Renderizar cajas
-        for (Caja caja : cajas) {
-            caja.render(batch);
-        }
-
-        batch.end();
     }
 
     public void dispose() {
@@ -162,23 +179,29 @@ public class Nivel {
         for (Caja caja : cajas) {
             caja.dispose();
         }
-        objetivo.dispose();
+        for (Objetivo obj : objetivos) {
+            obj.dispose();
+        }
     }
 
-    // Getters...
-    public int getPosicionJugadorX() {
-        return 2;
+    // Getters
+    public int getSpawnJugadorX() {
+        return spawnJugadorX;
     }
 
-    public int getPosicionJugadorY() {
-        return 2;
-    }
-
-    public List<Pared> getParedes() {
-        return paredes;
+    public int getSpawnJugadorY() {
+        return spawnJugadorY;
     }
 
     public List<Caja> getCajas() {
         return cajas;
+    }
+
+    public List<Objetivo> getObjetivos() {
+        return objetivos;
+    }
+
+    public List<Pared> getParedes() {
+        return paredes;
     }
 }

@@ -135,7 +135,10 @@ public class GameScreen implements Screen {
         buttonTable.add(botonVolver).size(150, 50).pad(10);
 
         dialogo.show(stage);
+        Gdx.input.setInputProcessor(stage);
     }
+
+    private boolean victoriaMostrada = false; // bandera
 
     @Override
     public void render(float delta) {
@@ -170,8 +173,10 @@ public class GameScreen implements Screen {
             }
         }
 
-        if (juegoSokoban.isJuegoGanado()) {
+        // Mostrar diálogo solo una vez
+        if (juegoSokoban.isJuegoGanado() && !victoriaMostrada) {
             mostrarDialogoVictoria();
+            victoriaMostrada = true;
         }
 
         // Renderizar
