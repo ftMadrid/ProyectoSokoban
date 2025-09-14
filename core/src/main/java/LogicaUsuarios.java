@@ -618,20 +618,59 @@ public class LogicaUsuarios {
             e.valor = hs;
             lista.add(e);
         }
-        
+
         ordenarDescPorValor(lista);
-        return formatearLeaderboard(lista,topN);
+        return formatearLeaderboard(lista, topN);
     }
-    
-    public int miPosicionEnLeaderBoardNivelAmigos(String username,int nivel){
-    List<String> tabla = leaderboardNivelAmigos(username,nivel,true,0);
-    
+
+    public int miPosicionEnLeaderBoardNivelAmigos(String username, int nivel) {
+        List<String> tabla = leaderboardNivelAmigos(username, nivel, true, 0);
+
         for (int i = 0; i < tabla.size(); i++) {
-            if(tabla.get(i).contains(". "+username+" -")){
-            return i+1;
+            if (tabla.get(i).contains(". " + username + " -")) {
+                return i + 1;
             }
         }
         return -1;
+    }
+
+    //ranking general 
+    public List<String> leaderboardGlobalTotal(int topN) {
+        List<String> usuarios = listarUsuariosRaiz();
+        List<ScoreEntry> lista = new ArrayList<>();
+
+        for (int i = 0; i < usuarios.size(); i++) {
+            String u = usuarios.get(i);
+            if (!filePerfil(u).exists()) {
+                continue;
+            }
+
+            ScoreEntry e = new ScoreEntry();
+            e.user = u;
+            e.valor = totalHighscoreUsuario(u);
+            lista.add(e);
+        }
+
+        ordenarDescPorValor(lista);
+        return formatearLeaderboard(lista, topN);
+    }
+
+    public int miPosicionEnLeaderboardGlobalTotal(String username) {
+        List<String> tabla = leaderboardGlobalTotal(0);
+        for (int i = 0; i < tabla.size(); i++) {
+            if (tabla.get(i).contains(". " + username + " -")) {
+                return i + 1;
+            }
+        }
+        return -1;
+    }
+
+    public boolean actualizarMiRankingGeneralGlobalTotal(String username) {
+        int pos = miPosicionEnLeaderboardGlobalTotal(username);
+        if (pos <= 0) {
+            return false;
+        }
+        return setRankingGeneral(username, pos);
     }
 
 }
