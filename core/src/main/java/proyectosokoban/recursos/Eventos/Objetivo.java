@@ -15,7 +15,12 @@ public class Objetivo {
     }
 
     public void render(SpriteBatch batch, int tileSize) {
-        batch.draw(textura, x * tileSize + 30, y * tileSize + 30, 40, 40);
+        float scale = 0.6f; // 80% del tile
+        float renderX = x * tileSize + (tileSize * (1 - scale) / 2f);
+        float renderY = y * tileSize + (tileSize * (1 - scale) / 2f);
+        float renderSize = tileSize * scale;
+
+        batch.draw(textura, renderX, renderY, renderSize, renderSize);
     }
 
     public void dispose() {
@@ -23,7 +28,7 @@ public class Objetivo {
             textura.dispose();
         }
     }
-    
+
     public int getX() {
         return x;
     }

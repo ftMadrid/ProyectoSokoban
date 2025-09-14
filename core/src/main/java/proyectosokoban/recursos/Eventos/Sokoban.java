@@ -1,5 +1,6 @@
 package proyectosokoban.recursos.Eventos;
 
+import com.badlogic.gdx.Gdx;
 import proyectosokoban.recursos.Eventos.Juego;
 import proyectosokoban.recursos.Main;
 import com.badlogic.gdx.audio.Music;
@@ -29,6 +30,7 @@ public class Sokoban extends Juego {
     private final AtomicBoolean juegoGanado = new AtomicBoolean(false);
 
     private volatile int movimientos = 0;
+    private volatile int empujes = 0;
 
     public Sokoban(final Main main) {
         super(main);
@@ -36,16 +38,16 @@ public class Sokoban extends Juego {
 
     @Override
     public void inicializarRecursos() {
-        // Inicialización específica de Sokoban
-        nivelActual = new Nivel(1); // Nivel por defecto
-        jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY());
+        // Inicializacion especifica de Sokoban
+        nivelActual = new Nivel(1); // Carga de niveles
+        jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY(), nivelActual.getTILE());
 
         batch = new SpriteBatch();
 
         // Cargar sonidos
-        musicafondo = com.badlogic.gdx.Gdx.audio.newMusic(com.badlogic.gdx.Gdx.files.internal("audiofondo.mp3"));
+        musicafondo = Gdx.audio.newMusic(com.badlogic.gdx.Gdx.files.internal("audiofondo.mp3"));
         musicafondo.setLooping(true);
-        musicafondo.setVolume(0.3f);
+        musicafondo.setVolume(5.0f);
         musicafondo.play();
 
         audiomove = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("movimiento.mp3"));
@@ -60,14 +62,14 @@ public class Sokoban extends Juego {
     }
 
     private void initializeThreads() {
-        // Hilo para detección de colisiones en tiempo real
+        // Hilo para deteccion de colisiones en tiempo real
         collisionDetector = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "CollisionDetector");
             t.setDaemon(true);
             return t;
         });
 
-        // Hilo para actualización de animaciones
+        // Hilo para actualizacion de animaciones
         animationUpdater = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "AnimationUpdater");
             t.setDaemon(true);
@@ -87,7 +89,7 @@ public class Sokoban extends Juego {
                         needsVictoryCheck.set(true);
                     }
 
-                    Thread.sleep(50); // Verificar cada 50ms
+                    Thread.sleep(50); // Verificar cada 50ms (es
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -108,7 +110,7 @@ public class Sokoban extends Juego {
                         float delta = (currentTime - lastTime) / 1000000000f;
                         lastTime = currentTime;
 
-                        jugador.actualizarAnimacion(delta);
+                        jugador.actualizar(delta);
                         nivelActual.actualizarAnimacionCajas(delta);
                     } else {
                         lastTime = System.nanoTime(); // Reset cuando no se está moviendo
@@ -130,8 +132,11 @@ public class Sokoban extends Juego {
             return;
         }
 
-        if (jugador.mover(dx, dy, nivelActual)) {
+        if (jugador.mover(dx, dy, nivelActual, nivelActual.getTILE())) {
             movimientos++;
+            if (jugador.estaEmpujando()) {
+                empujes++;
+            }
             playMoveSound.set(true);
         }
     }
@@ -169,12 +174,16 @@ public class Sokoban extends Juego {
 
         batch.begin();
         nivelActual.render(batch);
-        jugador.render(batch);
+        jugador.render(batch, nivelActual.getTILE());
         batch.end();
     }
 
     public int getMovimientos() {
         return movimientos;
+    }
+
+    public int getEmpujes() {
+        return empujes;
     }
 
     public boolean isJuegoGanado() {

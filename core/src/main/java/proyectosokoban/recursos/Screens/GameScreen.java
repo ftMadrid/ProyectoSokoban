@@ -25,6 +25,7 @@ public class GameScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private Label cantmoves;
+    private Label cantempujes;
 
     private volatile float tiempoDesdeUltimoMovimiento = 0f;
     private final float delayMovimiento = 0.2f;
@@ -43,6 +44,9 @@ public class GameScreen implements Screen {
 
         cantmoves = new Label("Movimientos: 0", skin);
         cantmoves.setPosition(300, Gdx.graphics.getHeight() - 60);
+
+        cantempujes = new Label("Empujes: 0", skin);
+        cantempujes.setPosition(450, Gdx.graphics.getHeight() - 60);
 
         TextButton botonVolver = new TextButton("VOLVER AL MENU", skin);
         botonVolver.setPosition(10, Gdx.graphics.getHeight() - 60);
@@ -68,6 +72,7 @@ public class GameScreen implements Screen {
 
         stage.addActor(botonVolver);
         stage.addActor(cantmoves);
+        stage.addActor(cantempujes);
 
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -75,7 +80,7 @@ public class GameScreen implements Screen {
     }
 
     private void mostrarDialogoVictoria() {
-        String mensaje = "FELICIDADES!\n\nHas completado el nivel en " + juegoSokoban.getMovimientos() + " movimientos.\n\nQuieres jugar de nuevo?";
+        String mensaje = "FELICIDADES!\n\nHas completado el nivel en " + juegoSokoban.getMovimientos()+" movimientos \nEmpujes realizados: "+juegoSokoban.getEmpujes() + ".\n\nQuieres jugar de nuevo?";
 
         Dialog dialogo = new Dialog("HAS GANADO!", skin);
 
@@ -187,6 +192,7 @@ public class GameScreen implements Screen {
 
         // Actualizar UI
         cantmoves.setText("Movimientos: " + juegoSokoban.getMovimientos());
+        cantempujes.setText("Empujes: "+ juegoSokoban.getEmpujes());
         stage.act(delta);
         stage.draw();
     }

@@ -7,7 +7,7 @@ import java.util.List;
 public class Nivel {
 
     private int numero;
-    private int[][] mapa;
+    private String[][] mapa;
     private List<Pared> paredes;
     private List<Suelo> suelos;
     private List<Caja> cajas;
@@ -17,9 +17,9 @@ public class Nivel {
     private int spawnJugadorX;
     private int spawnJugadorY;
 
-    private final int TILE = 90;
-    private final int FILAS = 8;
-    private final int COLUMNAS = 12;
+    private int TILE;
+    private int FILAS;
+    private int COLUMNAS;
 
     public Nivel(int numero) {
         this.numero = numero;
@@ -34,45 +34,82 @@ public class Nivel {
 
         switch (numero) {
             case 1:
-                mapa = new int[][]{
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1},
-                    {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-                    {1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-                    {1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+
+                FILAS = 16;
+                COLUMNAS = 12;
+                TILE = 48;
+
+                mapa = new String[][]{
+                    {" ", " ", " ", " ", " ", " ", "#", "#", "#", "#", "#", " "},
+                    {"#", "#", "#", "#", "#", "#", "#", " ", " ", " ", "#", " "},
+                    {"#", " ", " ", "#", " ", "#", "#", " ", "C", " ", "#", " "},
+                    {"#", " ", " ", " ", " ", " ", " ", " ", " ", "#", "#", " "},
+                    {"#", " ", "#", "C", " ", "C", "C", "#", " ", "#", "#", "#"},
+                    {"#", " ", "C", "C", "C", " ", " ", "#", " ", "C", " ", "#"},
+                    {"#", "#", "#", " ", " ", "C", "C", "#", " ", "#", " ", "#"},
+                    {" ", " ", "#", " ", "C", "C", " ", " ", " ", " ", " ", "#"},
+                    {" ", " ", "#", "#", "#", " ", "#", "#", "#", "#", "#", "#"},
+                    {" ", " ", " ", "#", "#", " ", "#", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", " ", " ", " ", "#", " ", " ", " ", " "},
+                    {" ", " ", " ", "#", "#", "#", "#", "#", " ", " ", " ", " "}
                 };
-                spawnJugadorX = 2;
+                spawnJugadorX = 4;
                 spawnJugadorY = 2;
 
                 // Cajas
-                cajas.add(new Caja(7, 3, 8, 6));
+                cajas.add(new Caja(8, 2, TILE));
+                cajas.add(new Caja(3, 4, TILE));
+                cajas.add(new Caja(5, 4, TILE));
+                cajas.add(new Caja(6, 4, TILE));
+                cajas.add(new Caja(2, 5, TILE));
+                cajas.add(new Caja(3, 5, TILE));
+                cajas.add(new Caja(4, 5, TILE));
+                cajas.add(new Caja(9, 5, TILE));
+                cajas.add(new Caja(5, 6, TILE));
+                cajas.add(new Caja(6, 6, TILE));
+                cajas.add(new Caja(4, 7, TILE));
+                cajas.add(new Caja(5, 7, TILE));
 
                 // Objetivos
-                objetivos.add(new Objetivo(8, 6));
+                objetivos.add(new Objetivo(4, 11));
+                objetivos.add(new Objetivo(4, 12));
+                objetivos.add(new Objetivo(4, 13));
+                objetivos.add(new Objetivo(4, 14));
+                objetivos.add(new Objetivo(5, 11));
+                objetivos.add(new Objetivo(5, 12));
+                objetivos.add(new Objetivo(5, 13));
+                objetivos.add(new Objetivo(5, 14));
+                objetivos.add(new Objetivo(6, 11));
+                objetivos.add(new Objetivo(6, 12));
+                objetivos.add(new Objetivo(6, 13));
+                objetivos.add(new Objetivo(6, 14));
                 break;
 
             case 2:
-                mapa = new int[][]{
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-                    {1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-                    {1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1},
-                    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-                };
+                FILAS = 6;
+                COLUMNAS = 6;
+                TILE = 60;
+
+                mapa = new String[][]{
+                    {"#", "#", "#", "#", "#", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", "#", "#", "#", "#", "#"},};
+
                 spawnJugadorX = 1;
                 spawnJugadorY = 1;
 
-                cajas.add(new Caja(3, 3, 5, 5));
-                cajas.add(new Caja(2, 4, 6, 4));
+                cajas.add(new Caja(2, 2, TILE));
+                cajas.add(new Caja(2, 3, TILE));
 
-                objetivos.add(new Objetivo(5, 5));
-                objetivos.add(new Objetivo(6, 4));
+                objetivos.add(new Objetivo(4, 2));
+                objetivos.add(new Objetivo(4, 3));
                 break;
 
             // Agregar más niveles con sus cajas, objetivos y spawn
@@ -84,8 +121,17 @@ public class Nivel {
         // Crear paredes y suelos
         for (int y = 0; y < FILAS; y++) {
             for (int x = 0; x < COLUMNAS; x++) {
-                if (mapa[y][x] == 1) {
-                    paredes.add(new Pared(x, y));
+                if (mapa[y][x].equals("#")) {
+                    switch (numero) {
+                        case 1:
+                            paredes.add(new Pared(x, y, "pared.png"));
+                            break;
+                        case 2:
+                            paredes.add(new Pared(x, y, "pared.png"));
+                            break;
+                        default:
+                            break;
+                    }
                 } else {
                     suelos.add(new Suelo(x, y));
                 }
@@ -113,8 +159,9 @@ public class Nivel {
 
         // Renderizar cajas
         for (Caja caja : cajas) {
-            caja.render(batch);
+            caja.render(batch, TILE);
         }
+
     }
 
     public boolean verificarVictoria() {
@@ -122,9 +169,17 @@ public class Nivel {
             return true;
         }
 
-        for (Caja caja : cajas) {
-            if (!caja.estaEnObjetivo()) {
-                return false;
+        // Para cada objetivo, debe haber alguna caja encima
+        for (Objetivo obj : objetivos) {
+            boolean encontrado = false;
+            for (Caja caja : cajas) {
+                if (caja.getX() == obj.getX() && caja.getY() == obj.getY()) {
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (!encontrado) {
+                return false; // Al menos un objetivo no tiene caja
             }
         }
 
@@ -136,7 +191,7 @@ public class Nivel {
         if (x < 0 || x >= COLUMNAS || y < 0 || y >= FILAS) {
             return true;
         }
-        return mapa[y][x] == 1;
+        return mapa[y][x].equals("#");
     }
 
     public boolean hayCajaEn(int x, int y) {
@@ -185,6 +240,10 @@ public class Nivel {
     }
 
     // Getters
+    public int getTILE() {
+        return TILE;
+    }
+
     public int getSpawnJugadorX() {
         return spawnJugadorX;
     }

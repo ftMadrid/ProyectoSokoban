@@ -17,19 +17,18 @@ public class Caja {
     private final float duracionAnimacion = 0.7f;
     private volatile float startX, startY, targetX, targetY;
 
-    private final int TILE = 90;
-    private int objetivoX, objetivoY;
+    private int TILE;
     private boolean enObjetivo = false;
 
-    public Caja(int x, int y, int objetivoX, int objetivoY) {
+    private Objetivo objetivo; // referencia al objetivo correspondiente
+
+    public Caja(int x, int y, int tile) {
         this.x = x;
         this.y = y;
+        this.TILE = tile;
         this.renderX = x * TILE;
         this.renderY = y * TILE;
-        this.objetivoX = objetivoX;
-        this.objetivoY = objetivoY;
         this.textura = new Texture("caja.png");
-        verificarObjetivo();
     }
 
     public void mover(int nuevoX, int nuevoY) {
@@ -43,12 +42,6 @@ public class Caja {
 
         estaMoviendose.set(true);
         tiempoAnimacion = 0f;
-
-        verificarObjetivo();
-    }
-
-    private void verificarObjetivo() {
-        enObjetivo = (x == objetivoX && y == objetivoY);
     }
 
     public void actualizar(float delta) {
@@ -71,10 +64,11 @@ public class Caja {
         }
     }
 
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, int TILE) {
         if (enObjetivo) {
             batch.setColor(0.5f, 1f, 0.5f, 1f);
         }
+
         batch.draw(textura, renderX, renderY, TILE, TILE);
         batch.setColor(Color.WHITE);
     }
@@ -96,12 +90,10 @@ public class Caja {
 
     public void setX(int x) {
         this.x = x;
-        verificarObjetivo();
     }
 
     public void setY(int y) {
         this.y = y;
-        verificarObjetivo();
     }
 
     public boolean estaEnObjetivo() {
