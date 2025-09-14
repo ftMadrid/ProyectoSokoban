@@ -7,12 +7,16 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MenuScreen implements Screen {
@@ -43,27 +47,47 @@ public class MenuScreen implements Screen {
     }
 
     private void crearInterfaz() {
+        Texture botonTexture = new Texture(Gdx.files.internal("boton.png"));
+        Drawable drawableBoton = new TextureRegionDrawable(new TextureRegion(botonTexture));
 
-        TextButton botonStart = new TextButton("INICIAR JUEGO", skin);
+        TextButton.TextButtonStyle botonStyle = new TextButton.TextButtonStyle();
+        botonStyle.up = drawableBoton;
+        botonStyle.down = drawableBoton;
+        botonStyle.font = skin.getFont("default-font");
 
-        botonStart.setBounds(360, 280, 270, 60);
+        TextButton botonStart = new TextButton(null, botonStyle);
+        botonStart.setBounds(310, 250, 270, 80);
+        botonStart.setTransform(true);
+        botonStart.setOrigin(botonStart.getWidth() / 2f, botonStart.getHeight() / 2f);
 
         botonStart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                main.setScreen(new GameScreen(main));
-                dispose();
+                botonStart.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.1f),
+                                Actions.scaleTo(1f, 1f, 0.1f),
+                                Actions.run(() -> {
+                                    Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
+                                    main.setScreen(new GameScreen(main));
+                                    dispose();
+                                })
+                        )
+                );
             }
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
+                // Animación de hover: agrandar
+                botonStart.addAction(Actions.scaleTo(1.1f, 1.1f, 0.2f));
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
+                // Animación de salir del hover: volver al tamaño normal
+                botonStart.addAction(Actions.scaleTo(1f, 1f, 0.2f));
             }
         });
 

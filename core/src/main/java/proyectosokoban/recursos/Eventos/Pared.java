@@ -8,10 +8,10 @@ public class Pared {
     private Texture textura;
     private int x, y;
 
-    public Pared(int x, int y) {
+    public Pared(int x, int y, String textura) {
         this.x = x;
         this.y = y;
-        this.textura = new Texture("pared.png");
+        this.textura = new Texture(textura);
     }
 
     public void render(SpriteBatch batch, int tileSize) {

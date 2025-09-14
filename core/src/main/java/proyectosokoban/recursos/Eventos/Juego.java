@@ -18,6 +18,7 @@ public abstract class Juego implements Screen {
 
     public abstract void renderizar();
 
+    @Override
     public abstract void dispose();
 
     @Override
