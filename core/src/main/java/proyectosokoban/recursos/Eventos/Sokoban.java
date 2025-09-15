@@ -39,7 +39,7 @@ public class Sokoban extends Juego {
     @Override
     public void inicializarRecursos() {
         // Inicializacion especifica de Sokoban
-        nivelActual = new Nivel(6); // Carga de niveles
+        nivelActual = new Nivel(7); // Carga de niveles
         jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY(), nivelActual.getTILE());
 
         batch = new SpriteBatch();

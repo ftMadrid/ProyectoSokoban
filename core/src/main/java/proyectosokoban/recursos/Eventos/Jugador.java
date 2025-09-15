@@ -20,7 +20,7 @@ public class Jugador {
 
     // Duraciones de animación
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.8f;
+    private final float duracionAnimacion = 1.0f;
 
     private volatile float tiempoAnimacionMovimiento = 0f;
     private volatile int frameActualMovimiento = 0;
