@@ -13,11 +13,18 @@ public class Sokoban extends Juego {
 
     private Nivel nivelActual;
     private Jugador jugador;
-    private Music musicafondo;
-    private Sound audiomove;
-    private Sound sonidoVictoria;
+    // Vuelvo las variables de audio públicas para que sean accesibles desde GameScreen
+    public Music musicafondo;
+    public Sound audiomove;
+    public Sound sonidoVictoria;
     private SpriteBatch batch;
     private int nivelNumero;
+    private String username;
+
+    // Variables para el control de volumen de los efectos de sonido
+    public float soundVolume = 1.0f;
+    public boolean isMuted = false;
+
 
     // Hilos para manejo de eventos en tiempo real
     private ExecutorService collisionDetector;
@@ -37,6 +44,12 @@ public class Sokoban extends Juego {
         this.nivelNumero = nivel;
     }
 
+    public Sokoban(final Main main, int nivel, String username) {
+        super(main);
+        this.nivelNumero = nivel;
+        this.username = username;
+    }
+
     @Override
     public void inicializarRecursos() {
         nivelActual = new Nivel(nivelNumero);
@@ -46,7 +59,7 @@ public class Sokoban extends Juego {
 
         musicafondo = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
         musicafondo.setLooping(true);
-        musicafondo.setVolume(5.0f);
+        musicafondo.setVolume(0.8f);
         musicafondo.play();
 
         audiomove = Gdx.audio.newSound(Gdx.files.internal("movimiento.mp3"));
@@ -138,7 +151,7 @@ public class Sokoban extends Juego {
             return;
         }
         if (sonidoVictoria != null) {
-            sonidoVictoria.play(0.3f);
+            sonidoVictoria.play(soundVolume);
         }
         musicafondo.pause();
     }
@@ -149,7 +162,9 @@ public class Sokoban extends Juego {
             verificarVictoria();
         }
         if (playMoveSound.getAndSet(false)) {
-            audiomove.play(0.6f);
+            if (audiomove != null && !isMuted) {
+                audiomove.play(soundVolume);
+            }
         }
         jugador.actualizar(delta);
         nivelActual.actualizar(delta);
@@ -176,6 +191,10 @@ public class Sokoban extends Juego {
 
     public int getNivelNumero() {
         return nivelNumero;
+    }
+    
+    public String getUsername() {
+        return username;
     }
 
     public boolean isJuegoGanado() {

@@ -5,6 +5,7 @@
 package proyectosokoban.recursos.Screens;
 
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
@@ -26,12 +27,17 @@ public class LevelSelectScreen implements Screen {
     private Label levelLabel;
     private int currentLevel = 1;
     private final int MAX_LEVEL = 7;
+    private int ultimoNivelDesbloqueado;
 
     public LevelSelectScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        LogicaUsuarios lu = new LogicaUsuarios();
+        ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(main.username);
+        if (ultimoNivelDesbloqueado == 0) ultimoNivelDesbloqueado = 1;
 
         createUI();
     }
@@ -59,7 +65,7 @@ public class LevelSelectScreen implements Screen {
         rightButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (currentLevel < MAX_LEVEL) {
+                if (currentLevel < MAX_LEVEL && currentLevel < ultimoNivelDesbloqueado) {
                     currentLevel++;
                     updateLevelLabel();
                 }
@@ -70,12 +76,14 @@ public class LevelSelectScreen implements Screen {
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new GameScreen(main, currentLevel));
-                dispose();
+                if (currentLevel <= ultimoNivelDesbloqueado) {
+                    main.setScreen(new GameScreen(main, currentLevel));
+                    dispose();
+                }
             }
         });
 
-        TextButton backButton = new TextButton("Volver al Menu", skin);
+        TextButton backButton = new TextButton("Volver al Menú", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -110,7 +118,7 @@ public class LevelSelectScreen implements Screen {
             currentLevel--;
             updateLevelLabel();
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) && currentLevel < MAX_LEVEL) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) && currentLevel < MAX_LEVEL && currentLevel < ultimoNivelDesbloqueado) {
             currentLevel++;
             updateLevelLabel();
         }

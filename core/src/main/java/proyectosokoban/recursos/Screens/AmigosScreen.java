@@ -19,7 +19,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-public class LoginScreen implements Screen {
+import java.util.List;
+
+public class AmigosScreen implements Screen {
 
     private final Main main;
     private Stage stage;
@@ -27,10 +29,10 @@ public class LoginScreen implements Screen {
     private LogicaUsuarios userLogic;
 
     private TextField usernameField;
-    private TextField passwordField;
     private Label messageLabel;
+    private Label amigosLabel;
 
-    public LoginScreen(final Main main) {
+    public AmigosScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -38,6 +40,7 @@ public class LoginScreen implements Screen {
         userLogic = new LogicaUsuarios();
 
         createUI();
+        updateFriendsList();
     }
 
     private void createUI() {
@@ -45,54 +48,57 @@ public class LoginScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Label title = new Label("Sokoban - Ingresar", skin);
+        Label title = new Label("Gestionar Amigos", skin);
         title.setFontScale(2.0f);
 
         usernameField = new TextField("", skin);
-        usernameField.setMessageText("Nombre de usuario");
-        passwordField = new TextField("", skin);
-        passwordField.setMessageText("Contraseña");
-        passwordField.setPasswordMode(true);
-        passwordField.setPasswordCharacter('*');
+        usernameField.setMessageText("Nombre de usuario del amigo");
 
-        TextButton loginButton = new TextButton("Iniciar Sesión", skin);
-        TextButton registerButton = new TextButton("Registrarse", skin);
+        TextButton addButton = new TextButton("Agregar Amigo", skin);
+        TextButton backButton = new TextButton("Volver al Menú", skin);
+
         messageLabel = new Label("", skin);
+        amigosLabel = new Label("Amigos:", skin);
 
         table.add(title).padBottom(20).row();
         table.add(usernameField).width(300).padBottom(10).row();
-        table.add(passwordField).width(300).padBottom(10).row();
+        table.add(addButton).size(200, 50).padBottom(10).row();
+        table.add(messageLabel).padTop(10).row();
+        table.add(amigosLabel).padTop(20).row();
+        table.add(backButton).size(200, 50).padTop(20);
 
-        Table buttonTable = new Table();
-        buttonTable.add(loginButton).size(140, 50).padRight(10);
-        buttonTable.add(registerButton).size(140, 50);
-
-        table.add(buttonTable).padBottom(10).row();
-        table.add(messageLabel).padTop(10);
-
-        loginButton.addListener(new ClickListener() {
+        addButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (userLogic.login(usernameField.getText(), passwordField.getText())) {
-                    main.username = usernameField.getText();
-                    main.setScreen(new MenuScreen(main));
-                    dispose();
+                if (userLogic.agregarAmigo(main.username, usernameField.getText())) {
+                    messageLabel.setText("Amigo agregado con éxito.");
+                    updateFriendsList();
                 } else {
-                    messageLabel.setText("Usuario o contraseña incorrectos.");
+                    messageLabel.setText("No se pudo agregar al amigo.");
                 }
             }
         });
 
-        registerButton.addListener(new ClickListener() {
+        backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (userLogic.CrearUsuario(usernameField.getText(), "DefaultName", passwordField.getText())) {
-                    messageLabel.setText("Registro exitoso. Inicie sesión.");
-                } else {
-                    messageLabel.setText("El nombre de usuario ya existe o es inválido.");
-                }
+                main.setScreen(new MenuScreen(main));
+                dispose();
             }
         });
+    }
+
+    private void updateFriendsList() {
+        List<String> amigos = userLogic.listarAmigos(main.username);
+        StringBuilder sb = new StringBuilder("Amigos:\n");
+        if (amigos.isEmpty()) {
+            sb.append("No tienes amigos agregados.");
+        } else {
+            for (String amigo : amigos) {
+                sb.append("- ").append(amigo).append("\n");
+            }
+        }
+        amigosLabel.setText(sb.toString());
     }
 
     @Override

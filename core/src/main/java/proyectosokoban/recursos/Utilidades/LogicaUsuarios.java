@@ -540,56 +540,20 @@ public class LogicaUsuarios {
         return out;
     }
 
-    public List<String> listarAmgios(String username) {
-        return listarAmigos(username);
+    private int totalHighscoreUsuario(String user) {
+        int suma = 0;
+        for (int i = 1; i <= 7; i++) {
+            File f = fileNivel(user, i);
+            if (!f.exists()) break;
+            try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
+                int hs = raf.readInt();
+                if (raf.getFilePointer() < raf.length()) raf.readByte();
+                suma += hs;
+            } catch (IOException e) {
+            }
+        }
+        return suma;
     }
-
-    //avatar
-    public boolean setAvatar(String username, byte[] data) {
-        try (FileOutputStream fos = new FileOutputStream(fileAvatar(username))) {
-            fos.write(data);
-        } catch (IOException e) {
-            return false;
-        }
-
-        File pf = filePerfil(username);
-        if (!pf.exists()) {
-            return false;
-        }
-        try (RandomAccessFile raf = new RandomAccessFile(pf, "rw")) {
-            raf.seek(0);
-            readString(raf); // user
-            readString(raf); // pass
-            readString(raf); // nombre
-            raf.readLong();  // fecha reg
-            raf.readLong();  // ultima
-            raf.readLong();  // tiempo
-            raf.readInt();   // ranking
-            raf.readInt();   // niveles
-            raf.readInt();   // suma
-            writeBool(raf, true); // avatarPresente
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    // ranking por nivel
-   
-private int totalHighscoreUsuario(String user) {
-    int suma = 0;
-    for (int i = 1; i <= 7; i++) {
-        File f = fileNivel(user, i);
-        if (!f.exists()) break;
-        try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
-            int hs = raf.readInt();
-            if (raf.getFilePointer() < raf.length()) raf.readByte();
-            suma += hs;
-        } catch (IOException e) {
-        }
-    }
-    return suma;
-}
 
     private List<String> leaderboardNivelGlobal(int nivel, int topN) {
 
@@ -608,25 +572,24 @@ private int totalHighscoreUsuario(String user) {
         ordenarDescPorValor(lista);
         return formatearLeaderboard(lista, topN);
     }
-    
-    public boolean setRankingGeneral(String username, int ranking) {
-    File pf = filePerfil(username);
-    if (!pf.exists()) return false;
-    try (RandomAccessFile raf = new RandomAccessFile(pf, "rw")) {
-        raf.seek(0);
-        readString(raf);  // username
-        readString(raf);  // password codificada
-        readString(raf);  // nombre completo
-        raf.readLong();   // fechaRegistro
-        raf.readLong();   // ultimaSesion
-        raf.readLong();   // tiempoTotalJugadoMs
-        raf.writeInt(ranking); // aqui va rankingGeneral
-        return true;
-    } catch (IOException e) {
-        return false;
-    }
-}
 
+    public boolean setRankingGeneral(String username, int ranking) {
+        File pf = filePerfil(username);
+        if (!pf.exists()) return false;
+        try (RandomAccessFile raf = new RandomAccessFile(pf, "rw")) {
+            raf.seek(0);
+            readString(raf);  // username
+            readString(raf);  // password codificada
+            readString(raf);  // nombre completo
+            raf.readLong();   // fechaRegistro
+            raf.readLong();   // ultimaSesion
+            raf.readLong();   // tiempoTotalJugadoMs
+            raf.writeInt(ranking); // aqui va rankingGeneral
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     public List<String> leaderboardNivelAmigos(String username, int nivel, boolean incluirPropio, int topN) {
         List<String> participantes = leerAmigosBasico(username);
@@ -663,7 +626,6 @@ private int totalHighscoreUsuario(String user) {
         return -1;
     }
 
-    //ranking general 
     public List<String> leaderboardGlobalTotal(int topN) {
         List<String> usuarios = listarUsuariosRaiz();
         List<ScoreEntry> lista = new ArrayList<>();
@@ -701,6 +663,4 @@ private int totalHighscoreUsuario(String user) {
         }
         return setRankingGeneral(username, pos);
     }
-
 }
-
