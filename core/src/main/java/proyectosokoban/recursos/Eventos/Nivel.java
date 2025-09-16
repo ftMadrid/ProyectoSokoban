@@ -196,7 +196,7 @@ public class Nivel {
                 
                 FILAS = 14;
                 COLUMNAS = 19;
-                TILE = 45;
+                TILE = 49;
                 
                 mapa = new String[][]{
                     {" ", " ", "#", "#", "#", "#", " ", " ", " ", " ", " ", " ", " ", "#", "#", "#", "#", "#", " "},

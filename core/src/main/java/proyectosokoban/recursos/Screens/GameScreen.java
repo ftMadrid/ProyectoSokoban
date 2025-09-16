@@ -17,6 +17,7 @@ import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Eventos.Sokoban;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 
 public class GameScreen implements Screen {
 
@@ -42,15 +43,20 @@ public class GameScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        cantmoves = new Label("Movimientos: 0", skin);
-        cantmoves.setPosition(300, Gdx.graphics.getHeight() - 60);
+        Table tablaPrincipal = new Table();
+        tablaPrincipal.setFillParent(true);
+        stage.addActor(tablaPrincipal);
 
+        // --- Panel de Controles y Estadísticas (ARRIBA) ---
+        Table panelControles = new Table(skin);
+        panelControles.setBackground("default-pane");
+        panelControles.pad(10);
+        panelControles.defaults().pad(5);
+
+        cantmoves = new Label("Movimientos: 0", skin);
         cantempujes = new Label("Empujes: 0", skin);
-        cantempujes.setPosition(450, Gdx.graphics.getHeight() - 60);
 
         TextButton botonVolver = new TextButton("VOLVER AL MENU", skin);
-        botonVolver.setPosition(10, Gdx.graphics.getHeight() - 60);
-        botonVolver.setSize(150, 50);
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -70,9 +76,20 @@ public class GameScreen implements Screen {
             }
         });
 
-        stage.addActor(botonVolver);
-        stage.addActor(cantmoves);
-        stage.addActor(cantempujes);
+        // Agrupamos los labels y el botón en una fila en el panel de controles
+        panelControles.add(cantmoves).expandX().align(Align.left);
+        panelControles.add(cantempujes).expandX().align(Align.left);
+        panelControles.add(botonVolver).width(200).height(50).align(Align.right);
+
+        // --- Panel de Juego (DEBAJO) ---
+        Table panelJuego = new Table(skin);
+
+        // --- Estructura de la Tabla Principal ---
+        // Fila 1: Panel de Controles
+        tablaPrincipal.add(panelControles).growX().pad(10).row();
+
+        // Fila 2: El área de juego que ocupa el resto del espacio
+        tablaPrincipal.add(panelJuego).expand().fill();
 
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -80,7 +97,7 @@ public class GameScreen implements Screen {
     }
 
     private void mostrarDialogoVictoria() {
-        String mensaje = "FELICIDADES!\n\nHas completado el nivel en " + juegoSokoban.getMovimientos()+" movimientos \nEmpujes realizados: "+juegoSokoban.getEmpujes() + ".\n\nQuieres jugar de nuevo?";
+        String mensaje = "FELICIDADES!\n\nHas completado el nivel en " + juegoSokoban.getMovimientos() + " movimientos \nEmpujes realizados: " + juegoSokoban.getEmpujes() + ".\n\nQuieres jugar de nuevo?";
 
         Dialog dialogo = new Dialog("HAS GANADO!", skin);
 
@@ -148,6 +165,10 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         // Actualizar el juego
+
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        juegoSokoban.renderizar();
         juegoSokoban.actualizar(delta);
 
         tiempoDesdeUltimoMovimiento += delta;
@@ -192,7 +213,7 @@ public class GameScreen implements Screen {
 
         // Actualizar UI
         cantmoves.setText("Movimientos: " + juegoSokoban.getMovimientos());
-        cantempujes.setText("Empujes: "+ juegoSokoban.getEmpujes());
+        cantempujes.setText("Empujes: " + juegoSokoban.getEmpujes());
         stage.act(delta);
         stage.draw();
     }
