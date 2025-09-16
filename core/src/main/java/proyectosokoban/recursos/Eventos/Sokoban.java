@@ -1,7 +1,6 @@
 package proyectosokoban.recursos.Eventos;
 
 import com.badlogic.gdx.Gdx;
-import proyectosokoban.recursos.Eventos.Juego;
 import proyectosokoban.recursos.Main;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -18,6 +17,7 @@ public class Sokoban extends Juego {
     private Sound audiomove;
     private Sound sonidoVictoria;
     private SpriteBatch batch;
+    private int nivelNumero;
 
     // Hilos para manejo de eventos en tiempo real
     private ExecutorService collisionDetector;
@@ -32,28 +32,27 @@ public class Sokoban extends Juego {
     private volatile int movimientos = 0;
     private volatile int empujes = 0;
 
-    public Sokoban(final Main main) {
+    public Sokoban(final Main main, int nivel) {
         super(main);
+        this.nivelNumero = nivel;
     }
 
     @Override
     public void inicializarRecursos() {
-        // Inicializacion especifica de Sokoban
-        nivelActual = new Nivel(2); // Carga de niveles
+        nivelActual = new Nivel(nivelNumero);
         jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY(), nivelActual.getTILE());
 
         batch = new SpriteBatch();
 
-        // Cargar sonidos
-        musicafondo = Gdx.audio.newMusic(com.badlogic.gdx.Gdx.files.internal("audiofondo.mp3"));
+        musicafondo = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
         musicafondo.setLooping(true);
         musicafondo.setVolume(5.0f);
         musicafondo.play();
 
-        audiomove = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("movimiento.mp3"));
+        audiomove = Gdx.audio.newSound(Gdx.files.internal("movimiento.mp3"));
 
         try {
-            sonidoVictoria = com.badlogic.gdx.Gdx.audio.newSound(com.badlogic.gdx.Gdx.files.internal("audiovictoria.mp3"));
+            sonidoVictoria = Gdx.audio.newSound(Gdx.files.internal("audiovictoria.mp3"));
         } catch (Exception e) {
             sonidoVictoria = null;
         }
@@ -62,14 +61,12 @@ public class Sokoban extends Juego {
     }
 
     private void initializeThreads() {
-        // Hilo para deteccion de colisiones en tiempo real
         collisionDetector = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "CollisionDetector");
             t.setDaemon(true);
             return t;
         });
 
-        // Hilo para actualizacion de animaciones
         animationUpdater = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "AnimationUpdater");
             t.setDaemon(true);
@@ -84,12 +81,10 @@ public class Sokoban extends Juego {
         collisionDetector.submit(() -> {
             while (gameRunning.get()) {
                 try {
-                    // Verificar victoria continuamente
                     if (!juegoGanado.get() && nivelActual.verificarVictoria()) {
                         needsVictoryCheck.set(true);
                     }
-
-                    Thread.sleep(50); // Verificar cada 50ms (es
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -109,14 +104,12 @@ public class Sokoban extends Juego {
                         long currentTime = System.nanoTime();
                         float delta = (currentTime - lastTime) / 1000000000f;
                         lastTime = currentTime;
-
                         jugador.actualizar(delta);
                         nivelActual.actualizarAnimacionCajas(delta);
                     } else {
-                        lastTime = System.nanoTime(); // Reset cuando no se está moviendo
+                        lastTime = System.nanoTime();
                     }
-
-                    Thread.sleep(16); // ~60 FPS
+                    Thread.sleep(16);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -131,7 +124,6 @@ public class Sokoban extends Juego {
         if (juegoGanado.get() || jugador.estaMoviendose()) {
             return;
         }
-
         if (jugador.mover(dx, dy, nivelActual, nivelActual.getTILE())) {
             movimientos++;
             if (jugador.estaEmpujando()) {
@@ -143,9 +135,8 @@ public class Sokoban extends Juego {
 
     public void verificarVictoria() {
         if (juegoGanado.getAndSet(true)) {
-            return; // Ya se procesó
+            return;
         }
-
         if (sonidoVictoria != null) {
             sonidoVictoria.play(0.3f);
         }
@@ -154,23 +145,20 @@ public class Sokoban extends Juego {
 
     @Override
     public void actualizar(float delta) {
-        // Verificar flags de los hilos secundarios
         if (needsVictoryCheck.getAndSet(false)) {
             verificarVictoria();
         }
-
         if (playMoveSound.getAndSet(false)) {
             audiomove.play(0.6f);
         }
-
         jugador.actualizar(delta);
         nivelActual.actualizar(delta);
     }
 
     @Override
     public void renderizar() {
-        com.badlogic.gdx.Gdx.gl.glClearColor(0, 0, 0, 1);
-        com.badlogic.gdx.Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
         nivelActual.render(batch);
@@ -186,11 +174,14 @@ public class Sokoban extends Juego {
         return empujes;
     }
 
+    public int getNivelNumero() {
+        return nivelNumero;
+    }
+
     public boolean isJuegoGanado() {
         return juegoGanado.get();
     }
 
-    // Implementación de los métodos de Screen que faltaban
     @Override
     public void render(float delta) {
         actualizar(delta);
@@ -199,27 +190,22 @@ public class Sokoban extends Juego {
 
     @Override
     public void show() {
-        // Lógica cuando se muestra la pantalla
     }
 
     @Override
     public void resize(int width, int height) {
-        // Lógica para redimensionamiento
     }
 
     @Override
     public void pause() {
-        // Lógica cuando se pausa el juego
     }
 
     @Override
     public void resume() {
-        // Lógica cuando se reanuda el juego
     }
 
     @Override
     public void hide() {
-        // Lógica cuando se oculta la pantalla
     }
 
     @Override
@@ -233,7 +219,6 @@ public class Sokoban extends Juego {
             animationUpdater.shutdown();
         }
 
-        // Liberar recursos específicos de Sokoban
         if (jugador != null) {
             jugador.dispose();
         }

@@ -55,21 +55,21 @@ public class MenuScreen implements Screen {
         botonStyle.down = drawableBoton;
         botonStyle.font = skin.getFont("default-font");
 
-        TextButton botonStart = new TextButton(null, botonStyle);
-        botonStart.setBounds(310, 250, 270, 80);
-        botonStart.setTransform(true);
-        botonStart.setOrigin(botonStart.getWidth() / 2f, botonStart.getHeight() / 2f);
+        TextButton botonNiveles = new TextButton("SELECCIONAR NIVEL", botonStyle);
+        botonNiveles.setBounds(310, 250, 270, 80);
+        botonNiveles.setTransform(true);
+        botonNiveles.setOrigin(botonNiveles.getWidth() / 2f, botonNiveles.getHeight() / 2f);
 
-        botonStart.addListener(new ClickListener() {
+        botonNiveles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                botonStart.addAction(
+                botonNiveles.addAction(
                         Actions.sequence(
                                 Actions.scaleTo(0.9f, 0.9f, 0.1f),
                                 Actions.scaleTo(1f, 1f, 0.1f),
                                 Actions.run(() -> {
                                     Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                                    main.setScreen(new GameScreen(main));
+                                    main.setScreen(new LevelSelectScreen(main));
                                     dispose();
                                 })
                         )
@@ -79,19 +79,16 @@ public class MenuScreen implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
-                // Animación de hover: agrandar
-                botonStart.addAction(Actions.scaleTo(1.1f, 1.1f, 0.2f));
+                botonNiveles.addAction(Actions.scaleTo(1.1f, 1.1f, 0.2f));
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                // Animación de salir del hover: volver al tamaño normal
-                botonStart.addAction(Actions.scaleTo(1f, 1f, 0.2f));
+                botonNiveles.addAction(Actions.scaleTo(1f, 1f, 0.2f));
             }
         });
-
-        stage.addActor(botonStart);
+        stage.addActor(botonNiveles);
     }
 
     @Override

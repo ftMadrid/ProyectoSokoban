@@ -10,6 +10,7 @@ import java.util.List;
 public class LogicaUsuarios {
 
     private final File raiz;
+    public static String usuarioLogged = null;
 
     public LogicaUsuarios() {
         raiz = new File("Usuarios");
@@ -50,7 +51,7 @@ public class LogicaUsuarios {
         return new File(dirUsuario(username), "avatar.bin");
     }
 
-    //helpers 
+    //helpers
     private void writeString(RandomAccessFile raf, String s) throws IOException {
         if (s == null) {
             s = "";
@@ -69,7 +70,7 @@ public class LogicaUsuarios {
             return "";
         }
         byte[] data = new byte[len];
-        raf.readFully(data); // <- FALTABA
+        raf.readFully(data);
         return new String(data, "UTF-8");
     }
 
@@ -104,8 +105,7 @@ public class LogicaUsuarios {
             return 0;
         }
         try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
-            int hs = raf.readInt(); // primer entero del archivo
-            // raf.readByte(); // byte "completado", no necesario para ranking
+            int hs = raf.readInt();
             return hs;
         } catch (IOException e) {
             return 0;
@@ -191,7 +191,7 @@ public class LogicaUsuarios {
         }
     }
 
-    // Perfil 
+    // Perfil
     public boolean CrearUsuario(String username, String nombreCompleto, String password) {
         try {
             File du = dirUsuario(username);
@@ -230,7 +230,8 @@ public class LogicaUsuarios {
 
             // historial, prefs, amigos
             try (RandomAccessFile h = new RandomAccessFile(fileHistorial(username), "rw")) {
-                /* vacio */ }
+                /* vacio */
+            }
             try (RandomAccessFile p = new RandomAccessFile(filePrefs(username), "rw")) {
                 p.setLength(0);
                 p.writeInt(100); // volumen
@@ -271,6 +272,7 @@ public class LogicaUsuarios {
 
             raf.seek(posUltima);
             raf.writeLong(System.currentTimeMillis());
+            usuarioLogged = username;
             return true;
         } catch (IOException e) {
             return false;
@@ -414,7 +416,7 @@ public class LogicaUsuarios {
     }
 
     public int ultimoNivelDesbloqueado(String username) {
-        for (int i = 7; i >= 1; i--) { // <- condicion corregida
+        for (int i = 7; i >= 1; i--) {
             if (fileNivel(username, i).exists()) {
                 return i;
             }
@@ -701,3 +703,4 @@ private int totalHighscoreUsuario(String user) {
     }
 
 }
+

@@ -1,6 +1,6 @@
 package proyectosokoban.recursos;
 
-import proyectosokoban.recursos.Screens.MenuScreen;
+import proyectosokoban.recursos.Screens.LoginScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,7 +14,7 @@ public class Main extends Game {
         batch = new SpriteBatch();
         font = new BitmapFont();
         
-        this.setScreen(new MenuScreen(this));
+        this.setScreen(new LoginScreen(this));
     }
     
     @Override

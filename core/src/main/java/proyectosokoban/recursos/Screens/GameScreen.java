@@ -30,11 +30,11 @@ public class GameScreen implements Screen {
 
     private volatile float tiempoDesdeUltimoMovimiento = 0f;
     private final float delayMovimiento = 0.2f;
+    private boolean victoriaMostrada = false;
 
-    public GameScreen(final Main main) {
+    public GameScreen(final Main main, int nivel) {
         this.main = main;
-        this.juegoSokoban = new Sokoban(main);
-
+        this.juegoSokoban = new Sokoban(main, nivel);
         initializeUI();
         juegoSokoban.inicializarRecursos();
     }
@@ -47,7 +47,6 @@ public class GameScreen implements Screen {
         tablaPrincipal.setFillParent(true);
         stage.addActor(tablaPrincipal);
 
-        // --- Panel de Controles y Estadísticas (ARRIBA) ---
         Table panelControles = new Table(skin);
         panelControles.setBackground("default-pane");
         panelControles.pad(10);
@@ -76,19 +75,13 @@ public class GameScreen implements Screen {
             }
         });
 
-        // Agrupamos los labels y el botón en una fila en el panel de controles
         panelControles.add(cantmoves).expandX().align(Align.left);
         panelControles.add(cantempujes).expandX().align(Align.left);
         panelControles.add(botonVolver).width(200).height(50).align(Align.right);
 
-        // --- Panel de Juego (DEBAJO) ---
         Table panelJuego = new Table(skin);
 
-        // --- Estructura de la Tabla Principal ---
-        // Fila 1: Panel de Controles
         tablaPrincipal.add(panelControles).growX().pad(10).row();
-
-        // Fila 2: El área de juego que ocupa el resto del espacio
         tablaPrincipal.add(panelJuego).expand().fill();
 
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -100,7 +93,6 @@ public class GameScreen implements Screen {
         String mensaje = "FELICIDADES!\n\nHas completado el nivel en " + juegoSokoban.getMovimientos() + " movimientos \nEmpujes realizados: " + juegoSokoban.getEmpujes() + ".\n\nQuieres jugar de nuevo?";
 
         Dialog dialogo = new Dialog("HAS GANADO!", skin);
-
         Label mensajeLabel = new Label(mensaje, skin);
         mensajeLabel.setWrap(true);
 
@@ -111,7 +103,7 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                main.setScreen(new GameScreen(main));
+                main.setScreen(new GameScreen(main, juegoSokoban.getNivelNumero()));
                 dispose();
                 dialogo.hide();
             }
@@ -149,10 +141,8 @@ public class GameScreen implements Screen {
 
         Table contentTable = dialogo.getContentTable();
         contentTable.add(mensajeLabel).width(400).pad(20).row();
-
         Table buttonTable = dialogo.getButtonTable();
         buttonTable.clearChildren();
-
         buttonTable.add(botonJugarDeNuevo).size(150, 50).pad(10);
         buttonTable.add(botonVolver).size(150, 50).pad(10);
 
@@ -160,20 +150,11 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
-    private boolean victoriaMostrada = false; // bandera
-
     @Override
     public void render(float delta) {
-        // Actualizar el juego
-
-        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        juegoSokoban.renderizar();
         juegoSokoban.actualizar(delta);
-
         tiempoDesdeUltimoMovimiento += delta;
 
-        // Manejar entrada del usuario
         if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !juegoSokoban.isJuegoGanado()) {
             boolean seMovio = false;
 
@@ -199,19 +180,15 @@ public class GameScreen implements Screen {
             }
         }
 
-        // Mostrar diálogo solo una vez
         if (juegoSokoban.isJuegoGanado() && !victoriaMostrada) {
             mostrarDialogoVictoria();
             victoriaMostrada = true;
         }
 
-        // Renderizar
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         juegoSokoban.renderizar();
 
-        // Actualizar UI
         cantmoves.setText("Movimientos: " + juegoSokoban.getMovimientos());
         cantempujes.setText("Empujes: " + juegoSokoban.getEmpujes());
         stage.act(delta);
