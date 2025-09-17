@@ -15,7 +15,7 @@ public class Pared {
     }
 
     public void render(SpriteBatch batch, int tileSize) {
-        batch.draw(textura, x * tileSize, y * tileSize, tileSize, tileSize);
+        batch.draw(textura, x * tileSize, y * tileSize, tileSize+10, tileSize+10);
     }
 
     public void dispose() {
