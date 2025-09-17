@@ -48,7 +48,6 @@ public class GameScreen implements Screen {
         this.score = scoreBase;
         initializeUI();
         juegoSokoban.inicializarRecursos();
-        aplicarPreferenciasDeAudio();
     }
 
     private void initializeUI() {
@@ -103,22 +102,6 @@ public class GameScreen implements Screen {
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(multiplexer);
-    }
-    
-    private void aplicarPreferenciasDeAudio() {
-        LogicaUsuarios lu = new LogicaUsuarios();
-        if (main.username != null) {
-            int[] prefs = lu.getPreferencias(main.username);
-            int volumen = prefs[0];
-            boolean mute = prefs[3] == 1;
-
-            float vol = volumen / 100f;
-            juegoSokoban.musicafondo.setVolume(mute ? 0 : vol);
-            juegoSokoban.soundVolume = mute ? 0 : vol;
-            juegoSokoban.isMuted = mute;
-
-            if (juegoSokoban.sonidoVictoria != null) juegoSokoban.sonidoVictoria.play(0);
-        }
     }
 
     private void mostrarDialogoVictoria() {

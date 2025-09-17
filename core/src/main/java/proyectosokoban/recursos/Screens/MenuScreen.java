@@ -15,9 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -31,31 +28,22 @@ public class MenuScreen implements Screen {
     private Music musicafondo;
     private SpriteBatch batch;
     private Texture fondoTexture;
-    
-    private Table preferencesTable;
-    private Slider volumenSlider;
-    private TextButton muteButton;
-    private LogicaUsuarios userLogic;
-    private float lastVolume;
-    private boolean isMuted;
 
     public MenuScreen(final Main main) {
         this.main = main;
-        this.userLogic = new LogicaUsuarios();
 
         batch = new SpriteBatch();
         fondoTexture = new Texture("mainfondo.png");
 
         musicafondo = Gdx.audio.newMusic(Gdx.files.internal("main.mp3"));
         musicafondo.setLooping(true);
-        
+        musicafondo.play();
+
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         crearInterfaz();
-        cargarPreferencias();
-        musicafondo.play();
     }
 
     private void crearInterfaz() {
@@ -74,9 +62,11 @@ public class MenuScreen implements Screen {
         TextButton botonNiveles = new TextButton("SELECCIONAR NIVEL", botonStyle);
         TextButton botonAmigos = new TextButton("AMIGOS", botonStyle);
         TextButton botonSalir = new TextButton("SALIR", botonStyle);
+        TextButton botonPreferencias = new TextButton("PREFERENCIAS", botonStyle);
 
         mainTable.add(botonNiveles).size(270, 80).padBottom(20).row();
         mainTable.add(botonAmigos).size(270, 80).padBottom(20).row();
+        mainTable.add(botonPreferencias).size(270, 80).padBottom(20).row();
         mainTable.add(botonSalir).size(270, 80).padBottom(20).row();
 
         botonNiveles.addListener(new ClickListener() {
@@ -102,94 +92,13 @@ public class MenuScreen implements Screen {
             }
         });
         
-        // Controles de volumen en un panel que se muestra/oculta
-        preferencesTable = new Table(skin);
-        preferencesTable.setBackground("default-pane");
-        preferencesTable.pad(10);
-        preferencesTable.setVisible(false);
-
-        preferencesTable.add(new Label("Volumen:", skin)).padRight(10);
-        volumenSlider = new Slider(0, 100, 1, false, skin);
-        preferencesTable.add(volumenSlider).width(200);
-
-        muteButton = new TextButton("Mute: OFF", skin);
-        preferencesTable.add(muteButton).padLeft(20);
-
-        preferencesTable.setPosition(stage.getWidth() - preferencesTable.getWidth() - 20, stage.getHeight() - preferencesTable.getHeight() - 20);
-        stage.addActor(preferencesTable);
-
-        TextButton preferencesButton = new TextButton("Preferencias", skin);
-        preferencesButton.setPosition(stage.getWidth() - preferencesButton.getWidth() - 10, stage.getHeight() - preferencesButton.getHeight() - 10);
-        preferencesButton.addListener(new ClickListener() {
+        botonPreferencias.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                preferencesTable.setVisible(!preferencesTable.isVisible());
+                main.setScreen(new PreferenciasScreen(main));
+                dispose();
             }
         });
-        stage.addActor(preferencesButton);
-
-        volumenSlider.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                float volumen = volumenSlider.getValue() / 100f;
-                musicafondo.setVolume(volumen);
-                if (volumen > 0) {
-                    isMuted = false;
-                    muteButton.setText("Mute: OFF");
-                } else {
-                    isMuted = true;
-                    muteButton.setText("Mute: ON");
-                }
-                guardarPreferencias();
-            }
-        });
-
-        muteButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                isMuted = !isMuted;
-                if (isMuted) {
-                    lastVolume = musicafondo.getVolume();
-                    musicafondo.setVolume(0);
-                    muteButton.setText("Mute: ON");
-                    volumenSlider.setValue(0);
-                } else {
-                    if (lastVolume == 0) lastVolume = 0.8f;
-                    musicafondo.setVolume(lastVolume);
-                    muteButton.setText("Mute: OFF");
-                    volumenSlider.setValue((int)(lastVolume * 100));
-                }
-                guardarPreferencias();
-            }
-        });
-    }
-
-    private void cargarPreferencias() {
-        if (main.username != null) {
-            int[] prefs = userLogic.getPreferencias(main.username);
-            int volumen = prefs[0];
-            boolean mute = prefs[3] == 1;
-            
-            lastVolume = volumen / 100f;
-            isMuted = mute;
-
-            musicafondo.setVolume(mute ? 0 : lastVolume);
-            volumenSlider.setValue(mute ? 0 : volumen);
-            muteButton.setText(mute ? "Mute: ON" : "Mute: OFF");
-        } else {
-            lastVolume = 0.8f;
-            isMuted = false;
-            volumenSlider.setValue(80);
-            musicafondo.setVolume(lastVolume);
-            muteButton.setText("Mute: OFF");
-        }
-    }
-
-    private void guardarPreferencias() {
-        if (main.username != null) {
-            int volumen = (int) volumenSlider.getValue();
-            userLogic.setPreferencias(main.username, volumen, (byte) 0, (byte) 0, isMuted);
-        }
     }
 
     @Override
