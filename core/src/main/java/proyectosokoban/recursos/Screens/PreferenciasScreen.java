@@ -4,6 +4,7 @@ import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -42,9 +43,9 @@ public class PreferenciasScreen implements Screen {
 
     private void createUI() {
         Table table = new Table(skin);
-        table.setFillParent(true);
-        stage.addActor(table);
-
+        table.setBackground("default-pane");
+        table.pad(20);
+        
         Label title = new Label("Preferencias", skin);
         title.setFontScale(2.0f);
         table.add(title).padBottom(40).row();
@@ -62,6 +63,11 @@ public class PreferenciasScreen implements Screen {
 
         TextButton backButton = new TextButton("Volver", skin);
         table.add(backButton).size(300, 50);
+        
+        table.pack();
+        table.setPosition((stage.getWidth() - table.getWidth()) / 2, (stage.getHeight() - table.getHeight()) / 2);
+        stage.addActor(table);
+
 
         volumenSlider.addListener(new ChangeListener() {
             @Override
