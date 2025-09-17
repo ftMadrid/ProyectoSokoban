@@ -179,6 +179,15 @@ public class LogicaUsuarios {
         }
         return new String(a);
     }
+    
+    // Nuevo método para convertir la contraseña a hexadecimal
+    private String toHexString(String s) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            sb.append(Integer.toHexString(c));
+        }
+        return sb.toString();
+    }
 
     private void crearNivelSiNoExiste(String username, int nivel, int scoreInicial, boolean completado) throws IOException {
         File f = fileNivel(username, nivel);
@@ -208,6 +217,9 @@ public class LogicaUsuarios {
             crearNivelSiNoExiste(username, 1, 0, false);
 
             long ahora = System.currentTimeMillis();
+            
+            // Convertimos la contraseña a hexadecimal
+            String passHex = toHexString(password);
 
             try (RandomAccessFile raf = new RandomAccessFile(filePerfil(username), "rw")) {
                 raf.setLength(0);
@@ -217,7 +229,7 @@ public class LogicaUsuarios {
                 // nivelesCompletados, puntuacionAcumulada,
                 // avatarPresente
                 writeString(raf, username);
-                writeString(raf, encodePass(password));
+                writeString(raf, passHex);
                 writeString(raf, nombreCompleto);
                 raf.writeLong(ahora);
                 raf.writeLong(ahora);
@@ -259,19 +271,25 @@ public class LogicaUsuarios {
         try (RandomAccessFile raf = new RandomAccessFile(pf, "rw")) {
             raf.seek(0);
             String u = readString(raf);
-            String passCod = readString(raf);
-            String nombre = readString(raf);
-            long fechaReg = raf.readLong();
-            long posUltima = raf.getFilePointer();
-            long ultima = raf.readLong();
-
-            boolean ok = passCod.equals(encodePass(password));
+            String passHex = readString(raf);
+            
+            // Verificamos la contraseña en formato hexadecimal
+            boolean ok = passHex.equals(toHexString(password));
             if (!ok) {
                 return false;
             }
-
+            
+            // Si el login es exitoso, actualizamos la última sesión
+            raf.seek(raf.getFilePointer() - passHex.length() - 4 - username.length() - 4); // Nos movemos al inicio del archivo
+            readString(raf); // Leemos el username para avanzar el puntero
+            readString(raf); // Leemos la contraseña codificada
+            readString(raf); // Leemos el nombre
+            raf.readLong();  // Leemos la fecha de registro
+            long posUltima = raf.getFilePointer(); // Guardamos la posición de la última sesión
+            raf.readLong();  // Leemos la última sesión
             raf.seek(posUltima);
             raf.writeLong(System.currentTimeMillis());
+            
             usuarioLogged = username;
             return true;
         } catch (IOException e) {
@@ -540,6 +558,41 @@ public class LogicaUsuarios {
         return out;
     }
 
+    public List<String> listarAmgios(String username) {
+        return listarAmigos(username);
+    }
+
+    //avatar
+    public boolean setAvatar(String username, byte[] data) {
+        try (FileOutputStream fos = new FileOutputStream(fileAvatar(username))) {
+            fos.write(data);
+        } catch (IOException e) {
+            return false;
+        }
+
+        File pf = filePerfil(username);
+        if (!pf.exists()) {
+            return false;
+        }
+        try (RandomAccessFile raf = new RandomAccessFile(pf, "rw")) {
+            raf.seek(0);
+            readString(raf); // user
+            readString(raf); // pass
+            readString(raf); // nombre
+            raf.readLong();  // fecha reg
+            raf.readLong();  // ultima
+            raf.readLong();  // tiempo
+            raf.readInt();   // ranking
+            raf.readInt();   // niveles
+            raf.readInt();   // suma
+            writeBool(raf, true); // avatarPresente
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // ranking por nivel
     private int totalHighscoreUsuario(String user) {
         int suma = 0;
         for (int i = 1; i <= 7; i++) {
