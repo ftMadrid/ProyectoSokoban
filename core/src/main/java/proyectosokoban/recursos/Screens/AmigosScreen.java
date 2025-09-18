@@ -4,22 +4,21 @@
  */
 package proyectosokoban.recursos.Screens;
 
-import proyectosokoban.recursos.Main;
-import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.List;
+import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class AmigosScreen implements Screen {
 
@@ -44,34 +43,40 @@ public class AmigosScreen implements Screen {
     }
 
     private void createUI() {
-        Table table = new Table();
+        Table table = new Table(skin);
+        table.setBackground("default-pane");
+        table.pad(20);
         table.setFillParent(true);
         stage.addActor(table);
 
         Label title = new Label("Gestionar Amigos", skin);
         title.setFontScale(2.0f);
+        table.add(title).padBottom(40).colspan(2).row();
 
+        table.add(new Label("Usuario:", skin)).padRight(10);
         usernameField = new TextField("", skin);
         usernameField.setMessageText("Nombre de usuario del amigo");
+        table.add(usernameField).width(300).padBottom(10).row();
+
 
         TextButton addButton = new TextButton("Agregar Amigo", skin);
-        TextButton backButton = new TextButton("Volver al Menú", skin);
+        table.add(addButton).colspan(2).size(300, 50).padTop(20).row();
 
         messageLabel = new Label("", skin);
-        amigosLabel = new Label("Amigos:", skin);
+        table.add(messageLabel).colspan(2).padTop(10).row();
 
-        table.add(title).padBottom(20).row();
-        table.add(usernameField).width(300).padBottom(10).row();
-        table.add(addButton).size(200, 50).padBottom(10).row();
-        table.add(messageLabel).padTop(10).row();
-        table.add(amigosLabel).padTop(20).row();
-        table.add(backButton).size(200, 50).padTop(20);
+        amigosLabel = new Label("Amigos:", skin);
+        table.add(amigosLabel).colspan(2).padTop(20).row();
+
+        TextButton backButton = new TextButton("Volver al Menu", skin);
+        table.add(backButton).colspan(2).size(300, 50).padTop(20);
+
 
         addButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (userLogic.agregarAmigo(main.username, usernameField.getText())) {
-                    messageLabel.setText("Amigo agregado con éxito.");
+                    messageLabel.setText("Amigo agregado con exito.");
                     updateFriendsList();
                 } else {
                     messageLabel.setText("No se pudo agregar al amigo.");

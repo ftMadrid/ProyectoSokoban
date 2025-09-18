@@ -528,6 +528,9 @@ public class LogicaUsuarios {
 
     //amigos
     public boolean agregarAmigo(String username, String amigo) {
+        if (listarAmigos(username).contains(amigo)) {
+            return false;
+        }
         try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
             raf.seek(0);
             int n = raf.readInt();

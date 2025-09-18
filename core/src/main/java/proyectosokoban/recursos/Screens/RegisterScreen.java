@@ -20,7 +20,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
-public class LoginScreen implements Screen {
+public class RegisterScreen implements Screen {
 
     private final Main main;
     private Stage stage;
@@ -28,10 +28,11 @@ public class LoginScreen implements Screen {
     private LogicaUsuarios userLogic;
 
     private TextField usernameField;
+    private TextField fullnameField;
     private TextField passwordField;
     private Label messageLabel;
 
-    public LoginScreen(final Main main) {
+    public RegisterScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -48,7 +49,7 @@ public class LoginScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Label title = new Label("Sokoban - Ingresar", skin);
+        Label title = new Label("Registro de Usuario", skin);
         title.setFontScale(2.0f);
         table.add(title).padBottom(40).colspan(2).row();
 
@@ -56,46 +57,48 @@ public class LoginScreen implements Screen {
         usernameField = new TextField("", skin);
         table.add(usernameField).width(300).padBottom(10).row();
 
+        table.add(new Label("Nombre Completo:", skin)).padRight(10);
+        fullnameField = new TextField("", skin);
+        table.add(fullnameField).width(300).padBottom(10).row();
+
         table.add(new Label("Contraseña:", skin)).padRight(10);
         passwordField = new TextField("", skin);
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
         table.add(passwordField).width(300).padBottom(10).row();
 
-        TextButton loginButton = new TextButton("Iniciar Sesion", skin);
-        table.add(loginButton).colspan(2).size(300, 50).padTop(20).row();
+        TextButton registerButton = new TextButton("Registrarse", skin);
+        table.add(registerButton).colspan(2).size(300, 50).padTop(20).row();
 
         messageLabel = new Label("", skin);
         table.add(messageLabel).colspan(2).padTop(10).row();
 
-        Table registerLinkTable = new Table();
-        Label noAccountLabel = new Label("No tienes cuenta?", skin);
-        registerLinkTable.add(noAccountLabel).padRight(5);
+        Table loginLinkTable = new Table();
+        Label alreadyAccountLabel = new Label("Ya tienes usuario?", skin);
+        loginLinkTable.add(alreadyAccountLabel).padRight(5);
 
-        TextButton registerButton = new TextButton("Registrate", skin, "toggle");
-        registerButton.getLabel().setColor(Color.CYAN);
-        registerLinkTable.add(registerButton);
+        TextButton loginButton = new TextButton("Login", skin, "toggle");
+        loginButton.getLabel().setColor(Color.CYAN);
+        loginLinkTable.add(loginButton);
 
-        table.add(registerLinkTable).colspan(2).padTop(20);
+        table.add(loginLinkTable).colspan(2).padTop(20);
 
-
-        loginButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (userLogic.login(usernameField.getText(), passwordField.getText())) {
-                    main.username = usernameField.getText();
-                    main.setScreen(new MenuScreen(main));
-                    dispose();
-                } else {
-                    messageLabel.setText("Usuario o contraseña incorrectos.");
-                }
-            }
-        });
 
         registerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new RegisterScreen(main));
+                if (userLogic.CrearUsuario(usernameField.getText(), fullnameField.getText(), passwordField.getText())) {
+                    messageLabel.setText("Registro exitoso. Ahora puedes iniciar sesion.");
+                } else {
+                    messageLabel.setText("El nombre de usuario ya existe o es invalido.");
+                }
+            }
+        });
+
+        loginButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                main.setScreen(new LoginScreen(main));
                 dispose();
             }
         });

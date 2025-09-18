@@ -1,21 +1,21 @@
 package proyectosokoban.recursos.Screens;
 
-import proyectosokoban.recursos.Main;
-import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class PreferenciasScreen implements Screen {
 
@@ -45,29 +45,24 @@ public class PreferenciasScreen implements Screen {
         Table table = new Table(skin);
         table.setBackground("default-pane");
         table.pad(20);
+        table.setFillParent(true);
+        stage.addActor(table);
         
         Label title = new Label("Preferencias", skin);
         title.setFontScale(2.0f);
-        table.add(title).padBottom(40).row();
+        table.add(title).padBottom(40).colspan(2).row();
         
-        Table audioTable = new Table();
-        audioTable.add(new Label("Volumen:", skin)).padRight(10);
+        table.add(new Label("Volumen:", skin)).padRight(10);
         
         volumenSlider = new Slider(0, 100, 1, false, skin);
-        audioTable.add(volumenSlider).width(300).row();
+        table.add(volumenSlider).width(300).row();
 
         muteButton = new TextButton("Silenciar", skin);
-        audioTable.add(muteButton).colspan(2).padTop(20).size(300, 50).row();
-
-        table.add(audioTable).padBottom(40).row();
+        table.add(muteButton).colspan(2).padTop(20).size(300, 50).row();
 
         TextButton backButton = new TextButton("Volver", skin);
-        table.add(backButton).size(300, 50);
+        table.add(backButton).colspan(2).size(300, 50).padTop(20);
         
-        table.pack();
-        table.setPosition((stage.getWidth() - table.getWidth()) / 2, (stage.getHeight() - table.getHeight()) / 2);
-        stage.addActor(table);
-
 
         volumenSlider.addListener(new ChangeListener() {
             @Override
@@ -140,6 +135,8 @@ public class PreferenciasScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
