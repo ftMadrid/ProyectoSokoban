@@ -20,7 +20,7 @@ public class Objetivo {
         float renderY = y * tileSize + (tileSize * (1 - scale) / 2f);
         float renderSize = tileSize * scale;
 
-        batch.draw(textura, renderX, renderY, renderSize, renderSize);
+        batch.draw(textura, renderX-5, renderY-5, renderSize+10, renderSize+10);
     }
 
     public void dispose() {

@@ -69,7 +69,7 @@ public class Caja {
             batch.setColor(0.5f, 1f, 0.5f, 1f);
         }
 
-        batch.draw(textura, renderX, renderY, TILE, TILE);
+        batch.draw(textura, renderX+2, renderY+2, TILE-5, TILE-5);
         batch.setColor(Color.WHITE);
     }
 
