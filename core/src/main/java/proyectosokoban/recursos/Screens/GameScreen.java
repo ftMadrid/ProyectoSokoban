@@ -8,17 +8,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import proyectosokoban.recursos.Main;
-import proyectosokoban.recursos.Eventos.Sokoban;
-import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import proyectosokoban.recursos.Eventos.Sokoban;
+import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class GameScreen implements Screen {
 
@@ -31,7 +31,7 @@ public class GameScreen implements Screen {
     private Label scoreLabel;
     private Label timeLabel;
 
-    private volatile float tiempoDesdeUltimoMovimiento = 0f;
+    private float tiempoDesdeUltimoMovimiento = 0f;
     private final float delayMovimiento = 0.2f;
     private boolean victoriaMostrada = false;
 
@@ -39,6 +39,8 @@ public class GameScreen implements Screen {
     private int score;
     private float tiempoDeJuego;
     private int scoreBase = 10000;
+    
+    private int keyUp, keyDown, keyLeft, keyRight;
 
     public GameScreen(final Main main, int nivel) {
         this.main = main;
@@ -46,8 +48,19 @@ public class GameScreen implements Screen {
         this.juegoSokoban = new Sokoban(main, nivel);
         this.tiempoDeJuego = 0;
         this.score = scoreBase;
+        
+        loadControls(); 
         initializeUI();
         juegoSokoban.inicializarRecursos();
+    }
+
+    private void loadControls() {
+        LogicaUsuarios lu = new LogicaUsuarios();
+        int[] prefs = lu.getPreferencias(main.username);
+        this.keyUp = prefs[4];
+        this.keyDown = prefs[5];
+        this.keyLeft = prefs[6];
+        this.keyRight = prefs[7];
     }
 
     private void initializeUI() {
@@ -72,19 +85,8 @@ public class GameScreen implements Screen {
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
                 main.setScreen(new MenuScreen(main));
                 dispose();
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -93,76 +95,31 @@ public class GameScreen implements Screen {
         panelControles.add(scoreLabel).expandX().align(Align.center);
         panelControles.add(timeLabel).expandX().align(Align.right);
         panelControles.add(botonVolver).width(200).height(50).align(Align.right);
-
-        Table panelJuego = new Table(skin);
-
+        
         tablaPrincipal.add(panelControles).growX().pad(10).row();
-        tablaPrincipal.add(panelJuego).expand().fill();
+        tablaPrincipal.add().expand().fill();
 
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        Gdx.input.setInputProcessor(multiplexer);
-    }
-
-    private void mostrarDialogoVictoria() {
-        String mensaje = "FELICIDADES!\n\nHas completado el nivel con un puntaje de " + Math.max(0, score) + ".\n\nQuieres jugar de nuevo?";
-
-        Dialog dialogo = new Dialog("HAS GANADO!", skin);
-        Label mensajeLabel = new Label(mensaje, skin);
-        mensajeLabel.setWrap(true);
-
-        TextButton botonJugarDeNuevo = new TextButton("Jugar de nuevo", skin);
-        TextButton botonVolver = new TextButton("Volver al menu", skin);
-
-        botonJugarDeNuevo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                main.setScreen(new GameScreen(main, nivelActual));
-                dispose();
-                dialogo.hide();
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-            }
-        });
-
-        botonVolver.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-                main.setScreen(new MenuScreen(main));
-                dispose();
-                dialogo.hide();
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Hand);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(com.badlogic.gdx.graphics.Cursor.SystemCursor.Arrow);
-            }
-        });
-
-        Table contentTable = dialogo.getContentTable();
-        contentTable.add(mensajeLabel).width(400).pad(20).row();
-        Table buttonTable = dialogo.getButtonTable();
-        buttonTable.clearChildren();
-        buttonTable.add(botonJugarDeNuevo).size(150, 50).pad(10);
-        buttonTable.add(botonVolver).size(150, 50).pad(10);
-
-        dialogo.show(stage);
         Gdx.input.setInputProcessor(stage);
+    }
+    
+    private void mostrarDialogoVictoria() {
+        String mensaje = "FELICIDADES!\nHas completado el nivel con un puntaje de " + Math.max(0, score) + ".\n\nQuieres jugar de nuevo?";
+
+        Dialog dialogo = new Dialog("HAS GANADO!", skin) {
+            @Override
+            protected void result(Object object) {
+                if ((Boolean) object) {
+                    main.setScreen(new GameScreen(main, nivelActual));
+                } else {
+                    main.setScreen(new MenuScreen(main));
+                }
+                dispose();
+            }
+        };
+        dialogo.text(mensaje);
+        dialogo.button("Jugar de nuevo", true);
+        dialogo.button("Volver al menu", false);
+        dialogo.show(stage);
     }
 
     @Override
@@ -179,27 +136,24 @@ public class GameScreen implements Screen {
 
         if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !juegoSokoban.isJuegoGanado()) {
             boolean seMovio = false;
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            if (Gdx.input.isKeyJustPressed(keyRight)) {
                 juegoSokoban.moverJugador(1, 0);
                 seMovio = true;
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            if (Gdx.input.isKeyJustPressed(keyLeft)) {
                 juegoSokoban.moverJugador(-1, 0);
                 seMovio = true;
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            if (Gdx.input.isKeyJustPressed(keyUp)) {
                 juegoSokoban.moverJugador(0, 1);
                 seMovio = true;
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            if (Gdx.input.isKeyJustPressed(keyDown)) {
                 juegoSokoban.moverJugador(0, -1);
                 seMovio = true;
             }
 
-            if (seMovio) {
-                tiempoDesdeUltimoMovimiento = 0f;
-            }
+            if (seMovio) tiempoDesdeUltimoMovimiento = 0f;
         }
         
         if (juegoSokoban.isJuegoGanado() && !victoriaMostrada) {
@@ -212,6 +166,7 @@ public class GameScreen implements Screen {
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
         juegoSokoban.renderizar();
 
         cantmoves.setText("Movimientos: " + juegoSokoban.getMovimientos());
@@ -219,14 +174,10 @@ public class GameScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
+    
     @Override
     public void show() {
+        main.playGameMusic();
     }
 
     @Override
@@ -234,12 +185,16 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void pause() {
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+        juegoSokoban.resize(width, height);
     }
 
     @Override
-    public void resume() {
-    }
+    public void pause() {}
+
+    @Override
+    public void resume() {}
 
     @Override
     public void dispose() {

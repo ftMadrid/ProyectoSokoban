@@ -2,7 +2,6 @@ package proyectosokoban.recursos.Eventos;
 
 import com.badlogic.gdx.Gdx;
 import proyectosokoban.recursos.Main;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.concurrent.ExecutorService;
@@ -13,25 +12,20 @@ public class Sokoban extends Juego {
 
     private Nivel nivelActual;
     private Jugador jugador;
-    // Vuelvo las variables de audio públicas para que sean accesibles desde GameScreen
-    public Music musicafondo;
+
     public Sound audiomove;
     public Sound sonidoVictoria;
     private SpriteBatch batch;
     private int nivelNumero;
     private String username;
 
-    // Variables para el control de volumen de los efectos de sonido
     public float soundVolume = 1.0f;
     public boolean isMuted = false;
 
-
-    // Hilos para manejo de eventos en tiempo real
     private ExecutorService collisionDetector;
     private ExecutorService animationUpdater;
     private final AtomicBoolean gameRunning = new AtomicBoolean(true);
 
-    // Flags para comunicación entre hilos
     private final AtomicBoolean needsVictoryCheck = new AtomicBoolean(false);
     private final AtomicBoolean playMoveSound = new AtomicBoolean(false);
     private final AtomicBoolean juegoGanado = new AtomicBoolean(false);
@@ -54,13 +48,7 @@ public class Sokoban extends Juego {
     public void inicializarRecursos() {
         nivelActual = new Nivel(nivelNumero);
         jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY(), nivelActual.getTILE());
-
         batch = new SpriteBatch();
-
-        musicafondo = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
-        musicafondo.setLooping(true);
-        musicafondo.setVolume(0.8f);
-        musicafondo.play();
 
         audiomove = Gdx.audio.newSound(Gdx.files.internal("movimiento.mp3"));
 
@@ -79,13 +67,11 @@ public class Sokoban extends Juego {
             t.setDaemon(true);
             return t;
         });
-
         animationUpdater = Executors.newSingleThreadExecutor(r -> {
             Thread t = new Thread(r, "AnimationUpdater");
             t.setDaemon(true);
             return t;
         });
-
         startCollisionDetectionThread();
         startAnimationUpdateThread();
     }
@@ -101,8 +87,6 @@ public class Sokoban extends Juego {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
-                } catch (Exception e) {
-                    System.err.println("Error en CollisionDetector: " + e.getMessage());
                 }
             }
         });
@@ -126,8 +110,6 @@ public class Sokoban extends Juego {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
-                } catch (Exception e) {
-                    System.err.println("Error en AnimationUpdater: " + e.getMessage());
                 }
             }
         });
@@ -150,10 +132,10 @@ public class Sokoban extends Juego {
         if (juegoGanado.getAndSet(true)) {
             return;
         }
+        main.stopAllMusic(); // Detiene la musica del juego
         if (sonidoVictoria != null) {
             sonidoVictoria.play(soundVolume);
         }
-        musicafondo.pause();
     }
 
     @Override
@@ -174,13 +156,45 @@ public class Sokoban extends Juego {
     public void renderizar() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
-
         batch.begin();
         nivelActual.render(batch);
         jugador.render(batch, nivelActual.getTILE());
         batch.end();
     }
 
+    @Override
+    public void render(float delta) {
+        actualizar(delta);
+        renderizar();
+    }
+
+    @Override
+    public void dispose() {
+        gameRunning.set(false);
+        if (collisionDetector != null) {
+            collisionDetector.shutdown();
+        }
+        if (animationUpdater != null) {
+            animationUpdater.shutdown();
+        }
+        if (jugador != null) {
+            jugador.dispose();
+        }
+        if (nivelActual != null) {
+            nivelActual.dispose();
+        }
+        if (audiomove != null) {
+            audiomove.dispose();
+        }
+        if (sonidoVictoria != null) {
+            sonidoVictoria.dispose();
+        }
+        if (batch != null) {
+            batch.dispose();
+        }
+    }
+
+    // --- Getters ---
     public int getMovimientos() {
         return movimientos;
     }
@@ -192,7 +206,7 @@ public class Sokoban extends Juego {
     public int getNivelNumero() {
         return nivelNumero;
     }
-    
+
     public String getUsername() {
         return username;
     }
@@ -201,12 +215,7 @@ public class Sokoban extends Juego {
         return juegoGanado.get();
     }
 
-    @Override
-    public void render(float delta) {
-        actualizar(delta);
-        renderizar();
-    }
-
+    // --- Metodos de Screen que no se usan aqui ---
     @Override
     public void show() {
     }
@@ -225,37 +234,5 @@ public class Sokoban extends Juego {
 
     @Override
     public void hide() {
-    }
-
-    @Override
-    public void dispose() {
-        gameRunning.set(false);
-
-        if (collisionDetector != null && !collisionDetector.isShutdown()) {
-            collisionDetector.shutdown();
-        }
-        if (animationUpdater != null && !animationUpdater.isShutdown()) {
-            animationUpdater.shutdown();
-        }
-
-        if (jugador != null) {
-            jugador.dispose();
-        }
-        if (nivelActual != null) {
-            nivelActual.dispose();
-        }
-
-        if (musicafondo != null) {
-            musicafondo.dispose();
-        }
-        if (audiomove != null) {
-            audiomove.dispose();
-        }
-        if (sonidoVictoria != null) {
-            sonidoVictoria.dispose();
-        }
-        if (batch != null) {
-            batch.dispose();
-        }
     }
 }

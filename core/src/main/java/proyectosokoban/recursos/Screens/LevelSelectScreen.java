@@ -4,11 +4,9 @@
  */
 package proyectosokoban.recursos.Screens;
 
-import proyectosokoban.recursos.Main;
-import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -18,6 +16,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class LevelSelectScreen implements Screen {
 
@@ -83,7 +83,7 @@ public class LevelSelectScreen implements Screen {
             }
         });
 
-        TextButton backButton = new TextButton("Volver al Menú", skin);
+        TextButton backButton = new TextButton("Volver al Menu", skin);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {

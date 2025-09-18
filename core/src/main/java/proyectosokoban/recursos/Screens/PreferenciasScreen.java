@@ -1,7 +1,11 @@
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -23,141 +27,206 @@ public class PreferenciasScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private LogicaUsuarios userLogic;
+    private InputMultiplexer multiplexer;
 
-    private Slider volumenSlider;
-    private TextButton muteButton;
-    private float lastVolume;
-    private boolean isMuted;
+    // Variables para los controles del juego
+    private int keyUp = Input.Keys.UP;
+    private int keyDown = Input.Keys.DOWN;
+    private int keyLeft = Input.Keys.LEFT;
+    private int keyRight = Input.Keys.RIGHT;
+
+    // Elementos de la UI
+    private Label keyUpLabel, keyDownLabel, keyLeftLabel, keyRightLabel;
+    private Label messageLabel;
+    private TextButton waitingButton = null; // Boton que esta esperando una tecla
 
     public PreferenciasScreen(final Main main) {
         this.main = main;
-        this.userLogic = new LogicaUsuarios();
-
         stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        userLogic = new LogicaUsuarios();
 
         createUI();
-        cargarPreferencias();
+        loadPreferences();
+
+        // Se usa un InputMultiplexer para capturar tanto los clics en la UI como las teclas presionadas
+        multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                // Si estamos esperando a que se presione una tecla para asignarla a un control...
+                if (waitingButton != null) {
+                    // Validar que la tecla no este en uso
+                    if (isKeyAlreadyUsed(keycode, waitingButton.getName())) {
+                        messageLabel.setText("Esa tecla ya esta en uso. Elige otra.");
+                        messageLabel.setColor(Color.RED);
+                    } else {
+                        // Asignar la nueva tecla
+                        assignKey(waitingButton.getName(), keycode);
+                        updateKeyLabels();
+                        messageLabel.setText("Control actualizado.");
+                        messageLabel.setColor(Color.GREEN);
+                    }
+                    
+                    // Restaurar el boton a su estado original
+                    waitingButton.setText("Cambiar");
+                    waitingButton = null;
+                }
+                return true;
+            }
+        });
     }
 
     private void createUI() {
-        Table table = new Table(skin);
-        table.setBackground("default-pane");
-        table.pad(20);
+        Table table = new Table();
         table.setFillParent(true);
+        table.pad(40);
+        table.center();
         stage.addActor(table);
         
-        Label title = new Label("Preferencias", skin);
-        title.setFontScale(2.0f);
-        table.add(title).padBottom(40).colspan(2).row();
+        Label title = new Label("Preferencias", skin, "default-font", Color.WHITE);
+        title.setFontScale(2.5f);
+        table.add(title).colspan(3).padBottom(40).row();
         
-        table.add(new Label("Volumen:", skin)).padRight(10);
+        // --- SECCION DE AUDIO ---
+        table.add(new Label("Audio", skin)).colspan(3).padBottom(20).row();
         
-        volumenSlider = new Slider(0, 100, 1, false, skin);
-        table.add(volumenSlider).width(300).row();
+        table.add(new Label("Volumen:", skin)).left().padRight(10);
+        Slider volumeSlider = new Slider(0, 1, 0.01f, false, skin);
+        volumeSlider.setValue(main.getVolume());
+        table.add(volumeSlider).width(300).colspan(2).row();
 
-        muteButton = new TextButton("Silenciar", skin);
-        table.add(muteButton).colspan(2).padTop(20).size(300, 50).row();
+        // --- SECCION DE CONTROLES ---
+        table.add(new Label("Controles", skin)).colspan(3).padTop(40).padBottom(20).row();
 
-        TextButton backButton = new TextButton("Volver", skin);
-        table.add(backButton).colspan(2).size(300, 50).padTop(20);
+        // Labels para mostrar la tecla actual
+        keyUpLabel = new Label("", skin);
+        keyDownLabel = new Label("", skin);
+        keyLeftLabel = new Label("", skin);
+        keyRightLabel = new Label("", skin);
+
+        // Crear filas para cada control
+        createKeybindRow(table, "Mover Arriba", "up", keyUpLabel);
+        createKeybindRow(table, "Mover Abajo", "down", keyDownLabel);
+        createKeybindRow(table, "Mover Izquierda", "left", keyLeftLabel);
+        createKeybindRow(table, "Mover Derecha", "right", keyRightLabel);
+
+        // Mensajes para el usuario
+        messageLabel = new Label("Haz clic en 'Cambiar' y presiona la nueva tecla", skin);
+        table.add(messageLabel).colspan(3).padTop(30).row();
+
+        // Boton de Guardar
+        TextButton saveButton = new TextButton("Guardar y Volver", skin);
+        table.add(saveButton).colspan(3).size(300, 50).padTop(40);
         
-
-        volumenSlider.addListener(new ChangeListener() {
+        // --- LISTENERS ---
+        volumeSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                float volumen = volumenSlider.getValue() / 100f;
-                main.musicafondo.setVolume(volumen);
-                if (volumen > 0) {
-                    isMuted = false;
-                } else {
-                    isMuted = true;
-                }
-                guardarPreferencias();
+                main.setVolume(((Slider)actor).getValue());
             }
         });
 
-        muteButton.addListener(new ClickListener() {
+        saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                isMuted = !isMuted;
-                if (isMuted) {
-                    lastVolume = main.musicafondo.getVolume();
-                    main.musicafondo.setVolume(0);
-                    volumenSlider.setValue(0);
-                } else {
-                    if (lastVolume == 0) lastVolume = 0.8f;
-                    main.musicafondo.setVolume(lastVolume);
-                    volumenSlider.setValue((int)(lastVolume * 100));
-                }
-                guardarPreferencias();
-            }
-        });
-
-        backButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
+                savePreferences();
                 main.setScreen(new MenuScreen(main));
                 dispose();
             }
         });
     }
 
-    private void cargarPreferencias() {
-        if (main.username != null) {
-            int[] prefs = userLogic.getPreferencias(main.username);
-            int volumen = prefs[0];
-            isMuted = prefs[3] == 1;
-            
-            lastVolume = volumen / 100f;
-            
-            main.musicafondo.setVolume(isMuted ? 0 : lastVolume);
-            volumenSlider.setValue(isMuted ? 0 : volumen);
-        } else {
-            lastVolume = 0.8f;
-            isMuted = false;
-            volumenSlider.setValue(80);
-            main.musicafondo.setVolume(lastVolume);
+    /**
+     * Crea una fila en la tabla para un control especifico.
+     */
+    private void createKeybindRow(Table table, String description, String action, Label keyLabel) {
+        table.add(new Label(description, skin)).left().padRight(20);
+        table.add(keyLabel).width(120).left();
+        TextButton changeButton = new TextButton("Cambiar", skin);
+        changeButton.setName(action); // Usamos el nombre para identificar la accion
+        changeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (waitingButton != null) {
+                    waitingButton.setText("Cambiar");
+                }
+                waitingButton = (TextButton)event.getListenerActor();
+                waitingButton.setText("Presiona una tecla...");
+                messageLabel.setText("Esperando tecla para: " + description);
+                messageLabel.setColor(Color.WHITE);
+            }
+        });
+        table.add(changeButton).size(100, 40).padBottom(10).row();
+    }
+
+    private void updateKeyLabels() {
+        keyUpLabel.setText(Input.Keys.toString(keyUp));
+        keyDownLabel.setText(Input.Keys.toString(keyDown));
+        keyLeftLabel.setText(Input.Keys.toString(keyLeft));
+        keyRightLabel.setText(Input.Keys.toString(keyRight));
+    }
+    
+    private boolean isKeyAlreadyUsed(int newKeycode, String currentAction) {
+        if (!currentAction.equals("up") && newKeycode == keyUp) return true;
+        if (!currentAction.equals("down") && newKeycode == keyDown) return true;
+        if (!currentAction.equals("left") && newKeycode == keyLeft) return true;
+        if (!currentAction.equals("right") && newKeycode == keyRight) return true;
+        return false;
+    }
+
+    private void assignKey(String action, int keycode) {
+        switch (action) {
+            case "up": keyUp = keycode; break;
+            case "down": keyDown = keycode; break;
+            case "left": keyLeft = keycode; break;
+            case "right": keyRight = keycode; break;
         }
     }
 
-    private void guardarPreferencias() {
-        if (main.username != null) {
-            int volumen = (int) volumenSlider.getValue();
-            userLogic.setPreferencias(main.username, volumen, (byte) 0, (byte) 0, isMuted);
-        }
+    private void loadPreferences() {
+        int[] prefs = userLogic.getPreferencias(main.username);
+        main.setVolume(prefs[0] / 100f);
+        keyUp = prefs[4];
+        keyDown = prefs[5];
+        keyLeft = prefs[6];
+        keyRight = prefs[7];
+        updateKeyLabels();
     }
-
+    
+    private void savePreferences() {
+        int[] oldPrefs = userLogic.getPreferencias(main.username);
+        userLogic.setPreferencias(
+            main.username,
+            (int)(main.getVolume() * 100),
+            (byte)oldPrefs[1], // idioma (no se cambia aqui)
+            (byte)oldPrefs[2], // control (no se cambia aqui)
+            oldPrefs[3] == 1,   // mute
+            keyUp, keyDown, keyLeft, keyRight // Nuevos controles
+        );
+    }
+    
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
     }
 
     @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
-
+    public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
     @Override
-    public void pause() {
-    }
-
+    public void pause() {}
     @Override
-    public void resume() {
-    }
-
+    public void resume() {}
     @Override
-    public void hide() {
-    }
-
+    public void hide() {}
     @Override
     public void dispose() {
         stage.dispose();

@@ -75,7 +75,16 @@ public class AmigosScreen implements Screen {
         addButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (userLogic.agregarAmigo(main.username, usernameField.getText())) {
+                String amigo = usernameField.getText();
+                if (amigo.isEmpty()){
+                    messageLabel.setText("El nombre de usuario no puede estar vacio.");
+                    return;
+                }
+                if (userLogic.listarAmigos(main.username).contains(amigo)) {
+                    messageLabel.setText("Ese usuario ya esta en tu lista de amigos.");
+                    return;
+                }
+                if (userLogic.agregarAmigo(main.username, amigo)) {
                     messageLabel.setText("Amigo agregado con exito.");
                     updateFriendsList();
                 } else {
