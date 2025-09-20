@@ -20,7 +20,7 @@ public class Jugador {
 
     // Duraciones de animación
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 1.0f;
+    private final float duracionAnimacion = 0.7f;
 
     private volatile float tiempoAnimacionMovimiento = 0f;
     private volatile int frameActualMovimiento = 0;
@@ -153,7 +153,7 @@ public class Jugador {
             }
         }
 
-        // Animación de empuje
+        // Animacion de empuje
         if (estaEmpujando.get()) {
             tiempoAnimacionEmpuje += delta;
             float duracionFrameEmpuje = duracionAnimacion / FRAMES_EMPUEJE;
