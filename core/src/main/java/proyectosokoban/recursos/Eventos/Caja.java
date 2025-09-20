@@ -20,15 +20,13 @@ public class Caja {
     private int TILE;
     private boolean enObjetivo = false;
 
-    private Objetivo objetivo; // referencia al objetivo correspondiente
-
     public Caja(int x, int y, int tile) {
         this.x = x;
         this.y = y;
         this.TILE = tile;
         this.renderX = x * TILE;
         this.renderY = y * TILE;
-        this.textura = new Texture("caja.png");
+        this.textura = new Texture("Juego/caja.png");
     }
 
     public void mover(int nuevoX, int nuevoY) {

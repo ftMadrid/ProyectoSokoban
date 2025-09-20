@@ -259,31 +259,31 @@ public class Nivel {
                 if (mapa[y][x].equals("#")) {
                     switch (numero) {
                         case 1:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 2:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 3:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 4:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 5:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 6:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         case 7:
-                            paredes.add(new Pared(x, y, "pared.png"));
+                            paredes.add(new Pared(x, y, "Juego/pared.png"));
                             break;
                         default:
                             break;
                     }
                 } else if (mapa[y][x].equals("D")) {
-                    paredes.add(new Pared(x, y, "pareddeco.png"));
+                    paredes.add(new Pared(x, y, "Juego/pareddeco.png"));
                 } else {
                     suelos.add(new Suelo(x, y));
                 }

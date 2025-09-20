@@ -216,7 +216,7 @@ public class PreferenciasScreen implements Screen {
     
     private void savePreferences() {
         int[] oldPrefs = userLogic.getPreferencias(main.username);
-        userLogic.setPreferencias(main.username, (int)(main.getVolume() * 100), (byte)oldPrefs[1], (byte)oldPrefs[2], oldPrefs[3] == 1, keyUp, keyDown, keyLeft, keyRight);
+        userLogic.setPreferencias(main.username, (int)(main.getVolume()*100), (byte)oldPrefs[1], (byte)oldPrefs[2], oldPrefs[3] == 1, keyUp, keyDown, keyLeft, keyRight);
     }
     
     @Override

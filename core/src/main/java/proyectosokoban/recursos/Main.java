@@ -26,7 +26,7 @@ public class Main extends Game {
         }
 
         try {
-            gameMusic = Gdx.audio.newMusic(Gdx.files.internal("audiofondo.mp3"));
+            gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Juego/audios/audiofondo.mp3"));
             gameMusic.setLooping(true);
         } catch (GdxRuntimeException e) {
             gameMusic = null;

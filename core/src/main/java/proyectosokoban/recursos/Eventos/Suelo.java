@@ -11,7 +11,7 @@ public class Suelo {
     public Suelo(int x, int y) {
         this.x = x;
         this.y = y;
-        this.textura = new Texture("suelo.png");
+        this.textura = new Texture("Juego/suelo.png");
     }
 
     public void render(SpriteBatch batch, int tileSize) {

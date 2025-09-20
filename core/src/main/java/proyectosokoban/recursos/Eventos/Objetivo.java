@@ -11,7 +11,7 @@ public class Objetivo {
     public Objetivo(int x, int y) {
         this.x = x;
         this.y = y;
-        this.textura = new Texture("objetivo.png");
+        this.textura = new Texture("Juego/objetivo.png");
     }
 
     public void render(SpriteBatch batch, int tileSize) {

@@ -50,10 +50,10 @@ public class Sokoban extends Juego {
         jugador = new Jugador(nivelActual.getSpawnJugadorX(), nivelActual.getSpawnJugadorY(), nivelActual.getTILE());
         batch = new SpriteBatch();
 
-        audiomove = Gdx.audio.newSound(Gdx.files.internal("movimiento.mp3"));
+        audiomove = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/movimiento.mp3"));
 
         try {
-            sonidoVictoria = Gdx.audio.newSound(Gdx.files.internal("audiovictoria.mp3"));
+            sonidoVictoria = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/audiovictoria.mp3"));
         } catch (Exception e) {
             sonidoVictoria = null;
         }
@@ -145,7 +145,7 @@ public class Sokoban extends Juego {
         }
         if (playMoveSound.getAndSet(false)) {
             if (audiomove != null && !isMuted) {
-                audiomove.play(soundVolume);
+                audiomove.play((soundVolume));
             }
         }
         jugador.actualizar(delta);

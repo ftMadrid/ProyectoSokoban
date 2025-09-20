@@ -39,17 +39,17 @@ public class SelectorNiveles {
 
     private void cargarTexturas() {
         texturasNormales = new Texture[4];
-        texturasNormales[0] = new Texture("muneco/south.png"); // abajo
-        texturasNormales[1] = new Texture("muneco/north.png"); // arriba
-        texturasNormales[2] = new Texture("muneco/west.png");  // izquierda
-        texturasNormales[3] = new Texture("muneco/east.png"); 
+        texturasNormales[0] = new Texture("Juego/muneco/south.png"); // abajo
+        texturasNormales[1] = new Texture("Juego/muneco/north.png"); // arriba
+        texturasNormales[2] = new Texture("Juego/muneco/west.png");  // izquierda
+        texturasNormales[3] = new Texture("Juego/muneco/east.png"); 
 
         texturasMovimiento = new Texture[4][4]; // 4 frames por dirección
         for (int i = 0; i < 4; i++) {
-            texturasMovimiento[0][i] = new Texture("muneco/moves/south_00" + i + ".png");
-            texturasMovimiento[1][i] = new Texture("muneco/moves/north_00" + i + ".png");
-            texturasMovimiento[2][i] = new Texture("muneco/moves/west_00" + i + ".png");
-            texturasMovimiento[3][i] = new Texture("muneco/moves/east_00" + i + ".png");
+            texturasMovimiento[0][i] = new Texture("Juego/muneco/moves/south_00" + i + ".png");
+            texturasMovimiento[1][i] = new Texture("Juego/muneco/moves/north_00" + i + ".png");
+            texturasMovimiento[2][i] = new Texture("Juego/muneco/moves/west_00" + i + ".png");
+            texturasMovimiento[3][i] = new Texture("Juego/muneco/moves/east_00" + i + ".png");
         }
     }
 

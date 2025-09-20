@@ -27,7 +27,7 @@ public class PantallaDeCarga implements Screen {
         walkFrames = new Texture[6];
         Array<TextureRegion> frames = new Array<>();
         for (int i = 0; i < 6; i++) {
-            walkFrames[i] = new Texture(Gdx.files.internal("muneco/moves/east_00" + i + ".png"));
+            walkFrames[i] = new Texture(Gdx.files.internal("Juego/muneco/moves/east_00" + i + ".png"));
             frames.add(new TextureRegion(walkFrames[i]));
         }
         walkAnimation = new Animation<>(0.1f, frames, Animation.PlayMode.LOOP);
