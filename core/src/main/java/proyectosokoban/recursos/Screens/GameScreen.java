@@ -2,10 +2,12 @@ package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -14,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Eventos.Sokoban;
@@ -30,6 +33,7 @@ public class GameScreen implements Screen {
     private Label cantempujes;
     private Label scoreLabel;
     private Label timeLabel;
+    private BitmapFont pixelFont;
 
     private float tiempoDesdeUltimoMovimiento = 0f;
     private final float delayMovimiento = 0.2f;
@@ -49,7 +53,15 @@ public class GameScreen implements Screen {
         this.tiempoDeJuego = 0;
         this.score = scoreBase;
         
-        loadControls(); 
+        loadControls();
+        
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 20; 
+        parameter.color = Color.valueOf("F5F5DC");
+        pixelFont = generator.generateFont(parameter);
+        generator.dispose();
+
         initializeUI();
         juegoSokoban.inicializarRecursos();
     }
@@ -67,6 +79,11 @@ public class GameScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
+        // Añadir la fuente al skin para que el Dialog la use
+        skin.add("default-font", pixelFont, BitmapFont.class);
+        
+        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+
         Table tablaPrincipal = new Table();
         tablaPrincipal.setFillParent(true);
         stage.addActor(tablaPrincipal);
@@ -76,10 +93,10 @@ public class GameScreen implements Screen {
         panelControles.pad(10);
         panelControles.defaults().pad(5);
 
-        cantmoves = new Label("Movimientos: 0", skin);
-        cantempujes = new Label("Empujes: 0", skin);
-        scoreLabel = new Label("Score: " + scoreBase, skin);
-        timeLabel = new Label("Tiempo: 0s", skin);
+        cantmoves = new Label("Movimientos: 0", labelStyle);
+        cantempujes = new Label("Empujes: 0", labelStyle);
+        scoreLabel = new Label("Score: " + scoreBase, labelStyle);
+        timeLabel = new Label("Tiempo: 0s", labelStyle);
 
         TextButton botonVolver = new TextButton("VOLVER AL MENU", skin);
         botonVolver.addListener(new ClickListener() {
@@ -181,8 +198,7 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void hide() {
-    }
+    public void hide() {}
 
     @Override
     public void resize(int width, int height) {
@@ -201,5 +217,6 @@ public class GameScreen implements Screen {
         juegoSokoban.dispose();
         stage.dispose();
         skin.dispose();
+        pixelFont.dispose();
     }
 }

@@ -9,18 +9,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
@@ -32,6 +31,7 @@ public class LoginScreen implements Screen {
     private Skin skin;
     private LogicaUsuarios userLogic;
     private Texture backgroundTexture;
+    private BitmapFont pixelFont;
 
     private TextField usernameField;
     private TextField passwordField;
@@ -44,7 +44,16 @@ public class LoginScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
-        backgroundTexture = new Texture(Gdx.files.internal("background.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 24;
+        parameter.color = Color.valueOf("F5F5DC");
+        parameter.minFilter = Texture.TextureFilter.Nearest;
+        parameter.magFilter = Texture.TextureFilter.Nearest;
+        pixelFont = generator.generateFont(parameter);
+        generator.dispose();
 
         createUI();
     }
@@ -58,31 +67,69 @@ public class LoginScreen implements Screen {
         table.setBackground(tableBackground);
         table.pad(20);
 
-        Label title = new Label("Sokoban - Ingresar", skin);
-        title.setFontScale(2.0f);
+        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+
+        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
+        textFieldStyle.font = new BitmapFont(); 
+        textFieldStyle.fontColor = Color.BLACK;
+        TextureRegionDrawable fieldBackground = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/field 1.png"))));
+        fieldBackground.setLeftWidth(35f); 
+        textFieldStyle.background = fieldBackground;
+        textFieldStyle.cursor = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/cursor 1.png")));
+        
+        CheckBox.CheckBoxStyle checkBoxStyle = new CheckBox.CheckBoxStyle();
+        checkBoxStyle.font = pixelFont;
+        checkBoxStyle.fontColor = pixelFont.getColor();
+        checkBoxStyle.checkboxOn = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/checkbox.png")));
+        checkBoxStyle.checkboxOff = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/chekbox no fill.png")));
+        
+        TextButton.TextButtonStyle labelButtonStyle = new TextButton.TextButtonStyle();
+        labelButtonStyle.font = pixelFont;
+        labelButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/users2.png"))));
+        
+        TextButton.TextButtonStyle actionButtonStyle = new TextButton.TextButtonStyle();
+        actionButtonStyle.font = pixelFont;
+        actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+
+        Label title = new Label("Sokoban", labelStyle);
+        title.setFontScale(1.5f);
         table.add(title).padBottom(40).colspan(2).row();
 
-        table.add(new Label("Usuario:", skin)).left().padRight(10);
-        usernameField = new TextField("", skin);
-        table.add(usernameField).width(300).padBottom(10).row();
+        // --- Usuario ---
+        TextButton userLabelButton = new TextButton("USUARIO", labelButtonStyle);
+        userLabelButton.setDisabled(true);
+        table.add(userLabelButton).width(250).height(70).padRight(10);
+        
+        usernameField = new TextField("", textFieldStyle);
+        usernameField.setMaxLength(15);
+        table.add(usernameField).width(350).height(70).padBottom(15).row();
 
-        table.add(new Label("Contrasena:", skin)).left().padRight(10);
-        passwordField = new TextField("", skin);
+        // --- Contraseña ---
+        TextButton passLabelButton = new TextButton("CONTRASENA", labelButtonStyle);
+        passLabelButton.setDisabled(true);
+        table.add(passLabelButton).width(250).height(70).padRight(10);
+
+        passwordField = new TextField("", textFieldStyle);
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
-        table.add(passwordField).width(300).padBottom(10).row();
+        passwordField.setMaxLength(20);
+        table.add(passwordField).width(350).height(70).padBottom(15).row();
 
-        showPasswordCheckBox = new CheckBox(" Mostrar contrasena", skin);
-        table.add(showPasswordCheckBox).colspan(2).left().padBottom(20).row();
+        showPasswordCheckBox = new CheckBox(" MOSTRAR CONTRASENA", checkBoxStyle);
+        table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
 
-        TextButton loginButton = new TextButton("Iniciar Sesion", skin);
-        table.add(loginButton).colspan(2).size(300, 50).padTop(10).row();
+        Stack loginButtonStack = new Stack();
+        TextButton loginButton = new TextButton("INICIAR SESION", actionButtonStyle);
+        Image loginButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
+        loginButtonStack.add(loginButtonOutline);
+        loginButtonStack.add(loginButton);
+        table.add(loginButtonStack).colspan(2).size(300, 60).padTop(10).row();
 
-        messageLabel = new Label("", skin);
+        messageLabel = new Label("", labelStyle);
         table.add(messageLabel).colspan(2).padTop(10).row();
 
         Table registerLinkTable = new Table();
-        Label noAccountLabel = new Label("No tienes cuenta?", skin);
+        Label noAccountLabel = new Label("No tienes cuenta?", labelStyle);
         registerLinkTable.add(noAccountLabel).padRight(5);
 
         TextButton registerButton = new TextButton("Registrate", skin, "toggle");
@@ -119,7 +166,7 @@ public class LoginScreen implements Screen {
             }
         });
     }
-
+    
     @Override
     public void show() {}
 
@@ -153,5 +200,6 @@ public class LoginScreen implements Screen {
         stage.dispose();
         skin.dispose();
         backgroundTexture.dispose();
+        pixelFont.dispose();
     }
 }

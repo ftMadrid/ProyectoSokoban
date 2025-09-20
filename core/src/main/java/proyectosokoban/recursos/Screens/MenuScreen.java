@@ -2,7 +2,12 @@ package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -10,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 
@@ -18,11 +24,19 @@ public class MenuScreen implements Screen {
     private final Main main;
     private Stage stage;
     private Skin skin;
+    private BitmapFont pixelFont;
 
     public MenuScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 32;
+        parameter.color = Color.valueOf("F5F5DC");
+        pixelFont = generator.generateFont(parameter);
+        generator.dispose();
 
         createUI();
     }
@@ -33,12 +47,16 @@ public class MenuScreen implements Screen {
         table.center();
         stage.addActor(table);
 
-        Label title = new Label("Sokoban", skin);
-        title.setFontScale(3.0f);
+        Label.LabelStyle titleStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+        Label title = new Label("Sokoban", titleStyle);
+        title.setFontScale(2.0f); // Agrandar el título
         table.add(title).padBottom(50).row();
 
-        // Boton para Jugar
-        TextButton playButton = new TextButton("Jugar", skin);
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = pixelFont;
+        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+
+        TextButton playButton = new TextButton("Jugar", buttonStyle);
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -48,8 +66,7 @@ public class MenuScreen implements Screen {
         });
         table.add(playButton).size(300, 60).padBottom(20).row();
 
-        // Boton para Amigos
-        TextButton friendsButton = new TextButton("Amigos", skin);
+        TextButton friendsButton = new TextButton("Amigos", buttonStyle);
         friendsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -59,8 +76,7 @@ public class MenuScreen implements Screen {
         });
         table.add(friendsButton).size(300, 60).padBottom(20).row();
         
-        // Boton para Preferencias
-        TextButton preferencesButton = new TextButton("Preferencias", skin);
+        TextButton preferencesButton = new TextButton("Preferencias", buttonStyle);
         preferencesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -70,12 +86,11 @@ public class MenuScreen implements Screen {
         });
         table.add(preferencesButton).size(300, 60).padBottom(20).row();
 
-        // Boton para Salir
-        TextButton exitButton = new TextButton("Cerrar Sesion", skin);
+        TextButton exitButton = new TextButton("Cerrar Sesion", buttonStyle);
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.username = null; // Limpiar el usuario logueado
+                main.username = null;
                 main.setScreen(new LoginScreen(main));
                 dispose();
             }
@@ -86,7 +101,6 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        // Inicia la musica del menu cada vez que se muestra esta pantalla
         main.playMenuMusic();
     }
 
@@ -110,13 +124,12 @@ public class MenuScreen implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {
-        // La musica se detendra cuando la nueva pantalla inicie la suya
-    }
+    public void hide() {}
 
     @Override
     public void dispose() {
         stage.dispose();
         skin.dispose();
+        pixelFont.dispose();
     }
 }

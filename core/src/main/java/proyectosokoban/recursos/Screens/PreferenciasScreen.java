@@ -7,16 +7,23 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
@@ -28,17 +35,17 @@ public class PreferenciasScreen implements Screen {
     private Skin skin;
     private LogicaUsuarios userLogic;
     private InputMultiplexer multiplexer;
+    private BitmapFont pixelFont;
+    private BitmapFont titleFont;
 
-    // Variables para los controles del juego
     private int keyUp = Input.Keys.UP;
     private int keyDown = Input.Keys.DOWN;
     private int keyLeft = Input.Keys.LEFT;
     private int keyRight = Input.Keys.RIGHT;
 
-    // Elementos de la UI
     private Label keyUpLabel, keyDownLabel, keyLeftLabel, keyRightLabel;
     private Label messageLabel;
-    private TextButton waitingButton = null; // Boton que esta esperando una tecla
+    private TextButton waitingButton = null;
 
     public PreferenciasScreen(final Main main) {
         this.main = main;
@@ -46,30 +53,44 @@ public class PreferenciasScreen implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
 
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        
+        // Fuente normal para el contenido
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 24;
+        parameter.color = Color.valueOf("F5F5DC");
+        parameter.minFilter = Texture.TextureFilter.Nearest;
+        parameter.magFilter = Texture.TextureFilter.Nearest;
+        pixelFont = generator.generateFont(parameter);
+
+        // Fuente más grande para el título
+        FreeTypeFontGenerator.FreeTypeFontParameter titleParameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        titleParameter.size = 48;
+        titleParameter.color = Color.valueOf("F5F5DC");
+        titleParameter.minFilter = Texture.TextureFilter.Nearest;
+        titleParameter.magFilter = Texture.TextureFilter.Nearest;
+        titleFont = generator.generateFont(titleParameter);
+        
+        generator.dispose();
+
         createUI();
         loadPreferences();
 
-        // Se usa un InputMultiplexer para capturar tanto los clics en la UI como las teclas presionadas
         multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
         multiplexer.addProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                // Si estamos esperando a que se presione una tecla para asignarla a un control...
                 if (waitingButton != null) {
-                    // Validar que la tecla no este en uso
                     if (isKeyAlreadyUsed(keycode, waitingButton.getName())) {
                         messageLabel.setText("Esa tecla ya esta en uso. Elige otra.");
                         messageLabel.setColor(Color.RED);
                     } else {
-                        // Asignar la nueva tecla
                         assignKey(waitingButton.getName(), keycode);
                         updateKeyLabels();
                         messageLabel.setText("Control actualizado.");
                         messageLabel.setColor(Color.GREEN);
                     }
-                    
-                    // Restaurar el boton a su estado original
                     waitingButton.setText("Cambiar");
                     waitingButton = null;
                 }
@@ -79,52 +100,76 @@ public class PreferenciasScreen implements Screen {
     }
 
     private void createUI() {
-        Table table = new Table();
-        table.setFillParent(true);
-        table.pad(40);
-        table.center();
-        stage.addActor(table);
+        Table mainTable = new Table();
+        mainTable.setFillParent(true);
+        mainTable.center();
+        stage.addActor(mainTable);
+
+        // Estilos
+        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+        Label.LabelStyle titleLabelStyle = new Label.LabelStyle(titleFont, titleFont.getColor());
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = pixelFont;
+        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
         
-        Label title = new Label("Preferencias", skin, "default-font", Color.WHITE);
-        title.setFontScale(2.5f);
-        table.add(title).colspan(3).padBottom(40).row();
+        mainTable.add(new Label("OPTIONS", titleLabelStyle)).padBottom(20).row();
+
+        Stack fieldStack = new Stack();
         
-        // --- SECCION DE AUDIO ---
-        table.add(new Label("Audio", skin)).colspan(3).padBottom(20).row();
+        Table contentTable = new Table();
+        contentTable.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/field 2.png")))));
+        contentTable.pad(30f);
+
+        Image outlineImage = new Image(new Texture(Gdx.files.internal("ui/outline de field 2.png")));
+        outlineImage.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled); // Para que no bloquee los clics
         
-        table.add(new Label("Volumen:", skin)).left().padRight(10);
+        fieldStack.add(contentTable);
+        fieldStack.add(outlineImage);
+        
+        mainTable.add(fieldStack).width(700).height(550).row();
+
+        
+        // Audio
+        Texture audioTexture = new Texture(Gdx.files.internal("ui/audio.png"));
+        Image audioImage = new Image(audioTexture);
+        contentTable.add(audioImage).size(180, 40).colspan(3).padTop(10).padBottom(10).row();
+
         Slider volumeSlider = new Slider(0, 1, 0.01f, false, skin);
         volumeSlider.setValue(main.getVolume());
-        table.add(volumeSlider).width(300).colspan(2).row();
+        contentTable.add(volumeSlider).width(400).colspan(3).padBottom(5).row();
+        contentTable.add(new Label("Volumen", labelStyle)).colspan(3).padBottom(30).row();
 
-        // --- SECCION DE CONTROLES ---
-        table.add(new Label("Controles", skin)).colspan(3).padTop(40).padBottom(20).row();
-
-        // Labels para mostrar la tecla actual
-        keyUpLabel = new Label("", skin);
-        keyDownLabel = new Label("", skin);
-        keyLeftLabel = new Label("", skin);
-        keyRightLabel = new Label("", skin);
-
-        // Crear filas para cada control
-        createKeybindRow(table, "Mover Arriba", "up", keyUpLabel);
-        createKeybindRow(table, "Mover Abajo", "down", keyDownLabel);
-        createKeybindRow(table, "Mover Izquierda", "left", keyLeftLabel);
-        createKeybindRow(table, "Mover Derecha", "right", keyRightLabel);
-
-        // Mensajes para el usuario
-        messageLabel = new Label("Haz clic en 'Cambiar' y presiona la nueva tecla", skin);
-        table.add(messageLabel).colspan(3).padTop(30).row();
-
-        // Boton de Guardar
-        TextButton saveButton = new TextButton("Guardar y Volver", skin);
-        table.add(saveButton).colspan(3).size(300, 50).padTop(40);
+        // Controles
+        Texture controlsTexture = new Texture(Gdx.files.internal("ui/controls.png"));
+        Image controlsImage = new Image(controlsTexture);
+        contentTable.add(controlsImage).size(180, 40).colspan(3).padBottom(20).row();
         
-        // --- LISTENERS ---
+        keyUpLabel = new Label("", labelStyle);
+        keyDownLabel = new Label("", labelStyle);
+        keyLeftLabel = new Label("", labelStyle);
+        keyRightLabel = new Label("", labelStyle);
+
+        createKeybindRow(contentTable, "Mover Arriba", "up", keyUpLabel, buttonStyle, labelStyle);
+        createKeybindRow(contentTable, "Mover Abajo", "down", keyDownLabel, buttonStyle, labelStyle);
+        createKeybindRow(contentTable, "Mover Izquierda", "left", keyLeftLabel, buttonStyle, labelStyle);
+        createKeybindRow(contentTable, "Mover Derecha", "right", keyRightLabel, buttonStyle, labelStyle);
+        
+        contentTable.add().height(20).colspan(3).row(); 
+        
+        messageLabel = new Label("Haz clic en 'Cambiar' y presiona la nueva tecla", labelStyle);
+        contentTable.add(messageLabel).colspan(3).padTop(10).row();
+
+        Stack saveButtonStack = new Stack();
+        TextButton saveButton = new TextButton("Guardar y Volver", buttonStyle);
+        Image saveButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
+        saveButtonStack.add(saveButtonOutline);
+        saveButtonStack.add(saveButton);
+        mainTable.add(saveButtonStack).size(300, 50).padTop(20);
+
         volumeSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                main.setVolume(((Slider)actor).getValue());
+                main.setVolume(((Slider) actor).getValue());
             }
         });
 
@@ -138,14 +183,18 @@ public class PreferenciasScreen implements Screen {
         });
     }
 
-    /**
-     * Crea una fila en la tabla para un control especifico.
-     */
-    private void createKeybindRow(Table table, String description, String action, Label keyLabel) {
-        table.add(new Label(description, skin)).left().padRight(20);
-        table.add(keyLabel).width(120).left();
-        TextButton changeButton = new TextButton("Cambiar", skin);
-        changeButton.setName(action); // Usamos el nombre para identificar la accion
+    private void createKeybindRow(Table table, String description, String action, Label keyLabel, TextButton.TextButtonStyle buttonStyle, Label.LabelStyle labelStyle) {
+        table.add(new Label(description, labelStyle)).left().expandX().padLeft(40);
+        table.add(keyLabel).width(80).center();
+        
+        Stack buttonStack = new Stack();
+        TextButton changeButton = new TextButton("Cambiar", buttonStyle);
+        changeButton.setName(action);
+        Image buttonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
+        
+        buttonStack.add(buttonOutline);
+        buttonStack.add(changeButton);
+
         changeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -158,9 +207,9 @@ public class PreferenciasScreen implements Screen {
                 messageLabel.setColor(Color.WHITE);
             }
         });
-        table.add(changeButton).size(100, 40).padBottom(10).row();
+        table.add(buttonStack).size(150, 40).padBottom(10).padRight(40).row();
     }
-
+    
     private void updateKeyLabels() {
         keyUpLabel.setText(Input.Keys.toString(keyUp));
         keyDownLabel.setText(Input.Keys.toString(keyDown));
@@ -200,10 +249,10 @@ public class PreferenciasScreen implements Screen {
         userLogic.setPreferencias(
             main.username,
             (int)(main.getVolume() * 100),
-            (byte)oldPrefs[1], // idioma (no se cambia aqui)
-            (byte)oldPrefs[2], // control (no se cambia aqui)
-            oldPrefs[3] == 1,   // mute
-            keyUp, keyDown, keyLeft, keyRight // Nuevos controles
+            (byte)oldPrefs[1],
+            (byte)oldPrefs[2],
+            oldPrefs[3] == 1,
+            keyUp, keyDown, keyLeft, keyRight
         );
     }
     
@@ -214,6 +263,7 @@ public class PreferenciasScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act(delta);
         stage.draw();
@@ -231,5 +281,7 @@ public class PreferenciasScreen implements Screen {
     public void dispose() {
         stage.dispose();
         skin.dispose();
+        pixelFont.dispose();
+        titleFont.dispose();
     }
 }
