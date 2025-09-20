@@ -49,7 +49,7 @@ public class LoginScreen implements Screen {
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
 
-        parameter.size = 80;
+        parameter.size = 150;
         titleFont = generator.generateFont(parameter);
         generator.dispose();
 
@@ -82,7 +82,7 @@ public class LoginScreen implements Screen {
 
         table.center();
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
-        Label title = new Label("Sokoban", titleStyle);
+        Label title = new Label("Sokomine", titleStyle);
         table.add(title).padBottom(50).colspan(2).row();
         
         Drawable tableBackground = skin.newDrawable("white", 0, 0, 0, 0.5f);
