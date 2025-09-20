@@ -3,6 +3,8 @@ package proyectosokoban.recursos.Eventos;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.Gdx;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Caja {
@@ -11,7 +13,6 @@ public class Caja {
     private volatile int x, y;
     private volatile float renderX, renderY;
 
-    // Variables para la animación
     private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
     private volatile float tiempoAnimacion = 0f;
     private final float duracionAnimacion = 0.7f;
@@ -19,6 +20,8 @@ public class Caja {
 
     private int TILE;
     private boolean enObjetivo = false;
+    private Sound sonidoObjetivo;
+    private boolean sonidoReproducido = false;
 
     public Caja(int x, int y, int tile) {
         this.x = x;
@@ -27,6 +30,13 @@ public class Caja {
         this.renderX = x * TILE;
         this.renderY = y * TILE;
         this.textura = new Texture("Juego/caja.png");
+        
+        try {
+            this.sonidoObjetivo = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/caja_objetivo.mp3"));
+        } catch (Exception e) {
+            System.out.println("No se pudo cargar el sonido de caja en objetivo: " + e.getMessage());
+            this.sonidoObjetivo = null;
+        }
     }
 
     public void mover(int nuevoX, int nuevoY) {
@@ -40,6 +50,7 @@ public class Caja {
 
         estaMoviendose.set(true);
         tiempoAnimacion = 0f;
+        sonidoReproducido = false;
     }
 
     public void actualizar(float delta) {
@@ -49,11 +60,9 @@ public class Caja {
             float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1.0f);
             progreso = 1f - (1f - progreso) * (1f - progreso);
 
-            // Actualizar posiciones de renderizado
             renderX = com.badlogic.gdx.math.MathUtils.lerp(startX, targetX, progreso);
             renderY = com.badlogic.gdx.math.MathUtils.lerp(startY, targetY, progreso);
 
-            // Verificar si la animación terminó
             if (progreso >= 1.0f) {
                 estaMoviendose.set(false);
                 renderX = targetX;
@@ -64,7 +73,7 @@ public class Caja {
 
     public void render(SpriteBatch batch, int TILE) {
         if (enObjetivo) {
-            batch.setColor(0.5f, 1f, 0.5f, 1f);
+            batch.setColor(0.6f, 1f, 0.6f, 1f);
         }
 
         batch.draw(textura, renderX+2, renderY+2, TILE-5, TILE-5);
@@ -75,9 +84,25 @@ public class Caja {
         if (textura != null) {
             textura.dispose();
         }
+        if (sonidoObjetivo != null) {
+            sonidoObjetivo.dispose();
+        }
     }
 
-    // Getters y setters
+    public void setEnObjetivo(boolean enObjetivo, float volume) {
+        boolean estabaEnObjetivo = this.enObjetivo;
+        this.enObjetivo = enObjetivo;
+        
+        if (enObjetivo && !estabaEnObjetivo && sonidoObjetivo != null && !sonidoReproducido) {
+            sonidoObjetivo.play(volume);
+            sonidoReproducido = true;
+        }
+        
+        if (!enObjetivo) {
+            sonidoReproducido = false;
+        }
+    }
+
     public int getX() {
         return x;
     }

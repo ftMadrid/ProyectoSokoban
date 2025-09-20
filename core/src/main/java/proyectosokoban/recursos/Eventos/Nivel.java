@@ -345,7 +345,6 @@ public class Nivel {
             return true;
         }
 
-        // Para cada objetivo, debe haber alguna caja encima
         for (Objetivo obj : objetivos) {
             boolean encontrado = false;
             for (Caja caja : cajas) {
@@ -355,7 +354,7 @@ public class Nivel {
                 }
             }
             if (!encontrado) {
-                return false; // Al menos un objetivo no tiene caja
+                return false;
             }
         }
 
@@ -386,12 +385,29 @@ public class Nivel {
                 break;
             }
         }
+        actualizarEstadoCajas();
+    }
+
+    public void actualizarEstadoCajas() {
+        for (Caja caja : cajas) {
+            boolean enObjetivo = false;
+
+            for (Objetivo obj : objetivos) {
+                if (caja.getX() == obj.getX() && caja.getY() == obj.getY()) {
+                    enObjetivo = true;
+                    break;
+                }
+            }
+
+            caja.setEnObjetivo(enObjetivo, 0.5f);
+        }
     }
 
     public void actualizar(float delta) {
         for (Caja caja : cajas) {
             caja.actualizar(delta);
         }
+        actualizarEstadoCajas();
     }
 
     public void actualizarAnimacionCajas(float delta) {
