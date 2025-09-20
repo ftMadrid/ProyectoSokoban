@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
@@ -24,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
+import proyectosokoban.recursos.Utilidades.transicionSuave;
 
 public class LevelSelectScreen implements Screen {
 
@@ -35,12 +32,13 @@ public class LevelSelectScreen implements Screen {
     private final int MAX_LEVEL = 7;
     private int ultimoNivelDesbloqueado;
     private BitmapFont pixelFont;
+    private Texture backgroundTexture;
 
     public LevelSelectScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
 
         LogicaUsuarios lu = new LogicaUsuarios();
         ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(main.username);
@@ -69,7 +67,6 @@ public class LevelSelectScreen implements Screen {
         buttonStyle.font = pixelFont;
         buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-
         TextButton leftButton = new TextButton("<", skin);
         leftButton.addListener(new ClickListener() {
             @Override
@@ -97,8 +94,7 @@ public class LevelSelectScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (currentLevel <= ultimoNivelDesbloqueado) {
-                    main.setScreen(new GameScreen(main, currentLevel));
-                    dispose();
+                    transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, currentLevel));
                 }
             }
         });
@@ -107,8 +103,7 @@ public class LevelSelectScreen implements Screen {
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new MenuScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
         });
 
@@ -124,12 +119,19 @@ public class LevelSelectScreen implements Screen {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        Gdx.input.setInputProcessor(stage);
+        transicionSuave.fadeIn(stage);
+    }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        stage.getBatch().begin();
+        stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        stage.getBatch().end();
 
         stage.act(delta);
         stage.draw();
@@ -148,13 +150,11 @@ public class LevelSelectScreen implements Screen {
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-
+    
     @Override
     public void pause() {}
-
     @Override
     public void resume() {}
-
     @Override
     public void hide() {}
 
@@ -163,5 +163,6 @@ public class LevelSelectScreen implements Screen {
         stage.dispose();
         skin.dispose();
         pixelFont.dispose();
+        backgroundTexture.dispose();
     }
 }

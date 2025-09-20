@@ -57,7 +57,7 @@ public class GameScreen implements Screen {
         
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 20; 
+        parameter.size = 30; 
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
         generator.dispose();

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
@@ -23,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
+import proyectosokoban.recursos.Utilidades.transicionSuave;
 
 public class LoginScreen implements Screen {
 
@@ -32,7 +29,7 @@ public class LoginScreen implements Screen {
     private LogicaUsuarios userLogic;
     private Texture backgroundTexture;
     private BitmapFont pixelFont;
-
+    private BitmapFont titleFont;
     private TextField usernameField;
     private TextField passwordField;
     private Label messageLabel;
@@ -41,18 +38,19 @@ public class LoginScreen implements Screen {
     public LoginScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
         backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 24;
         parameter.color = Color.valueOf("F5F5DC");
-        parameter.minFilter = Texture.TextureFilter.Nearest;
-        parameter.magFilter = Texture.TextureFilter.Nearest;
         pixelFont = generator.generateFont(parameter);
+
+        parameter.size = 80;
+        titleFont = generator.generateFont(parameter);
         generator.dispose();
 
         createUI();
@@ -62,17 +60,41 @@ public class LoginScreen implements Screen {
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
+        
+        TextButton.TextButtonStyle exitButtonStyle = new TextButton.TextButtonStyle();
+        exitButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/botonespeq.png"))));
+        exitButtonStyle.font = pixelFont;
+        
+        TextButton exitButton = new TextButton("X", exitButtonStyle);
+        exitButton.getLabel().setFontScale(1.5f); // Ajusta la escala de la fuente para centrar
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+        
+        Table topTable = new Table();
+        topTable.setFillParent(true);
+        topTable.top().right();
+        topTable.add(exitButton).size(60, 60).pad(10);
+        stage.addActor(topTable);
 
+        table.center();
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
+        Label title = new Label("Sokoban", titleStyle);
+        table.add(title).padBottom(50).colspan(2).row();
+        
         Drawable tableBackground = skin.newDrawable("white", 0, 0, 0, 0.5f);
         table.setBackground(tableBackground);
         table.pad(20);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
-
+        
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
         textFieldStyle.font = new BitmapFont(); 
         textFieldStyle.fontColor = Color.BLACK;
-        TextureRegionDrawable fieldBackground = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/field 1.png"))));
+        TextureRegionDrawable fieldBackground = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/txtfield.png"))));
         fieldBackground.setLeftWidth(35f); 
         textFieldStyle.background = fieldBackground;
         textFieldStyle.cursor = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/cursor 1.png")));
@@ -91,11 +113,6 @@ public class LoginScreen implements Screen {
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        Label title = new Label("Sokoban", labelStyle);
-        title.setFontScale(1.5f);
-        table.add(title).padBottom(40).colspan(2).row();
-
-        // --- Usuario ---
         TextButton userLabelButton = new TextButton("USUARIO", labelButtonStyle);
         userLabelButton.setDisabled(true);
         table.add(userLabelButton).width(250).height(70).padRight(10);
@@ -104,7 +121,6 @@ public class LoginScreen implements Screen {
         usernameField.setMaxLength(15);
         table.add(usernameField).width(350).height(70).padBottom(15).row();
 
-        // --- Contraseña ---
         TextButton passLabelButton = new TextButton("CONTRASENA", labelButtonStyle);
         passLabelButton.setDisabled(true);
         table.add(passLabelButton).width(250).height(70).padRight(10);
@@ -132,8 +148,10 @@ public class LoginScreen implements Screen {
         Label noAccountLabel = new Label("No tienes cuenta?", labelStyle);
         registerLinkTable.add(noAccountLabel).padRight(5);
 
-        TextButton registerButton = new TextButton("Registrate", skin, "toggle");
-        registerButton.getLabel().setColor(Color.CYAN);
+        TextButton.TextButtonStyle linkStyle = new TextButton.TextButtonStyle(skin.get("toggle", TextButton.TextButtonStyle.class));
+        linkStyle.font = pixelFont;
+        linkStyle.fontColor = Color.CYAN;
+        TextButton registerButton = new TextButton("Registrate", linkStyle);
         registerLinkTable.add(registerButton);
 
         table.add(registerLinkTable).colspan(2).padTop(20);
@@ -150,8 +168,7 @@ public class LoginScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (userLogic.login(usernameField.getText(), passwordField.getText())) {
                     main.username = usernameField.getText();
-                    main.setScreen(new MenuScreen(main));
-                    dispose();
+                    transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
                 } else {
                     messageLabel.setText("Usuario o contrasena incorrectos.");
                 }
@@ -161,18 +178,19 @@ public class LoginScreen implements Screen {
         registerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new RegisterScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new RegisterScreen(main));
             }
         });
     }
-    
+
     @Override
-    public void show() {}
+    public void show() {
+        transicionSuave.fadeIn(stage); 
+    }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -180,7 +198,7 @@ public class LoginScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-
+    
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
@@ -188,10 +206,8 @@ public class LoginScreen implements Screen {
 
     @Override
     public void pause() {}
-
     @Override
     public void resume() {}
-
     @Override
     public void hide() {}
 
@@ -199,7 +215,8 @@ public class LoginScreen implements Screen {
     public void dispose() {
         stage.dispose();
         skin.dispose();
-        backgroundTexture.dispose();
         pixelFont.dispose();
+        titleFont.dispose();
+        backgroundTexture.dispose();
     }
 }

@@ -11,7 +11,6 @@ public abstract class Juego implements Screen {
         this.main = main;
     }
 
-    // Métodos abstractos que deben ser implementados por los juegos específicos
     public abstract void inicializarRecursos();
 
     public abstract void actualizar(float delta);

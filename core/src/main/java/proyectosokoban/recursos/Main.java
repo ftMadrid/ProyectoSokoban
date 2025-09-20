@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import proyectosokoban.recursos.Screens.IntroScreen;
 import proyectosokoban.recursos.Screens.LoginScreen;
 
 public class Main extends Game {
@@ -30,7 +31,7 @@ public class Main extends Game {
             gameMusic = null;
         }
         
-        setScreen(new LoginScreen(this));
+        setScreen(new IntroScreen(this));
     }
 
     // --- METODOS PARA CONTROLAR LA MUSICA ---

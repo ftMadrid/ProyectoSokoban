@@ -18,9 +18,9 @@ public class Launcher {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("SOKOBAN");
         configuration.useVsync(true);
-        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
 
-        configuration.setWindowedMode(930, 800);
+        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+
         configuration.setWindowIcon("logo128.png", "logo64.png", "logo32.png", "logo16.png");
         return configuration;
     }

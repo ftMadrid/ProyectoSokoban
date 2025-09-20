@@ -10,14 +10,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.transicionSuave;
 
 public class MenuScreen implements Screen {
 
@@ -25,19 +23,26 @@ public class MenuScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private BitmapFont pixelFont;
+    private BitmapFont titleFont;
+    private Texture backgroundTexture;
 
     public MenuScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
         
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 32;
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
+        
+        parameter.size = 90;
+        titleFont = generator.generateFont(parameter);
+        
         generator.dispose();
-
         createUI();
     }
 
@@ -47,9 +52,8 @@ public class MenuScreen implements Screen {
         table.center();
         stage.addActor(table);
 
-        Label.LabelStyle titleStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("F5F5DC"));
         Label title = new Label("Sokoban", titleStyle);
-        title.setFontScale(2.0f); // Agrandar el título
         table.add(title).padBottom(50).row();
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
@@ -60,8 +64,7 @@ public class MenuScreen implements Screen {
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new LevelSelectScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main));
             }
         });
         table.add(playButton).size(300, 60).padBottom(20).row();
@@ -70,8 +73,7 @@ public class MenuScreen implements Screen {
         friendsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new AmigosScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new AmigosScreen(main));
             }
         });
         table.add(friendsButton).size(300, 60).padBottom(20).row();
@@ -80,8 +82,7 @@ public class MenuScreen implements Screen {
         preferencesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.setScreen(new PreferenciasScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main));
             }
         });
         table.add(preferencesButton).size(300, 60).padBottom(20).row();
@@ -91,8 +92,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 main.username = null;
-                main.setScreen(new LoginScreen(main));
-                dispose();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
             }
         });
         table.add(exitButton).size(300, 60).padBottom(20).row();
@@ -102,13 +102,19 @@ public class MenuScreen implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(stage);
         main.playMenuMusic();
+        transicionSuave.fadeIn(stage);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        
+        stage.getBatch().begin();
+        stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        stage.getBatch().end();
+        
+        stage.act(delta);
         stage.draw();
     }
 
@@ -119,10 +125,8 @@ public class MenuScreen implements Screen {
 
     @Override
     public void pause() {}
-
     @Override
     public void resume() {}
-
     @Override
     public void hide() {}
 
@@ -131,5 +135,7 @@ public class MenuScreen implements Screen {
         stage.dispose();
         skin.dispose();
         pixelFont.dispose();
+        titleFont.dispose();
+        backgroundTexture.dispose();
     }
 }
