@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
 
@@ -33,12 +34,14 @@ public class LevelSelectScreen implements Screen {
     private int ultimoNivelDesbloqueado;
     private BitmapFont pixelFont;
     private Texture backgroundTexture;
+    private GestorIdiomas gestorIdiomas;
 
     public LevelSelectScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
+        gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
         LogicaUsuarios lu = new LogicaUsuarios();
         ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(main.username);
@@ -60,7 +63,7 @@ public class LevelSelectScreen implements Screen {
         stage.addActor(table);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
-        levelLabel = new Label("Nivel " + currentLevel, labelStyle);
+        levelLabel = new Label(gestorIdiomas.setTexto("levelselect.titulo") + currentLevel, labelStyle);
         levelLabel.setFontScale(1.5f);
         
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
@@ -89,7 +92,7 @@ public class LevelSelectScreen implements Screen {
             }
         });
 
-        TextButton startButton = new TextButton("Iniciar Juego", buttonStyle);
+        TextButton startButton = new TextButton(gestorIdiomas.setTexto("levelselect.iniciar_juego"), buttonStyle);
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -99,7 +102,7 @@ public class LevelSelectScreen implements Screen {
             }
         });
 
-        TextButton backButton = new TextButton("Volver al Menu", buttonStyle);
+        TextButton backButton = new TextButton(gestorIdiomas.setTexto("levelselect.volver_menu"), buttonStyle);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -115,7 +118,7 @@ public class LevelSelectScreen implements Screen {
     }
 
     private void updateLevelLabel() {
-        levelLabel.setText("Nivel " + currentLevel);
+        levelLabel.setText(gestorIdiomas.setTexto("levelselect.titulo") + currentLevel);
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Eventos.Sokoban;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
 
@@ -36,11 +37,13 @@ public class GameScreen implements Screen {
     private float tiempoDeJuego;
     private final int scoreBase = 10000;
     private int keyUp, keyDown, keyLeft, keyRight;
+    private GestorIdiomas gestorIdiomas;
 
     public GameScreen(final Main main, int nivel) {
         this.main = main;
         this.nivelActual = nivel;
         this.juegoSokoban = new Sokoban(main, nivel, main.username);
+        this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
         loadControls();
 
@@ -79,12 +82,12 @@ public class GameScreen implements Screen {
         panelControles.setBackground("default-pane");
         panelControles.pad(10).defaults().pad(5);
 
-        cantmoves = new Label("Movimientos: 0", labelStyle);
-        cantempujes = new Label("Empujes: 0", labelStyle);
-        scoreLabel = new Label("Score: " + scoreBase, labelStyle);
-        timeLabel = new Label("Tiempo: 0s", labelStyle);
+        cantmoves = new Label(gestorIdiomas.setTexto("game.movimientos") + "0", labelStyle);
+        cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", labelStyle);
+        scoreLabel = new Label(gestorIdiomas.setTexto("game.score") + scoreBase, labelStyle);
+        timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", labelStyle);
 
-        TextButton botonVolver = new TextButton("MENU", skin);
+        TextButton botonVolver = new TextButton(gestorIdiomas.setTexto("game.menu_boton"), skin);
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -103,9 +106,9 @@ public class GameScreen implements Screen {
     }
 
     private void mostrarDialogoVictoria() {
-        String mensaje = "FELICIDADES!\nScore: " + Math.max(0, score) + "\n\nQuieres jugar de nuevo?";
+        String mensaje = gestorIdiomas.setTexto("game.dialogo_victoria_mensaje", Math.max(0, score));
 
-        Dialog dialogo = new Dialog("HAS GANADO!", skin) {
+        Dialog dialogo = new Dialog(gestorIdiomas.setTexto("game.dialogo_victoria_titulo"), skin) {
             @Override
             protected void result(Object object) {
                 if ((Boolean) object) {
@@ -116,8 +119,8 @@ public class GameScreen implements Screen {
             }
         };
         dialogo.text(mensaje);
-        dialogo.button("Reintentar", true);
-        dialogo.button("Menu", false);
+        dialogo.button(gestorIdiomas.setTexto("game.dialogo_victoria_reintentar"), true);
+        dialogo.button(gestorIdiomas.setTexto("game.dialogo_victoria_menu"), false);
         dialogo.show(stage);
     }
 
@@ -126,8 +129,8 @@ public class GameScreen implements Screen {
         if (!juegoSokoban.isJuegoGanado()) {
             tiempoDeJuego += delta;
             score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int) (tiempoDeJuego * 2);
-            scoreLabel.setText("Score: " + Math.max(0, score));
-            timeLabel.setText(String.format("Tiempo: %.0fs", tiempoDeJuego));
+            scoreLabel.setText(gestorIdiomas.setTexto("game.score") + Math.max(0, score));
+            timeLabel.setText(String.format(gestorIdiomas.setTexto("game.tiempo") + "%.0fs", tiempoDeJuego));
         }
 
         juegoSokoban.actualizar(delta);
@@ -149,8 +152,8 @@ public class GameScreen implements Screen {
 
         juegoSokoban.renderizar();
 
-        cantmoves.setText("Movimientos: " + juegoSokoban.getMovimientos());
-        cantempujes.setText("Empujes: " + juegoSokoban.getEmpujes());
+        cantmoves.setText(gestorIdiomas.setTexto("game.movimientos") + juegoSokoban.getMovimientos());
+        cantempujes.setText(gestorIdiomas.setTexto("game.empujes") + juegoSokoban.getEmpujes());
         stage.act(delta);
         stage.draw();
     }

@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
 
@@ -27,6 +28,7 @@ public class RegisterScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private LogicaUsuarios userLogic;
+    private GestorIdiomas gestorIdiomas;
     private Texture backgroundTexture;
     private BitmapFont pixelFont;
     private BitmapFont titleFont;
@@ -41,6 +43,7 @@ public class RegisterScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
+        gestorIdiomas = GestorIdiomas.obtenerInstancia();
         backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
@@ -94,23 +97,23 @@ public class RegisterScreen implements Screen {
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        table.add(new Label("Registro de Usuario", titleStyle)).padBottom(40).colspan(2).row();
+        table.add(new Label(gestorIdiomas.setTexto("register.titulo"), titleStyle)).padBottom(40).colspan(2).row();
 
-        TextButton userLabelButton = new TextButton("USUARIO", labelButtonStyle);
+        TextButton userLabelButton = new TextButton(gestorIdiomas.setTexto("login.usuario"), labelButtonStyle);
         userLabelButton.setDisabled(true);
         table.add(userLabelButton).width(250).height(70).padRight(10);
         usernameField = new TextField("", textFieldStyle);
         usernameField.setMaxLength(15);
         table.add(usernameField).width(350).height(70).padBottom(15).row();
 
-        TextButton nameLabelButton = new TextButton("NOMBRE", labelButtonStyle);
+        TextButton nameLabelButton = new TextButton(gestorIdiomas.setTexto("register.nombre"), labelButtonStyle);
         nameLabelButton.setDisabled(true);
         table.add(nameLabelButton).width(250).height(70).padRight(10);
         fullnameField = new TextField("", textFieldStyle);
         fullnameField.setMaxLength(25);
         table.add(fullnameField).width(350).height(70).padBottom(15).row();
 
-        TextButton passLabelButton = new TextButton("CONTRASENA", labelButtonStyle);
+        TextButton passLabelButton = new TextButton(gestorIdiomas.setTexto("login.contrasena"), labelButtonStyle);
         passLabelButton.setDisabled(true);
         table.add(passLabelButton).width(250).height(70).padRight(10);
         passwordField = new TextField("", textFieldStyle);
@@ -119,10 +122,10 @@ public class RegisterScreen implements Screen {
         passwordField.setMaxLength(20);
         table.add(passwordField).width(350).height(70).padBottom(15).row();
         
-        showPasswordCheckBox = new CheckBox(" MOSTRAR CONTRASENA", checkBoxStyle);
+        showPasswordCheckBox = new CheckBox(gestorIdiomas.setTexto("login.mostrar_contrasena"), checkBoxStyle);
         table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
         
-        TextButton registerButton = new TextButton("REGISTRARSE", actionButtonStyle);
+        TextButton registerButton = new TextButton(gestorIdiomas.setTexto("register.registrarse"), actionButtonStyle);
         table.add(registerButton).colspan(2).size(300, 60).padTop(10).row();
 
         messageLabel = new Label("", labelStyle);
@@ -130,13 +133,13 @@ public class RegisterScreen implements Screen {
         table.add(messageLabel).colspan(2).width(400).padTop(10).row();
 
         Table loginLinkTable = new Table();
-        Label alreadyAccountLabel = new Label("Ya tienes cuenta?", labelStyle);
+        Label alreadyAccountLabel = new Label(gestorIdiomas.setTexto("register.ya_tienes_cuenta"), labelStyle);
         loginLinkTable.add(alreadyAccountLabel).padRight(5);
 
         TextButton.TextButtonStyle linkStyle = new TextButton.TextButtonStyle(skin.get("toggle", TextButton.TextButtonStyle.class));
         linkStyle.font = pixelFont;
         linkStyle.fontColor = Color.CYAN;
-        TextButton loginButton = new TextButton("Login", linkStyle);
+        TextButton loginButton = new TextButton(gestorIdiomas.setTexto("register.login"), linkStyle);
         loginLinkTable.add(loginButton);
 
         table.add(loginLinkTable).colspan(2).padTop(20);
@@ -153,13 +156,13 @@ public class RegisterScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 String password = passwordField.getText();
                 if (!isPasswordValid(password)) {
-                    messageLabel.setText("Contrasena invalida. Debe tener 8+ caracteres, letra, numero y simbolo.");
+                    messageLabel.setText(gestorIdiomas.setTexto("register.error_password"));
                     return;
                 }
                 if (userLogic.CrearUsuario(usernameField.getText(), fullnameField.getText(), password)) {
                     transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
                 } else {
-                    messageLabel.setText("El nombre de usuario ya existe o es invalido.");
+                    messageLabel.setText(gestorIdiomas.setTexto("register.error_username"));
                 }
             }
         });
@@ -175,7 +178,7 @@ public class RegisterScreen implements Screen {
     @Override
     public void show() {
         main.playLobbyMusic();
-        transicionSuave.fadeIn(stage); 
+        transicionSuave.fadeIn(stage);
     }
 
     @Override

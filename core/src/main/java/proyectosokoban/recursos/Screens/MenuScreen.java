@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
 
 public class MenuScreen implements Screen {
@@ -25,12 +26,14 @@ public class MenuScreen implements Screen {
     private BitmapFont pixelFont;
     private BitmapFont titleFont;
     private Texture backgroundTexture;
+    private GestorIdiomas gestorIdiomas;
 
     public MenuScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
+        gestorIdiomas = GestorIdiomas.obtenerInstancia();
         
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         
@@ -53,14 +56,14 @@ public class MenuScreen implements Screen {
         stage.addActor(table);
 
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("F5F5DC"));
-        Label title = new Label("Sokoban", titleStyle);
+        Label title = new Label(gestorIdiomas.setTexto("menu.titulo"), titleStyle);
         table.add(title).padBottom(50).row();
 
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = pixelFont;
         buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        TextButton playButton = new TextButton("Jugar", buttonStyle);
+        TextButton playButton = new TextButton(gestorIdiomas.setTexto("menu.jugar"), buttonStyle);
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -69,7 +72,7 @@ public class MenuScreen implements Screen {
         });
         table.add(playButton).size(300, 60).padBottom(20).row();
 
-        TextButton friendsButton = new TextButton("Amigos", buttonStyle);
+        TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("menu.amigos"), buttonStyle);
         friendsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -78,7 +81,7 @@ public class MenuScreen implements Screen {
         });
         table.add(friendsButton).size(300, 60).padBottom(20).row();
         
-        TextButton preferencesButton = new TextButton("Preferencias", buttonStyle);
+        TextButton preferencesButton = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), buttonStyle);
         preferencesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -87,7 +90,7 @@ public class MenuScreen implements Screen {
         });
         table.add(preferencesButton).size(300, 60).padBottom(20).row();
 
-        TextButton exitButton = new TextButton("Cerrar Sesion", buttonStyle);
+        TextButton exitButton = new TextButton(gestorIdiomas.setTexto("menu.cerrar_sesion"), buttonStyle);
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -102,6 +105,7 @@ public class MenuScreen implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(stage);
         main.playMenuMusic();
+        gestorIdiomas.cargarPreferenciasUsuario(main.username);
         transicionSuave.fadeIn(stage);
     }
 

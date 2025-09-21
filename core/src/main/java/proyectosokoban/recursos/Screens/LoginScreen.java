@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
 
@@ -27,6 +28,7 @@ public class LoginScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private LogicaUsuarios userLogic;
+    private GestorIdiomas gestorIdiomas;
     private Texture backgroundTexture;
     private BitmapFont pixelFont;
     private BitmapFont titleFont;
@@ -40,6 +42,7 @@ public class LoginScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
+        gestorIdiomas = GestorIdiomas.obtenerInstancia();
         backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
@@ -82,7 +85,7 @@ public class LoginScreen implements Screen {
 
         table.center();
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
-        Label title = new Label("Sokomine", titleStyle);
+        Label title = new Label(gestorIdiomas.setTexto("login.titulo"), titleStyle);
         table.add(title).padBottom(50).colspan(2).row();
         
         Drawable tableBackground = skin.newDrawable("white", 0, 0, 0, 0.5f);
@@ -113,7 +116,7 @@ public class LoginScreen implements Screen {
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        TextButton userLabelButton = new TextButton("USUARIO", labelButtonStyle);
+        TextButton userLabelButton = new TextButton(gestorIdiomas.setTexto("login.usuario"), labelButtonStyle);
         userLabelButton.setDisabled(true);
         table.add(userLabelButton).width(250).height(70).padRight(10);
         
@@ -121,7 +124,7 @@ public class LoginScreen implements Screen {
         usernameField.setMaxLength(15);
         table.add(usernameField).width(350).height(70).padBottom(15).row();
 
-        TextButton passLabelButton = new TextButton("CONTRASENA", labelButtonStyle);
+        TextButton passLabelButton = new TextButton(gestorIdiomas.setTexto("login.contrasena"), labelButtonStyle);
         passLabelButton.setDisabled(true);
         table.add(passLabelButton).width(250).height(70).padRight(10);
 
@@ -131,23 +134,23 @@ public class LoginScreen implements Screen {
         passwordField.setMaxLength(20);
         table.add(passwordField).width(350).height(70).padBottom(15).row();
 
-        showPasswordCheckBox = new CheckBox(" MOSTRAR CONTRASENA", checkBoxStyle);
+        showPasswordCheckBox = new CheckBox(gestorIdiomas.setTexto("login.mostrar_contrasena"), checkBoxStyle);
         table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
 
-        TextButton loginButton = new TextButton("INICIAR SESION", actionButtonStyle);
+        TextButton loginButton = new TextButton(gestorIdiomas.setTexto("login.iniciar_sesion"), actionButtonStyle);
         table.add(loginButton).colspan(2).size(300, 60).padTop(10).row();
 
         messageLabel = new Label("", labelStyle);
         table.add(messageLabel).colspan(2).padTop(10).row();
 
         Table registerLinkTable = new Table();
-        Label noAccountLabel = new Label("No tienes cuenta?", labelStyle);
+        Label noAccountLabel = new Label(gestorIdiomas.setTexto("login.no_tienes_cuenta"), labelStyle);
         registerLinkTable.add(noAccountLabel).padRight(5);
 
         TextButton.TextButtonStyle linkStyle = new TextButton.TextButtonStyle(skin.get("toggle", TextButton.TextButtonStyle.class));
         linkStyle.font = pixelFont;
         linkStyle.fontColor = Color.CYAN;
-        TextButton registerButton = new TextButton("Registrate", linkStyle);
+        TextButton registerButton = new TextButton(gestorIdiomas.setTexto("login.registrate"), linkStyle);
         registerLinkTable.add(registerButton);
 
         table.add(registerLinkTable).colspan(2).padTop(20);
@@ -167,7 +170,7 @@ public class LoginScreen implements Screen {
                     main.applyDisplayPreferences();
                     transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
                 } else {
-                    messageLabel.setText("Usuario o contrasena incorrectos.");
+                    messageLabel.setText(gestorIdiomas.setTexto("login.error"));
                 }
             }
         });
@@ -182,8 +185,9 @@ public class LoginScreen implements Screen {
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(stage);
         main.playLobbyMusic();
-        transicionSuave.fadeIn(stage); 
+        transicionSuave.fadeIn(stage);
     }
 
     @Override

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
@@ -20,6 +16,7 @@ import proyectosokoban.recursos.Main;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import proyectosokoban.recursos.SelectorNiveles.MapaSelector;
 import proyectosokoban.recursos.SelectorNiveles.SelectorNiveles;
+import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 
 public class ScreenTesting implements Screen {
 
@@ -28,6 +25,7 @@ public class ScreenTesting implements Screen {
     private Skin skin;
     private OrthographicCamera camera;
     private SpriteBatch batch;
+    private GestorIdiomas gestorIdiomas;
 
     private MapaSelector mapa;
     private SelectorNiveles selector;
@@ -40,13 +38,12 @@ public class ScreenTesting implements Screen {
 
     public ScreenTesting(final Main main) {
         this.main = main;
+        this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
         cargarControles();
         inicializar();
     }
 
     private void cargarControles() {
-        // Aquí puedes cargar los controles personalizados si es necesario
-        // Por ahora usaremos las flechas por defecto
         this.keyUp = Input.Keys.UP;
         this.keyDown = Input.Keys.DOWN;
         this.keyLeft = Input.Keys.LEFT;
@@ -59,7 +56,7 @@ public class ScreenTesting implements Screen {
         batch = new SpriteBatch();
 
         mapa = new MapaSelector(TILE);
-        selector = new SelectorNiveles(0, 4, TILE, mapa); // Posición inicial
+        selector = new SelectorNiveles(0, 4, TILE, mapa);
 
         inicializarUI();
     }
@@ -76,7 +73,7 @@ public class ScreenTesting implements Screen {
         panelSuperior.setBackground("default-pane");
         panelSuperior.pad(10);
 
-        TextButton botonVolver = new TextButton("VOLVER AL MENU", skin);
+        TextButton botonVolver = new TextButton(gestorIdiomas.setTexto("back.button"), skin);
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -98,21 +95,17 @@ public class ScreenTesting implements Screen {
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Actualizar cámara
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        // Renderizar mapa y selector
         batch.begin();
         mapa.render(batch);
         selector.render(batch);
         batch.end();
 
-        // Actualizar lógica
         selector.actualizar(delta);
         tiempoDesdeUltimoMovimiento += delta;
 
-        // Manejar entrada
         if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !selector.estaMoviendose()) {
             boolean seMovio = false;
 
@@ -137,7 +130,6 @@ public class ScreenTesting implements Screen {
             }
         }
 
-        // Renderizar UI
         stage.act(delta);
         stage.draw();
     }
