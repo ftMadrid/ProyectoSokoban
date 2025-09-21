@@ -7,12 +7,14 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import proyectosokoban.recursos.Screens.IntroScreen;
 import proyectosokoban.recursos.Screens.PantallaDeCarga;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class Main extends Game {
 
     public String username;
     public Music menuMusic;
     public Music gameMusic;
+    public Music lobbyMusic;
     private float volume = 1.0f;
     private PantallaDeCarga backgroundScreen;
 
@@ -31,10 +33,38 @@ public class Main extends Game {
         } catch (GdxRuntimeException e) {
             gameMusic = null;
         }
-
+        
+        try {
+            lobbyMusic = Gdx.audio.newMusic(Gdx.files.internal("lobby.mp3"));
+            lobbyMusic.setLooping(true);
+        } catch (GdxRuntimeException e) {
+            lobbyMusic = null;
+        }
+        
         backgroundScreen = new PantallaDeCarga();
         setScreen(new IntroScreen(this));
     }
+    
+    public void applyDisplayPreferences() {
+        if (username != null && !username.isEmpty()) {
+            LogicaUsuarios lu = new LogicaUsuarios();
+            int[] prefs = lu.getPreferencias(username);
+            int displayMode = prefs[8]; 
+
+            switch (displayMode) {
+                case 0: 
+                    Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                    break;
+                case 1: 
+                    Gdx.graphics.setWindowedMode(1280, 720);
+                    break;
+                case 2: 
+                    Gdx.graphics.setWindowedMode(900, 900);
+                    break;
+            }
+        }
+    }
+
 
     public PantallaDeCarga getBackgroundScreen() {
         return backgroundScreen;
@@ -50,10 +80,6 @@ public class Main extends Game {
 
         if (screen != null) {
             screen.render(delta);
-        }
-
-        if (backgroundScreen != null) {
-            backgroundScreen.renderAnimation(delta);
         }
     }
 
@@ -74,15 +100,34 @@ public class Main extends Game {
         if (gameMusic != null && gameMusic.isPlaying()) {
             gameMusic.stop();
         }
+         if (lobbyMusic != null && lobbyMusic.isPlaying()) {
+            lobbyMusic.stop();
+        }
         if (menuMusic != null && !menuMusic.isPlaying()) {
             menuMusic.setVolume(this.volume);
             menuMusic.play();
+        }
+    }
+    
+    public void playLobbyMusic() {
+        if (gameMusic != null && gameMusic.isPlaying()) {
+            gameMusic.stop();
+        }
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+        if (lobbyMusic != null && !lobbyMusic.isPlaying()) {
+            lobbyMusic.setVolume(this.volume);
+            lobbyMusic.play();
         }
     }
 
     public void playGameMusic() {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();
+        }
+        if (lobbyMusic != null && lobbyMusic.isPlaying()) {
+            lobbyMusic.stop();
         }
         if (gameMusic != null && !gameMusic.isPlaying()) {
             gameMusic.setVolume(this.volume);
@@ -97,6 +142,9 @@ public class Main extends Game {
         if (gameMusic != null) {
             gameMusic.stop();
         }
+        if (lobbyMusic != null) {
+            lobbyMusic.stop();
+        }
     }
 
     public void setVolume(float vol) {
@@ -106,6 +154,9 @@ public class Main extends Game {
         }
         if (gameMusic != null) {
             gameMusic.setVolume(this.volume);
+        }
+        if (lobbyMusic != null) {
+            lobbyMusic.setVolume(this.volume);
         }
     }
 
@@ -120,6 +171,9 @@ public class Main extends Game {
         }
         if (gameMusic != null) {
             gameMusic.dispose();
+        }
+        if(lobbyMusic != null){
+            lobbyMusic.dispose();
         }
         if (backgroundScreen != null) {
             backgroundScreen.dispose();

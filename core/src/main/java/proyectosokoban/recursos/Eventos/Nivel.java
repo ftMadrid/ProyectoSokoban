@@ -253,7 +253,6 @@ public class Nivel {
                 return;
         }
 
-        // Crear paredes y suelos
         for (int y = 0; y < FILAS; y++) {
             for (int x = 0; x < COLUMNAS; x++) {
                 if (mapa[y][x].equals("#")) {
@@ -315,25 +314,20 @@ public class Nivel {
         }
     }
 
-    // Renderizado ahora recibe el SpriteBatch desde Sokoban
     public void render(SpriteBatch batch) {
 
-        // Renderizar suelos
         for (Suelo suelo : suelos) {
             suelo.render(batch, TILE);
         }
 
-        // Renderizar paredes
         for (Pared pared : paredes) {
             pared.render(batch, TILE);
         }
 
-        // Renderizar objetivos
         for (Objetivo obj : objetivos) {
             obj.render(batch, TILE);
         }
 
-        // Renderizar cajas
         for (Caja caja : cajas) {
             caja.render(batch, TILE);
         }
@@ -431,9 +425,16 @@ public class Nivel {
         }
     }
 
-    // Getters
     public int getTILE() {
         return TILE;
+    }
+    
+    public int getFILAS() {
+        return FILAS;
+    }
+    
+    public int getCOLUMNAS() {
+        return COLUMNAS;
     }
 
     public int getSpawnJugadorX() {

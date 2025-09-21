@@ -122,12 +122,8 @@ public class RegisterScreen implements Screen {
         showPasswordCheckBox = new CheckBox(" MOSTRAR CONTRASENA", checkBoxStyle);
         table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
         
-        Stack registerButtonStack = new Stack();
         TextButton registerButton = new TextButton("REGISTRARSE", actionButtonStyle);
-        Image registerButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
-        registerButtonStack.add(registerButtonOutline);
-        registerButtonStack.add(registerButton);
-        table.add(registerButtonStack).colspan(2).size(300, 60).padTop(10).row();
+        table.add(registerButton).colspan(2).size(300, 60).padTop(10).row();
 
         messageLabel = new Label("", labelStyle);
         messageLabel.setWrap(true);
@@ -178,6 +174,7 @@ public class RegisterScreen implements Screen {
 
     @Override
     public void show() {
+        main.playLobbyMusic();
         transicionSuave.fadeIn(stage); 
     }
 

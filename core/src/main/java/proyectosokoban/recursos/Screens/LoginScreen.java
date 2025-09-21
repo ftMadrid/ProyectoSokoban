@@ -66,7 +66,7 @@ public class LoginScreen implements Screen {
         exitButtonStyle.font = pixelFont;
         
         TextButton exitButton = new TextButton("X", exitButtonStyle);
-        exitButton.getLabel().setFontScale(1.5f); // Ajusta la escala de la fuente para centrar
+        exitButton.getLabel().setFontScale(1.5f);
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -134,12 +134,8 @@ public class LoginScreen implements Screen {
         showPasswordCheckBox = new CheckBox(" MOSTRAR CONTRASENA", checkBoxStyle);
         table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
 
-        Stack loginButtonStack = new Stack();
         TextButton loginButton = new TextButton("INICIAR SESION", actionButtonStyle);
-        Image loginButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
-        loginButtonStack.add(loginButtonOutline);
-        loginButtonStack.add(loginButton);
-        table.add(loginButtonStack).colspan(2).size(300, 60).padTop(10).row();
+        table.add(loginButton).colspan(2).size(300, 60).padTop(10).row();
 
         messageLabel = new Label("", labelStyle);
         table.add(messageLabel).colspan(2).padTop(10).row();
@@ -168,6 +164,7 @@ public class LoginScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if (userLogic.login(usernameField.getText(), passwordField.getText())) {
                     main.username = usernameField.getText();
+                    main.applyDisplayPreferences();
                     transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
                 } else {
                     messageLabel.setText("Usuario o contrasena incorrectos.");
@@ -185,6 +182,7 @@ public class LoginScreen implements Screen {
 
     @Override
     public void show() {
+        main.playLobbyMusic();
         transicionSuave.fadeIn(stage); 
     }
 

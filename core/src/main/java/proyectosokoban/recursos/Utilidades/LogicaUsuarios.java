@@ -9,12 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Gestiona toda la logica de creacion, lectura y escritura de los datos de
- * los usuarios.
- * Utiliza RandomAccessFile para un acceso eficiente a archivos binarios (.dat).
- * Esta version incluye todos los metodos necesarios para la funcionalidad completa del juego.
- */
 public class LogicaUsuarios {
 
     private final File raiz;
@@ -27,8 +21,6 @@ public class LogicaUsuarios {
         }
     }
 
-    // --- Definicion de Rutas a los Archivos ---
-
     private File dirUsuario(String username) { return new File(raiz, username); }
     private File dirScores(String username) { return new File(dirUsuario(username), "scores"); }
     private File filePerfil(String username) { return new File(dirUsuario(username), "perfil.dat"); }
@@ -36,8 +28,6 @@ public class LogicaUsuarios {
     private File filePrefs(String username) { return new File(dirUsuario(username), "preferencias.dat"); }
     private File fileNivel(String username, int nivel) { return new File(dirScores(username), "nivel" + nivel + ".dat"); }
     private File fileHistorial(String username) { return new File(dirUsuario(username), "historial.dat"); }
-
-    // --- Metodos Auxiliares para Escribir y Leer Datos Binarios ---
 
     private void writeString(RandomAccessFile raf, String s) throws IOException {
         raf.writeUTF(s != null ? s : "");
@@ -47,8 +37,6 @@ public class LogicaUsuarios {
         return raf.readUTF();
     }
     
-    // --- Gestion de Perfil de Usuario ---
-
     public boolean CrearUsuario(String username, String nombreCompleto, String password) {
         if (username == null || username.trim().isEmpty() || dirUsuario(username).exists()) {
             return false;
@@ -60,43 +48,43 @@ public class LogicaUsuarios {
 
             long ahora = System.currentTimeMillis();
 
-            // Escribir perfil.dat
             try (RandomAccessFile raf = new RandomAccessFile(filePerfil(username), "rw")) {
                 writeString(raf, username);
                 writeString(raf, password);
                 writeString(raf, nombreCompleto);
-                raf.writeLong(ahora);           // fechaRegistro
-                raf.writeLong(ahora);           // ultimaSesion
-                raf.writeLong(0L);              // tiempoTotalJugadoMs
-                raf.writeInt(0);                // rankingGeneral
-                raf.writeInt(0);                // nivelesCompletados
-                raf.writeInt(0);                // puntuacionAcumulada
-                raf.writeBoolean(false);        // avatarPresente
+                raf.writeLong(ahora);           
+                raf.writeLong(ahora);           
+                raf.writeLong(0L);              
+                raf.writeInt(0);                
+                raf.writeInt(0);                
+                raf.writeInt(0);                
+                raf.writeBoolean(false);        
             }
 
-            // Crear preferencias.dat con valores por defecto
             try (RandomAccessFile raf = new RandomAccessFile(filePrefs(username), "rw")) {
-                raf.writeInt(100);  // volumen
-                raf.writeByte(0);   // idioma
-                raf.writeByte(0);   // control
-                raf.writeBoolean(false); // mute
+                raf.writeInt(100);  
+                raf.writeByte(0);   
+                raf.writeByte(0);   
+                raf.writeBoolean(false); 
+                raf.writeInt(Input.Keys.UP);
+                raf.writeInt(Input.Keys.DOWN);
+                raf.writeInt(Input.Keys.LEFT);
+                raf.writeInt(Input.Keys.RIGHT);
+                raf.writeInt(0); 
             }
 
-            // Crear amigos.dat vacio
             try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
-                raf.writeInt(0); // 0 amigos al inicio
+                raf.writeInt(0); 
             }
             
-            // Crear historial.dat vacio
             fileHistorial(username).createNewFile();
 
-            // Crear el primer nivel para que este disponible
             crearNivelSiNoExiste(username, 1);
 
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            dirUsuario(username).delete(); // Limpiar en caso de error
+            dirUsuario(username).delete(); 
             return false;
         }
     }
@@ -107,13 +95,13 @@ public class LogicaUsuarios {
 
         try (RandomAccessFile raf = new RandomAccessFile(perfilFile, "rw")) {
             raf.seek(0);
-            readString(raf); // Saltar username
+            readString(raf); 
             String savedPassword = readString(raf);
 
             if (savedPassword.equals(password)) {
-                readString(raf); // Saltar nombreCompleto
-                raf.readLong();  // Saltar fechaRegistro
-                raf.writeLong(System.currentTimeMillis()); // Actualizar ultimaSesion
+                readString(raf); 
+                raf.readLong();  
+                raf.writeLong(System.currentTimeMillis()); 
                 usuarioLogged = username;
                 return true;
             }
@@ -123,8 +111,6 @@ public class LogicaUsuarios {
             return false;
         }
     }
-
-    // --- Gestion de Amigos ---
     
     public List<String> listarAmigos(String username) {
         List<String> amigos = new ArrayList<>();
@@ -160,14 +146,12 @@ public class LogicaUsuarios {
         }
     }
     
-    // --- Gestion de Niveles y Puntuaciones ---
-
     private void crearNivelSiNoExiste(String username, int nivel) throws IOException {
         File nivelFile = fileNivel(username, nivel);
         if (!nivelFile.exists()) {
             try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-                raf.writeInt(0); // highscore
-                raf.writeBoolean(false); // completado
+                raf.writeInt(0); 
+                raf.writeBoolean(false); 
             }
         }
     }
@@ -190,7 +174,7 @@ public class LogicaUsuarios {
     public boolean marcarNivelPasado(String username, int nivel) {
         File nivelFile = fileNivel(username, nivel);
         try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-            raf.readInt(); // Saltar highscore
+            raf.readInt(); 
             raf.writeBoolean(true);
             
             if (nivel < 7) {
@@ -212,11 +196,8 @@ public class LogicaUsuarios {
         return 1;
     }
 
-    // --- Gestion de Preferencias ---
     public int[] getPreferencias(String username) {
-        // El array ahora es mas grande para incluir las 4 teclas
-        // Formato: {vol, idi, ctrl, mute, keyUp, keyDown, keyLeft, keyRight}
-        int[] defaults = {100, 0, 0, 0, Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT};
+        int[] defaults = {100, 0, 0, 0, Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, 0};
         File prefsFile = filePrefs(username);
         if (!prefsFile.exists()) return defaults;
 
@@ -225,37 +206,35 @@ public class LogicaUsuarios {
             int idi = raf.readByte();
             int ctrl = raf.readByte();
             int mute = raf.readBoolean() ? 1 : 0;
-            // Leer las 4 teclas guardadas
             int keyUp = raf.readInt();
             int keyDown = raf.readInt();
             int keyLeft = raf.readInt();
             int keyRight = raf.readInt();
-            return new int[]{vol, idi, ctrl, mute, keyUp, keyDown, keyLeft, keyRight};
+            int displayMode = raf.readInt();
+            return new int[]{vol, idi, ctrl, mute, keyUp, keyDown, keyLeft, keyRight, displayMode};
         } catch (IOException e) {
             return defaults;
         }
     }
 
-    public boolean setPreferencias(String username, int volumen, byte idioma, byte control, boolean mute, int keyUp, int keyDown, int keyLeft, int keyRight) {
+    public boolean setPreferencias(String username, int volumen, byte idioma, byte control, boolean mute, int keyUp, int keyDown, int keyLeft, int keyRight, int displayMode) {
         try (RandomAccessFile raf = new RandomAccessFile(filePrefs(username), "rw")) {
-            raf.setLength(0); // Limpiar el archivo para reescribir
+            raf.setLength(0); 
             raf.writeInt(volumen);
             raf.writeByte(idioma);
             raf.writeByte(control);
             raf.writeBoolean(mute);
-            // Escribir las 4 nuevas teclas
             raf.writeInt(keyUp);
             raf.writeInt(keyDown);
             raf.writeInt(keyLeft);
             raf.writeInt(keyRight);
+            raf.writeInt(displayMode);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
-    
-    // --- Gestion de Historial ---
     
     public boolean registrarPartida(String username, int nivel, int score, int intentos, long duracionMs, boolean exito) {
         try (RandomAccessFile raf = new RandomAccessFile(fileHistorial(username), "rw")) {
@@ -273,9 +252,6 @@ public class LogicaUsuarios {
         }
     }
     
-    // --- Metodos para Leaderboards y Rankings ---
-
-    // Clase interna para facilitar la ordenacion de puntajes
     private static class ScoreEntry {
         String user;
         int score;
@@ -286,7 +262,6 @@ public class LogicaUsuarios {
         }
     }
     
-    // Comparador para ordenar ScoreEntry de mayor a menor
     private Comparator<ScoreEntry> scoreComparator = new Comparator<ScoreEntry>() {
         @Override
         public int compare(ScoreEntry s1, ScoreEntry s2) {
@@ -351,14 +326,13 @@ public class LogicaUsuarios {
     }
     
     public int miPosicionEnLeaderBoardNivelAmigos(String username, int nivel) {
-        List<String> leaderboard = leaderboardNivelAmigos(username, nivel, true, 0); // 0 para obtener todos
+        List<String> leaderboard = leaderboardNivelAmigos(username, nivel, true, 0); 
         for (int i = 0; i < leaderboard.size(); i++) {
-            // Busca una linea que empiece con "X. username - "
             if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) {
                 return i + 1;
             }
         }
-        return -1; // No encontrado
+        return -1; 
     }
 
     private int getTotalScore(String username) {
@@ -404,13 +378,12 @@ public class LogicaUsuarios {
 
         try (RandomAccessFile raf = new RandomAccessFile(filePerfil(username), "rw")) {
             raf.seek(0);
-            readString(raf); // user
-            readString(raf); // pass
-            readString(raf); // nombre
-            raf.readLong();  // fecha reg
-            raf.readLong();  // ultima sesion
-            raf.readLong();  // tiempo total
-            // El puntero esta en la posicion del ranking
+            readString(raf); 
+            readString(raf); 
+            readString(raf); 
+            raf.readLong();  
+            raf.readLong();  
+            raf.readLong();  
             raf.writeInt(ranking);
             return true;
         } catch (IOException e) {

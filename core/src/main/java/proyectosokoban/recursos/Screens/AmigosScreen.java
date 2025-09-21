@@ -111,19 +111,13 @@ public class AmigosScreen implements Screen {
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        Stack addButtonStack = new Stack();
         TextButton addButton = new TextButton("Agregar Amigo", actionButtonStyle);
-        Image addButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
-        addButtonStack.add(addButtonOutline);
-        addButtonStack.add(addButton);
-        mainTable.add(addButtonStack).size(300, 60).padTop(30).row();
-
-        Stack backButtonStack = new Stack();
         TextButton backButton = new TextButton("Volver al Menu", actionButtonStyle);
-        Image backButtonOutline = new Image(new Texture(Gdx.files.internal("ui/outline botones.png")));
-        backButtonStack.add(backButtonOutline);
-        backButtonStack.add(backButton);
-        mainTable.add(backButtonStack).size(300, 60).padTop(20);
+        
+        Table buttonTable = new Table();
+        buttonTable.add(addButton).size(300, 60).pad(10).row();
+        buttonTable.add(backButton).size(300, 60).pad(10);
+        mainTable.add(buttonTable).padTop(20);
 
         addButton.addListener(new ClickListener() {
             @Override

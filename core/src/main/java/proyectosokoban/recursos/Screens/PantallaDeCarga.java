@@ -5,24 +5,22 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class PantallaDeCarga implements Screen {
 
     private Stage stage;
-    private SpriteBatch batch;
     private Animation<TextureRegion> walkAnimation;
     private Texture[] walkFrames;
-    private float stateTime;
+    private AnimatedActor transitionActor;
     private boolean isTransitioning;
 
     public PantallaDeCarga() {
         stage = new Stage(new ScreenViewport());
-        batch = new SpriteBatch();
         
         walkFrames = new Texture[6];
         Array<TextureRegion> frames = new Array<>();
@@ -32,26 +30,26 @@ public class PantallaDeCarga implements Screen {
         }
         walkAnimation = new Animation<>(0.1f, frames, Animation.PlayMode.LOOP);
         
+        transitionActor = new AnimatedActor();
+        transitionActor.setAnimation(walkAnimation);
+        transitionActor.setSize(64, 64);
+        transitionActor.setVisible(false);
+        stage.addActor(transitionActor);
+
         isTransitioning = false;
     }
 
     public void startTransitionAnimation() {
-        stateTime = 0f;
+        transitionActor.setVisible(true);
+        transitionActor.setPosition(stage.getWidth(), 20);
+        transitionActor.addAction(Actions.moveTo(stage.getWidth() - transitionActor.getWidth() - 20, 20, 0.5f));
         isTransitioning = true;
     }
 
     public void stopTransitionAnimation() {
+        transitionActor.clearActions();
+        transitionActor.setVisible(false);
         isTransitioning = false;
-    }
-
-    public void renderAnimation(float delta) {
-        if (isTransitioning) {
-            stateTime += delta;
-            TextureRegion currentFrame = walkAnimation.getKeyFrame(stateTime, true);
-            batch.begin();
-            batch.draw(currentFrame, Gdx.graphics.getWidth() - currentFrame.getRegionWidth() - 20, 20);
-            batch.end();
-        }
     }
 
     @Override
@@ -65,6 +63,9 @@ public class PantallaDeCarga implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        if (transitionActor.isVisible()) {
+            transitionActor.setPosition(width - transitionActor.getWidth() - 20, 20);
+        }
     }
     
     @Override
@@ -79,7 +80,6 @@ public class PantallaDeCarga implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        batch.dispose();
         for (Texture frame : walkFrames) {
             if (frame != null) frame.dispose();
         }

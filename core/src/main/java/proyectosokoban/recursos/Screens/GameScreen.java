@@ -1,6 +1,7 @@
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -52,6 +53,7 @@ public class GameScreen implements Screen {
 
         initializeUI();
         juegoSokoban.inicializarRecursos();
+        resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     private void loadControls() {
