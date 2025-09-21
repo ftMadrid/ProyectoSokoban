@@ -13,14 +13,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import java.util.List;
+
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
-
-import java.util.List;
 
 public class AmigosScreen implements Screen {
 
@@ -28,18 +28,32 @@ public class AmigosScreen implements Screen {
     private Stage stage;
     private LogicaUsuarios userLogic;
     private GestorIdiomas gestorIdiomas;
-    private BitmapFont titleFont, pixelFont;
+
+    // assets
     private Texture backgroundTexture;
-    private List<String> friends;
+    private Texture btnTex;
+    private Texture tfBgTex;
+    private Texture cursorTex;
+
+    // fuentes
+    private BitmapFont pixelFont, titleFont;
+
+    // UI refs
     private TextField friendUsernameTextField;
-    private Label friendsListLabel;
+    private Table listContainer;
 
     public AmigosScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
         userLogic = new LogicaUsuarios();
         gestorIdiomas = GestorIdiomas.obtenerInstancia();
+
+        // cargar assets
         backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
+        btnTex = new Texture(Gdx.files.internal("ui/button1.png"));
+        tfBgTex = new Texture(Gdx.files.internal("ui/txtfield.png"));
+        cursorTex = new Texture(Gdx.files.internal("ui/cursor 1.png"));
+
         setupFonts();
         createUI();
         loadFriends();
@@ -47,140 +61,160 @@ public class AmigosScreen implements Screen {
 
     private void setupFonts() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 70;
-        parameter.color = Color.valueOf("F5F5DC");
-        titleFont = generator.generateFont(parameter);
-        parameter.size = 24;
-        pixelFont = generator.generateFont(parameter);
+        FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        p.size = 72; p.color = Color.valueOf("F5F5DC");
+        titleFont = generator.generateFont(p);
+
+        p.size = 26; p.color = Color.valueOf("F5F5DC");
+        pixelFont = generator.generateFont(p);
+
         generator.dispose();
     }
 
+    private TextButton.TextButtonStyle makeButtonStyle() {
+        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
+        TextureRegionDrawable dr = new TextureRegionDrawable(new TextureRegion(btnTex));
+        style.up = dr;
+        style.down = dr;
+        style.over = dr;
+        style.font = pixelFont;
+        style.fontColor = Color.valueOf("1E1E1E"); // texto oscuro sobre botón claro
+        return style;
+    }
+
+    private TextField.TextFieldStyle makeTextFieldStyle() {
+        TextField.TextFieldStyle s = new TextField.TextFieldStyle();
+        s.font = new BitmapFont(); // sistema para el contenido del textfield (negro)
+        s.fontColor = Color.BLACK;
+        s.background = new TextureRegionDrawable(new TextureRegion(tfBgTex));
+        s.cursor = new TextureRegionDrawable(new TextureRegion(cursorTex));
+        return s;
+    }
+
+    private Label.LabelStyle makeLabelStyle() {
+        return new Label.LabelStyle(pixelFont, Color.valueOf("F5F5DC"));
+    }
+
     private void createUI() {
-        Table mainTable = new Table();
-        mainTable.setFillParent(true);
-        mainTable.center();
-        stage.addActor(mainTable);
+        Table root = new Table();
+        root.setFillParent(true);
+        root.pad(22, 26, 26, 26); // top,left,bottom,right
+        stage.addActor(root);
 
-        Label.LabelStyle titleLabelStyle = new Label.LabelStyle(titleFont, Color.WHITE);
-        Label titleLabel = new Label(gestorIdiomas.setTexto("amigos.titulo"), titleLabelStyle);
-        mainTable.add(titleLabel).padBottom(30).row();
+        // ===== TÍTULO =====
+        Label title = new Label("SOKOMINE", new Label.LabelStyle(titleFont, Color.WHITE));
+        root.add(title).expandX().center().padBottom(16).row();
 
-        Stack fieldStack = new Stack();
-        Table contentTable = new Table();
-        contentTable.padTop(35).padLeft(35).padRight(35).padBottom(25);
-        contentTable.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        Image outlineImage = new Image(new Texture(Gdx.files.internal("ui/outline de field 2.png")));
-        outlineImage.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
-
-        fieldStack.add(contentTable);
-        fieldStack.add(outlineImage);
-
-        mainTable.add(fieldStack).width(750).height(500).row();
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.WHITE);
-        friendsListLabel = new Label("", labelStyle);
-        friendsListLabel.setWrap(true);
-        friendsListLabel.setAlignment(Align.topLeft);
-
-        ScrollPane scrollPane = new ScrollPane(friendsListLabel, new Skin(Gdx.files.internal("uiskin.json")));
-        scrollPane.setFadeScrollBars(false);
-        contentTable.add(scrollPane).expand().fill().pad(15).padBottom(20).row();
-
-        Table addFriendTable = new Table();
-        TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
-        textFieldStyle.font = pixelFont;
-        textFieldStyle.fontColor = Color.BLACK;
-        TextureRegionDrawable fieldBackground = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/txtfield.png"))));
-        fieldBackground.setLeftWidth(25f);
-        fieldBackground.setRightWidth(25f);
-        textFieldStyle.background = fieldBackground;
-        textFieldStyle.messageFont = pixelFont;
-        textFieldStyle.messageFontColor = new Color(0, 0, 0, 0.5f);
-
-        friendUsernameTextField = new TextField("", textFieldStyle);
+        // ===== Fila superior alineada (TextField + Add + Back) =====
+        TextField.TextFieldStyle tfStyle = makeTextFieldStyle();
+        friendUsernameTextField = new TextField("", tfStyle);
         friendUsernameTextField.setMessageText(gestorIdiomas.setTexto("amigos.username_message"));
 
-        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.font = pixelFont;
-        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
-        TextButton addFriendButton = new TextButton(gestorIdiomas.setTexto("amigos.agregar"), buttonStyle);
-
-        addFriendTable.add(friendUsernameTextField).width(350).height(50).padRight(15);
-        addFriendTable.add(addFriendButton).size(220, 50);
-        contentTable.add(addFriendTable).padTop(10).padBottom(10); 
-
-        TextButton backButton = new TextButton(gestorIdiomas.setTexto("back.button"), buttonStyle);
-        mainTable.add(backButton).size(350, 60).padTop(30).row();
-
-        addFriendButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                String friendUsername = friendUsernameTextField.getText();
-                if (userLogic.agregarAmigo(main.username, friendUsername)) {
-                    loadFriends();
+        TextButton.TextButtonStyle btnStyle = makeButtonStyle();
+        TextButton addBtn = new TextButton(gestorIdiomas.setTexto("amigos.agregar"), btnStyle);
+        addBtn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                String friend = friendUsernameTextField.getText().trim();
+                if (friend.isEmpty()) return;
+                if (userLogic.agregarAmigo(main.username, friend)) {
                     friendUsernameTextField.setText("");
+                    loadFriends();
                 }
             }
         });
 
-        backButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
+        TextButton backBtn = new TextButton(gestorIdiomas.setTexto("amigos.volver_menu"), btnStyle);
+        backBtn.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
         });
+
+        Table topRow = new Table();
+        topRow.defaults().space(12).height(46);
+        topRow.add(friendUsernameTextField).width(380);
+        topRow.add(addBtn).width(180);
+        topRow.add(backBtn).width(200);
+        root.add(topRow).expandX().fillX().padBottom(14).row();
+
+        // ===== Lista con Scroll más pequeño (≈60% alto) =====
+        listContainer = new Table();
+        listContainer.top().defaults().pad(6);
+
+        // ScrollPane sin Skin: usamos el constructor por defecto y estilos vacíos
+        ScrollPane scroll = new ScrollPane(listContainer);
+        scroll.setFadeScrollBars(false);
+
+        // foreground simple: usamos una Tabla sin fondo para no depender de skins
+        Table fg = new Table();
+        fg.pad(12);
+        fg.add(scroll).expand().fill().row();
+
+        float desiredHeight = Math.max(280, Gdx.graphics.getHeight() * 0.60f);
+        root.add(fg).expandX().fillX().height(desiredHeight).padTop(6);
     }
 
     private void loadFriends() {
-        friends = userLogic.listarAmigos(main.username);
-        if (friends.isEmpty()) {
-            friendsListLabel.setText(gestorIdiomas.setTexto("amigos.no_amigos"));
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (String friend : friends) {
-                sb.append(" • ").append(friend).append("\n\n");
-            }
-            friendsListLabel.setText(sb.toString());
+        listContainer.clear();
+        List<String> amigos = userLogic.listarAmigos(main.username);
+        if (amigos == null || amigos.isEmpty()) {
+            listContainer.add(new Label(gestorIdiomas.setTexto("amigos.no_amigos"), makeLabelStyle()))
+                         .padTop(4).row();
+            return;
+        }
+        for (String amigo : amigos) {
+            listContainer.add(makeFriendRow(amigo)).expandX().fillX().row();
         }
     }
 
-    @Override
-    public void show() {
+    private Table makeFriendRow(String username) {
+        Table row = new Table();
+        row.pad(10).defaults().space(6);
+
+        Label name = new Label(username, makeLabelStyle());
+        row.add(name).left().expandX();
+        // puedes añadir botones de acción aquí reutilizando btnStyle si los necesitas
+
+        return row;
+    }
+
+    @Override public void show() {
         Gdx.input.setInputProcessor(stage);
         transicionSuave.fadeIn(stage);
     }
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+    @Override public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.getBatch().begin();
-        stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // fondo estirable
+        stage.getBatch().draw(backgroundTexture, 0, 0,
+                Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();
+
         stage.act(delta);
         stage.draw();
     }
-    
-    @Override
-    public void resize(int width, int height) {
+
+    @Override public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-    
-    @Override
-    public void pause() {}
-    
-    @Override
-    public void resume() {}
-    
-    @Override
-    public void hide() {}
-    
-    @Override
-    public void dispose() {
+
+    @Override public void pause() { }
+
+    @Override public void resume() { }
+
+    @Override public void hide() { }
+
+    @Override public void dispose() {
         stage.dispose();
         titleFont.dispose();
         pixelFont.dispose();
         backgroundTexture.dispose();
+        btnTex.dispose();
+        tfBgTex.dispose();
+        cursorTex.dispose();
     }
 }

@@ -2,6 +2,7 @@ package proyectosokoban.recursos;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -17,6 +18,12 @@ public class Main extends Game {
     public Music lobbyMusic;
     private float volume = 1.0f;
     private PantallaDeCarga backgroundScreen;
+    
+    // Variables para controles
+    public int keyUp = Input.Keys.W;
+    public int keyDown = Input.Keys.S;
+    public int keyLeft = Input.Keys.A;
+    public int keyRight = Input.Keys.D;
 
     @Override
     public void create() {
@@ -45,6 +52,27 @@ public class Main extends Game {
         setScreen(new IntroScreen(this));
     }
     
+    public void updateControls(int up, int down, int left, int right) {
+        this.keyUp = up;
+        this.keyDown = down;
+        this.keyLeft = left;
+        this.keyRight = right;
+    }
+    
+    public void applyDisplayMode(int displayMode) {
+        switch (displayMode) {
+            case 0: // Fullscreen
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+                break;
+            case 1: // Windowed
+                Gdx.graphics.setWindowedMode(1280, 720);
+                break;
+            case 2: // Borderless
+                Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                break;
+        }
+    }
+    
     public void applyDisplayPreferences() {
         if (username != null && !username.isEmpty()) {
             LogicaUsuarios lu = new LogicaUsuarios();
@@ -65,9 +93,6 @@ public class Main extends Game {
         }
     }
 
-    /**
-     * Carga y aplica la preferencia de volumen guardada por el usuario.
-     */
     public void loadAndApplyVolumePreference() {
         if (username != null && !username.isEmpty()) {
             LogicaUsuarios lu = new LogicaUsuarios();
