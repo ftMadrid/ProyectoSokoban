@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.FitViewport; // Importado
 import proyectosokoban.recursos.Eventos.Sokoban;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
@@ -68,7 +68,8 @@ public class GameScreen implements Screen {
     }
 
     private void initializeUI() {
-        stage = new Stage(new ScreenViewport());
+        // Unicamente se ha cambiado ScreenViewport por FitViewport
+        stage = new Stage(new FitViewport(1280, 720));
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         skin.add("default-font", pixelFont, BitmapFont.class);
 

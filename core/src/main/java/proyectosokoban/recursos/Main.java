@@ -65,6 +65,16 @@ public class Main extends Game {
         }
     }
 
+    /**
+     * Carga y aplica la preferencia de volumen guardada por el usuario.
+     */
+    public void loadAndApplyVolumePreference() {
+        if (username != null && !username.isEmpty()) {
+            LogicaUsuarios lu = new LogicaUsuarios();
+            int[] prefs = lu.getPreferencias(username);
+            setVolume(prefs[0] / 100f);
+        }
+    }
 
     public PantallaDeCarga getBackgroundScreen() {
         return backgroundScreen;
@@ -100,7 +110,7 @@ public class Main extends Game {
         if (gameMusic != null && gameMusic.isPlaying()) {
             gameMusic.stop();
         }
-         if (lobbyMusic != null && lobbyMusic.isPlaying()) {
+        if (lobbyMusic != null && lobbyMusic.isPlaying()) {
             lobbyMusic.stop();
         }
         if (menuMusic != null && !menuMusic.isPlaying()) {

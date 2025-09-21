@@ -52,29 +52,29 @@ public class LogicaUsuarios {
                 writeString(raf, username);
                 writeString(raf, password);
                 writeString(raf, nombreCompleto);
-                raf.writeLong(ahora);           
-                raf.writeLong(ahora);           
-                raf.writeLong(0L);              
-                raf.writeInt(0);                
-                raf.writeInt(0);                
-                raf.writeInt(0);                
-                raf.writeBoolean(false);        
+                raf.writeLong(ahora);
+                raf.writeLong(ahora);
+                raf.writeLong(0L);
+                raf.writeInt(0);
+                raf.writeInt(0);
+                raf.writeInt(0);
+                raf.writeBoolean(false);
             }
 
             try (RandomAccessFile raf = new RandomAccessFile(filePrefs(username), "rw")) {
-                raf.writeInt(100);  
-                raf.writeByte(0);   
-                raf.writeByte(0);   
-                raf.writeBoolean(false); 
-                raf.writeInt(Input.Keys.UP);
-                raf.writeInt(Input.Keys.DOWN);
-                raf.writeInt(Input.Keys.LEFT);
-                raf.writeInt(Input.Keys.RIGHT);
-                raf.writeInt(0); 
+                raf.writeInt(100);
+                raf.writeByte(0);
+                raf.writeByte(0);
+                raf.writeBoolean(false);
+                raf.writeInt(Input.Keys.W);
+                raf.writeInt(Input.Keys.S);
+                raf.writeInt(Input.Keys.A);
+                raf.writeInt(Input.Keys.D);
+                raf.writeInt(0);
             }
 
             try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
-                raf.writeInt(0); 
+                raf.writeInt(0);
             }
             
             fileHistorial(username).createNewFile();
@@ -84,7 +84,7 @@ public class LogicaUsuarios {
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            dirUsuario(username).delete(); 
+            dirUsuario(username).delete();
             return false;
         }
     }
@@ -95,13 +95,13 @@ public class LogicaUsuarios {
 
         try (RandomAccessFile raf = new RandomAccessFile(perfilFile, "rw")) {
             raf.seek(0);
-            readString(raf); 
+            readString(raf);
             String savedPassword = readString(raf);
 
             if (savedPassword.equals(password)) {
-                readString(raf); 
-                raf.readLong();  
-                raf.writeLong(System.currentTimeMillis()); 
+                readString(raf);
+                raf.readLong();
+                raf.writeLong(System.currentTimeMillis());
                 usuarioLogged = username;
                 return true;
             }
@@ -134,11 +134,11 @@ public class LogicaUsuarios {
         }
         
         try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
-            int count = raf.readInt();
+            raf.readInt();
             raf.seek(raf.length());
             writeString(raf, amigo);
             raf.seek(0);
-            raf.writeInt(count + 1);
+            raf.writeInt(listarAmigos(username).size() + 1);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,8 +150,8 @@ public class LogicaUsuarios {
         File nivelFile = fileNivel(username, nivel);
         if (!nivelFile.exists()) {
             try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-                raf.writeInt(0); 
-                raf.writeBoolean(false); 
+                raf.writeInt(0);
+                raf.writeBoolean(false);
             }
         }
     }
@@ -159,7 +159,10 @@ public class LogicaUsuarios {
     public boolean guardarScore(String username, int nivel, int score) {
         File nivelFile = fileNivel(username, nivel);
         try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-            int highscore = raf.readInt();
+            int highscore = 0;
+            if (raf.length() > 0) {
+                highscore = raf.readInt();
+            }
             if (score > highscore) {
                 raf.seek(0);
                 raf.writeInt(score);
@@ -174,7 +177,9 @@ public class LogicaUsuarios {
     public boolean marcarNivelPasado(String username, int nivel) {
         File nivelFile = fileNivel(username, nivel);
         try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-            raf.readInt(); 
+            if (raf.length() >= 4) {
+                 raf.readInt();
+            }
             raf.writeBoolean(true);
             
             if (nivel < 7) {
@@ -197,7 +202,7 @@ public class LogicaUsuarios {
     }
 
     public int[] getPreferencias(String username) {
-        int[] defaults = {100, 0, 0, 0, Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, 0};
+        int[] defaults = {100, 0, 0, 0, Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, 0};
         File prefsFile = filePrefs(username);
         if (!prefsFile.exists()) return defaults;
 
@@ -219,7 +224,7 @@ public class LogicaUsuarios {
 
     public boolean setPreferencias(String username, int volumen, byte idioma, byte control, boolean mute, int keyUp, int keyDown, int keyLeft, int keyRight, int displayMode) {
         try (RandomAccessFile raf = new RandomAccessFile(filePrefs(username), "rw")) {
-            raf.setLength(0); 
+            raf.setLength(0);
             raf.writeInt(volumen);
             raf.writeByte(idioma);
             raf.writeByte(control);
@@ -326,13 +331,13 @@ public class LogicaUsuarios {
     }
     
     public int miPosicionEnLeaderBoardNivelAmigos(String username, int nivel) {
-        List<String> leaderboard = leaderboardNivelAmigos(username, nivel, true, 0); 
+        List<String> leaderboard = leaderboardNivelAmigos(username, nivel, true, 0);
         for (int i = 0; i < leaderboard.size(); i++) {
             if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) {
                 return i + 1;
             }
         }
-        return -1; 
+        return -1;
     }
 
     private int getTotalScore(String username) {
@@ -378,12 +383,12 @@ public class LogicaUsuarios {
 
         try (RandomAccessFile raf = new RandomAccessFile(filePerfil(username), "rw")) {
             raf.seek(0);
-            readString(raf); 
-            readString(raf); 
-            readString(raf); 
-            raf.readLong();  
-            raf.readLong();  
-            raf.readLong();  
+            readString(raf);
+            readString(raf);
+            readString(raf);
+            raf.readLong();
+            raf.readLong();
+            raf.readLong();
             raf.writeInt(ranking);
             return true;
         } catch (IOException e) {

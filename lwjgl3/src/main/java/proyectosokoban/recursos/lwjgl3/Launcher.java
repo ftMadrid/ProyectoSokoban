@@ -18,10 +18,9 @@ public class Launcher {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("SOKOMINE");
         configuration.useVsync(true);
-
-        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-
-        configuration.setWindowIcon("logo128.png", "logo64.png", "logo32.png", "logo16.png");
+        configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate);
+        configuration.setWindowedMode(900, 900);
+        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }
 }

@@ -1,10 +1,5 @@
 package proyectosokoban.recursos.Utilidades;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,12 +25,12 @@ public class GestorIdiomas {
 
     private void inicializarIdiomas() {
         Map<String, String> es = new HashMap<>();
-        es.put("app.name", "Sokoban");
+        es.put("app.name", "SOKOMINE");
         es.put("menu.jugar", "Jugar");
         es.put("menu.amigos", "Amigos");
         es.put("menu.preferencias", "Preferencias");
         es.put("menu.cerrar_sesion", "Cerrar Sesion");
-        es.put("login.titulo", "Sokoban");
+        es.put("login.titulo", "SOKOMINE");
         es.put("login.usuario", "USUARIO");
         es.put("login.contrasena", "CONTRASENA");
         es.put("login.mostrar_contrasena", " MOSTRAR CONTRASENA");
@@ -91,12 +86,12 @@ public class GestorIdiomas {
         diccionarios.put("es", es);
 
         Map<String, String> en = new HashMap<>();
-        en.put("app.name", "Sokoban");
+        en.put("app.name", "SOKOMINE");
         en.put("menu.jugar", "Play");
         en.put("menu.amigos", "Friends");
         en.put("menu.preferencias", "Preferences");
         en.put("menu.cerrar_sesion", "Logout");
-        en.put("login.titulo", "Sokoban");
+        en.put("login.titulo", "SOKOMINE");
         en.put("login.usuario", "USER");
         en.put("login.contrasena", "PASSWORD");
         en.put("login.mostrar_contrasena", " SHOW PASSWORD");
@@ -152,12 +147,12 @@ public class GestorIdiomas {
         diccionarios.put("en", en);
 
         Map<String, String> ita = new HashMap<>();
-        ita.put("app.name", "Sokoban");
+        ita.put("app.name", "SOKOMINE");
         ita.put("menu.jugar", "Gioca");
         ita.put("menu.amigos", "Amici");
         ita.put("menu.preferencias", "Preferenze");
         ita.put("menu.cerrar_sesion", "Esci");
-        ita.put("login.titulo", "Sokoban");
+        ita.put("login.titulo", "SOKOMINE");
         ita.put("login.usuario", "UTENTE");
         ita.put("login.contrasena", "PASSWORD");
         ita.put("login.mostrar_contrasena", " MOSTRA PASSWORD");
@@ -244,7 +239,6 @@ public class GestorIdiomas {
                 int[] prefs = userLogic.getPreferencias(LogicaUsuarios.usuarioLogged);
                 userLogic.setPreferencias(LogicaUsuarios.usuarioLogged, prefs[0], (byte) getCodigoIdiomaByte(nuevoIdioma), (byte) prefs[2], prefs[3] == 1, prefs[4], prefs[5], prefs[6], prefs[7], prefs[8]);
             }
-            System.out.println("Idioma cambiado a: " + obtenerNombreIdioma(nuevoIdioma));
         }
     }
     

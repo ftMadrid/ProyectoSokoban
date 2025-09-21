@@ -18,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
@@ -58,19 +57,18 @@ public class PreferenciasScreen implements Screen {
         createUI();
         loadPreferences();
         setupInputProcessor();
-        updateKeyLabels();
     }
 
     private void setupFonts() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = 24;
-        parameter.color = Color.valueOf("F5F5DC");
-        pixelFont = generator.generateFont(parameter);
-
         parameter.size = 70;
+        parameter.color = Color.valueOf("F5F5DC");
         titleFont = generator.generateFont(parameter);
+        
+        parameter.size = 24;
+        pixelFont = generator.generateFont(parameter);
 
         parameter.size = 30;
         parameter.color = Color.valueOf("3E3546");
@@ -221,9 +219,8 @@ public class PreferenciasScreen implements Screen {
         leftLabel.setText(gestorIdiomas.setTexto("preferences.izquierda"));
         rightLabel.setText(gestorIdiomas.setTexto("preferences.derecha"));
         saveButton.setText(gestorIdiomas.setTexto("preferences.guardar"));
-        messageLabel.setText(gestorIdiomas.setTexto("preferences.esperando"));
+        updateKeyLabels();
     }
-
 
     private void setupInputProcessor() {
         multiplexer = new InputMultiplexer(stage, new InputAdapter() {
