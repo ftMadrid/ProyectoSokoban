@@ -140,9 +140,8 @@ public class LoginScreen implements Screen {
                 if (userLogic.login(u, p)) {
                     main.username = u;
                     LogicaUsuarios.usuarioLogged = u;
-                    gestorIdiomas.cargarPreferenciasUsuario(u);
-                    main.loadAndApplyVolumePreference();
-                    main.applyDisplayPreferences();
+                    // --- Llamada al nuevo método centralizado ---
+                    main.loadUserPreferences(u);
                     transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
                 } else {
                     messageLabel.setColor(Color.RED);

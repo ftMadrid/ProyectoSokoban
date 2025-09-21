@@ -41,15 +41,19 @@ public class GameScreen implements Screen {
     private Texture backgroundTexture;
     private Table pausePanel;
     private boolean isPaused = false;
+    
+    private Label pauseTitle;
+    private TextButton resumeButton, levelSelectButton, menuButton;
 
     public GameScreen(final Main main, int nivel) {
         this.main = main;
         this.nivelActual = nivel;
         this.juegoSokoban = new Sokoban(main, nivel, main.username);
+        this.juegoSokoban.soundVolume = main.getVolume(); // Establece el volumen para los efectos de sonido
         this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
         backgroundTexture = new Texture(Gdx.files.internal("background.png"));
-        loadControls();
+        loadControls(); // Carga los controles desde Main
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -170,7 +174,6 @@ public class GameScreen implements Screen {
 
         pausePanel = new Table();
         pausePanel.setFillParent(true);
-        // Semi-transparent background for the whole screen
         Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGBA8888);
         bgPixmap.setColor(0,0,0,0.7f);
         bgPixmap.fill();
@@ -182,21 +185,22 @@ public class GameScreen implements Screen {
         container.pad(20);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
-        container.add(new Label("Pausa", labelStyle)).colspan(2).center().padBottom(20).row();
+        pauseTitle = new Label("", labelStyle);
+        container.add(pauseTitle).colspan(2).center().padBottom(20).row();
 
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.font = pixelFont;
         btnStyle.fontColor = Color.valueOf("1E1E1E");
         btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
 
-        TextButton resumeButton = new TextButton("Reanudar", btnStyle);
+        resumeButton = new TextButton("", btnStyle);
         resumeButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
                 resume();
             }
         });
 
-        TextButton levelSelectButton = new TextButton("Selector de Niveles", btnStyle);
+        levelSelectButton = new TextButton("", btnStyle);
         levelSelectButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
                 resume();
@@ -204,7 +208,7 @@ public class GameScreen implements Screen {
             }
         });
 
-        TextButton menuButton = new TextButton("Menu Principal", btnStyle);
+        menuButton = new TextButton("", btnStyle);
         menuButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
                 resume();
@@ -218,7 +222,15 @@ public class GameScreen implements Screen {
 
         pausePanel.add(container);
         stage.addActor(pausePanel);
-        pausePanel.setVisible(false); // Initially hidden
+        pausePanel.setVisible(false);
+    }
+    
+    private void updatePauseMenuLanguage(){
+        if(pauseTitle == null) return;
+        pauseTitle.setText(gestorIdiomas.setTexto("pause.title"));
+        resumeButton.setText(gestorIdiomas.setTexto("pause.resume"));
+        levelSelectButton.setText(gestorIdiomas.setTexto("pause.level_select"));
+        menuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
 
     @Override public void show() {
@@ -240,7 +252,7 @@ public class GameScreen implements Screen {
                 timeLabel.setText(String.format(gestorIdiomas.setTexto("game.tiempo") + "%.0fs", tiempoDeJuego));
             }
 
-            juegoSokoban.actualizar(delta);
+            juegoSokoban.render(delta); // Actualiza y renderiza el juego
 
             if (juegoSokoban.isJuegoGanado()) {
                 mostrarDialogoVictoria();
@@ -254,7 +266,7 @@ public class GameScreen implements Screen {
         stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();
 
-        juegoSokoban.render(delta);
+        juegoSokoban.renderizar(); // Llama a renderizar después de limpiar la pantalla
 
         stage.act(delta);
         stage.draw();
@@ -270,6 +282,7 @@ public class GameScreen implements Screen {
     @Override public void pause() {
         isPaused = true;
         if(pausePanel != null) {
+            updatePauseMenuLanguage();
             pausePanel.setVisible(true);
         }
     }
