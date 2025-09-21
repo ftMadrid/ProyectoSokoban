@@ -4,33 +4,48 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.HashMap;
 import java.util.Map;
+import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 
 public class MapaSelector {
 
     private int[][] mapa;
     private Map<Integer, Texture> texturasNiveles;
     private Map<Integer, Texture> texturasCaminos;
+    private Map<Integer, Texture> texturasParedes;
+    private Texture texturaBloqueado;
     private int TILE;
     private int filas, columnas;
+    private String username;
+    private int ultimoNivelDesbloqueado;
 
-    public MapaSelector(int TILE) {
+    public MapaSelector(int TILE, String username) {
         this.TILE = TILE;
+        this.username = username;
         inicializarMapa();
         cargarTexturas();
+        cargarEstadoDesbloqueo();
+        actualizarParedesABloqueos(); // Actualizar paredes según estado de desbloqueo
+    }
+
+    private void cargarEstadoDesbloqueo() {
+        LogicaUsuarios lu = new LogicaUsuarios();
+        ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(username);
+        if (ultimoNivelDesbloqueado == 0) {
+            ultimoNivelDesbloqueado = 1;
+        }
     }
 
     private void inicializarMapa() {
-        // Mapa al estilo Super Mario Bros 3
-        // 0 = vacío, 1-7 = niveles, 8 = camino horizontal, 9 = camino vertical
         mapa = new int[][]{
+            // 1-7 = NIVEL, 9 = CAMINO, 10 = BLOQUEO
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {9, 1, 9, 9, 2, 0, 0, 0, 0, 0, 6, 9, 9, 7, 0},
-            {0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0},
-            {0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0},
-            {0, 0, 0, 0, 3, 9, 9, 4, 9, 9, 5, 0, 0, 0, 0},
+            {0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
+            {0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
+            {0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
+            {0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0},
+            {0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0, 10, 0},
+            {0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
         };
@@ -39,18 +54,57 @@ public class MapaSelector {
         columnas = mapa[0].length;
     }
 
+    private void actualizarParedesABloqueos() {
+        // Convertir paredes de bloqueo (10) a caminos (9) si el nivel correspondiente está desbloqueado
+        for (int y = 0; y < filas; y++) {
+            for (int x = 0; x < columnas; x++) {
+                if (mapa[y][x] == 10) {
+                    int nivelCorrespondiente = obtenerNivelCorrespondiente(x, y);
+                    if (nivelCorrespondiente != -1 && isNivelDesbloqueado(nivelCorrespondiente)) {
+                        mapa[y][x] = 9; // Convertir a camino
+                    }
+                }
+            }
+        }
+    }
+
+    public void actualizarEstadoDesbloqueo() {
+        int ultimoNivelAnterior = ultimoNivelDesbloqueado;
+        cargarEstadoDesbloqueo();
+
+        // Si se desbloqueó un nuevo nivel, actualizar las paredes
+        if (ultimoNivelDesbloqueado > ultimoNivelAnterior) {
+            actualizarParedesABloqueos();
+        }
+    }
+
+    private int obtenerNivelCorrespondiente(int x, int y) {
+        if (y == 6) {
+            if (x >= 1 && x <= 13 && x % 2 == 1) { // Columnas impares (1, 3, 5, 7, 9, 11, 13)
+                int nivelEnFilaDebajo = mapa[7][x];
+                if (nivelEnFilaDebajo >= 1 && nivelEnFilaDebajo <= 7) {
+                    return nivelEnFilaDebajo;
+                }
+            }
+        }
+
+        return -1; // No corresponde a ningún nivel
+    }
+
     private void cargarTexturas() {
         texturasNiveles = new HashMap<>();
         texturasCaminos = new HashMap<>();
+        texturasParedes = new HashMap<>();
+        texturaBloqueado = new Texture("Juego/niveles/bloqueado.png"); // Textura para paredes de bloqueo
 
         // Cargar texturas para los niveles
         for (int i = 1; i <= 7; i++) {
-            texturasNiveles.put(i, new Texture("nivel.png"));
+            texturasNiveles.put(i, new Texture("Juego/niveles/nivel"+i+".png"));
         }
 
         // Cargar texturas para los caminos
-        texturasCaminos.put(8, new Texture("camino.png")); // Horizontal
-        texturasCaminos.put(9, new Texture("camino.png")); // Vertical
+        texturasCaminos.put(9, new Texture("Juego/niveles/camino.png")); // Camino (valor 9)
+        texturasParedes.put(0, new Texture("Juego/niveles/paredselector.png")); // Camino (valor 0)
     }
 
     public boolean esPosicionValida(int x, int y) {
@@ -58,8 +112,20 @@ public class MapaSelector {
             return false;
         }
 
-        // Solo se puede mover a posiciones que no sean vacías (0)
-        return mapa[y][x] != 0;
+        int valor = mapa[y][x];
+
+        // No se puede mover a posiciones vacías (0)
+        if (valor == 0) {
+            return false;
+        }
+
+        // Si es un nivel (1-7), verificar si está desbloqueado
+        if (valor >= 1 && valor <= 7) {
+            return isNivelDesbloqueado(valor);
+        }
+
+        // Caminos (9) y paredes convertidas a caminos son válidos
+        return true;
     }
 
     public int getNivelEnPosicion(int x, int y) {
@@ -69,12 +135,16 @@ public class MapaSelector {
 
         int valor = mapa[y][x];
 
-        // Solo devuelve el nivel si es un número entre 1 y 7
-        if (valor >= 1 && valor <= 7) {
+        // Solo devuelve el nivel si es un número entre 1 y 7 y está desbloqueado
+        if (valor >= 1 && valor <= 7 && isNivelDesbloqueado(valor)) {
             return valor;
         }
 
         return -1;
+    }
+
+    public boolean isNivelDesbloqueado(int nivel) {
+        return nivel <= ultimoNivelDesbloqueado;
     }
 
     public void render(SpriteBatch batch) {
@@ -82,15 +152,22 @@ public class MapaSelector {
             for (int x = 0; x < columnas; x++) {
                 int valor = mapa[y][x];
 
-                if (valor != 0) {
+                if (valor != 11) {
                     Texture textura = null;
 
                     if (valor >= 1 && valor <= 7) {
+                        // Dibujar nivel
                         textura = texturasNiveles.get(valor);
-                    } else if (valor == 8 || valor == 9) {
+                    } else if (valor == 9) {
+                        // Dibujar camino
                         textura = texturasCaminos.get(valor);
+                    } else if (valor == 0) {
+                        // Dibujar pared de bloqueo
+                        textura = texturasParedes.get(valor);
+                    } else if (valor == 10) {
+                        // Dibujar pared de bloqueo
+                        textura = texturaBloqueado;
                     }
-
                     if (textura != null) {
                         batch.draw(textura, x * TILE, y * TILE, TILE, TILE);
                     }
@@ -110,6 +187,16 @@ public class MapaSelector {
             if (tex != null) {
                 tex.dispose();
             }
+        }
+
+        for (Texture tex : texturasParedes.values()) {
+            if (tex != null) {
+                tex.dispose();
+            }
+        }
+
+        if (texturaBloqueado != null) {
+            texturaBloqueado.dispose();
         }
     }
 
