@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -40,6 +41,8 @@ public class LevelSelectScreen implements Screen {
     private boolean active = true;
     private BitmapFont font;
     private Texture buttonTexture;
+    private Table pausePanel;
+    private boolean isPaused = false;
 
     public LevelSelectScreen(final Main main) {
         this.main = main;
@@ -77,7 +80,7 @@ public class LevelSelectScreen implements Screen {
         stage.addActor(tablaPrincipal);
 
         Table panelSuperior = new Table();
-        
+
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.up = new TextureRegionDrawable(buttonTexture);
         btnStyle.font = font;
@@ -95,7 +98,60 @@ public class LevelSelectScreen implements Screen {
         panelSuperior.add(botonVolver).width(240).height(50).expandX().right().pad(10);
         tablaPrincipal.add(panelSuperior).growX().top().row();
         tablaPrincipal.add().expand().fill();
+
+        buildPauseMenu();
     }
+
+    private void buildPauseMenu() {
+        if (pausePanel != null) pausePanel.remove();
+
+        pausePanel = new Table();
+        pausePanel.setFillParent(true);
+
+        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGBA8888);
+        bgPixmap.setColor(0,0,0,0.7f);
+        bgPixmap.fill();
+        pausePanel.setBackground(new TextureRegionDrawable(new Texture(bgPixmap)));
+        bgPixmap.dispose();
+
+        Table container = new Table();
+        container.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
+        container.pad(20);
+
+        Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.valueOf("1E1E1E"));
+        container.add(new Label("Pausa", labelStyle)).colspan(2).center().padBottom(20).row();
+
+
+        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.up = new TextureRegionDrawable(buttonTexture);
+        btnStyle.font = font;
+
+        TextButton resumeButton = new TextButton("Reanudar", btnStyle);
+        resumeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resume();
+            }
+        });
+
+        TextButton backToMenuButton = new TextButton(gestorIdiomas.setTexto("levelselect.volver_menu"), btnStyle);
+        backToMenuButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(!active) return;
+                active = false;
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
+            }
+        });
+
+        container.add(resumeButton).width(240).height(50).pad(10).row();
+        container.add(backToMenuButton).width(240).height(50).pad(10).row();
+
+        pausePanel.add(container);
+        stage.addActor(pausePanel);
+        pausePanel.setVisible(false);
+    }
+
 
     @Override
     public void render(float delta) {
@@ -107,8 +163,18 @@ public class LevelSelectScreen implements Screen {
         
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if (isPaused) {
+                resume();
+            } else {
+                pause();
+            }
+        }
         
-        mapaActor.handleInput(delta);
+        if(!isPaused) {
+            mapaActor.handleInput(delta);
+        }
         
         stage.act(delta);
         stage.draw();
@@ -132,13 +198,23 @@ public class LevelSelectScreen implements Screen {
     public void hide() {
         active = false;
     }
-    
+
     @Override
-    public void pause() {}
-    
+    public void pause() {
+        isPaused = true;
+        if(pausePanel != null){
+            pausePanel.setVisible(true);
+        }
+    }
+
     @Override
-    public void resume() {}
-    
+    public void resume() {
+        isPaused = false;
+        if(pausePanel != null){
+            pausePanel.setVisible(false);
+        }
+    }
+
     @Override
     public void dispose() {
         if(stage != null) stage.dispose();

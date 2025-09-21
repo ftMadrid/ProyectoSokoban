@@ -54,13 +54,10 @@ public class GestorIdiomas {
         es.put("game.score", "Score: ");
         es.put("game.tiempo", "Tiempo: ");
         es.put("game.menu_boton", "MENU");
-<<<<<<< HEAD
         es.put("game.dialogo_victoria_titulo", "HAS GANADO!");
         es.put("game.dialogo_victoria_mensaje", "FELICIDADES!\nScore: {0}\n\nQuieres jugar de nuevo?");
-=======
         es.put("game.dialogo_victoria_titulo", "\nNIVEL COMPLETADO!");
         es.put("game.dialogo_victoria_mensaje", "Score: {0}\nMovimientos: {1}\nEmpujes: {2}\nTiempo: {3}");
->>>>>>> a2175c2ee25b43821b30082cd4008aac99f9fb5d
         es.put("game.dialogo_victoria_reintentar", "Reintentar");
         es.put("game.dialogo_victoria_menu", "Salir");
         es.put("amigos.titulo", "Gestionar Amigos");
