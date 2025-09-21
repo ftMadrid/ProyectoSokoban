@@ -165,8 +165,6 @@ public class Sokoban extends Juego {
     @Override
     public void renderizar() {
         viewport.apply(true);
-        Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
-        Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         nivelActual.render(batch);

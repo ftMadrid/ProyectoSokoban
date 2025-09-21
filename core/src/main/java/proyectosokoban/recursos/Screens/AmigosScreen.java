@@ -10,49 +10,43 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
-import java.util.List;
-
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
+import java.util.List;
 
 public class AmigosScreen implements Screen {
-
     private final Main main;
     private Stage stage;
     private LogicaUsuarios userLogic;
     private GestorIdiomas gestorIdiomas;
-
-    // assets
-    private Texture backgroundTexture;
-    private Texture btnTex;
-    private Texture tfBgTex;
-    private Texture cursorTex;
-
-    // fuentes
     private BitmapFont pixelFont, titleFont;
-
-    // UI refs
-    private TextField friendUsernameTextField;
+    private Texture backgroundTexture, btnTex, tfBgTex, cursorTex, panelBgTex;
     private Table listContainer;
+    private TextField friendUsernameTextField;
+    private Label messageLabel;
 
     public AmigosScreen(final Main main) {
         this.main = main;
-        stage = new Stage(new ScreenViewport());
-        userLogic = new LogicaUsuarios();
-        gestorIdiomas = GestorIdiomas.obtenerInstancia();
+        this.stage = new Stage(new ScreenViewport());
+        this.userLogic = new LogicaUsuarios();
+        this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
-        // cargar assets
         backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
         btnTex = new Texture(Gdx.files.internal("ui/button1.png"));
         tfBgTex = new Texture(Gdx.files.internal("ui/txtfield.png"));
         cursorTex = new Texture(Gdx.files.internal("ui/cursor 1.png"));
+        panelBgTex = new Texture(Gdx.files.internal("ui/field 2.png"));
 
         setupFonts();
         createUI();
@@ -71,56 +65,38 @@ public class AmigosScreen implements Screen {
 
         generator.dispose();
     }
-
-    private TextButton.TextButtonStyle makeButtonStyle() {
-        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-        TextureRegionDrawable dr = new TextureRegionDrawable(new TextureRegion(btnTex));
-        style.up = dr;
-        style.down = dr;
-        style.over = dr;
-        style.font = pixelFont;
-        style.fontColor = Color.valueOf("1E1E1E"); // texto oscuro sobre botón claro
-        return style;
-    }
-
-    private TextField.TextFieldStyle makeTextFieldStyle() {
-        TextField.TextFieldStyle s = new TextField.TextFieldStyle();
-        s.font = new BitmapFont(); // sistema para el contenido del textfield (negro)
-        s.fontColor = Color.BLACK;
-        s.background = new TextureRegionDrawable(new TextureRegion(tfBgTex));
-        s.cursor = new TextureRegionDrawable(new TextureRegion(cursorTex));
-        return s;
-    }
-
-    private Label.LabelStyle makeLabelStyle() {
-        return new Label.LabelStyle(pixelFont, Color.valueOf("F5F5DC"));
-    }
-
+    
     private void createUI() {
         Table root = new Table();
         root.setFillParent(true);
-        root.pad(22, 26, 26, 26); // top,left,bottom,right
+        root.pad(22, 26, 26, 26);
         stage.addActor(root);
 
-        // ===== TÍTULO =====
-        Label title = new Label("SOKOMINE", new Label.LabelStyle(titleFont, Color.WHITE));
+        Label title = new Label(gestorIdiomas.setTexto("amigos.titulo"), new Label.LabelStyle(titleFont, Color.WHITE));
         root.add(title).expandX().center().padBottom(16).row();
+        
+        messageLabel = new Label("", new Label.LabelStyle(pixelFont, Color.WHITE));
+        root.add(messageLabel).padBottom(10).row();
 
-        // ===== Fila superior alineada (TextField + Add + Back) =====
-        TextField.TextFieldStyle tfStyle = makeTextFieldStyle();
+        TextField.TextFieldStyle tfStyle = new TextField.TextFieldStyle();
+        tfStyle.font = pixelFont;
+        tfStyle.fontColor = Color.BLACK;
+        TextureRegionDrawable tfBackground = new TextureRegionDrawable(new TextureRegion(tfBgTex));
+        tfStyle.background = tfBackground;
+        tfStyle.cursor = new TextureRegionDrawable(new TextureRegion(cursorTex));
         friendUsernameTextField = new TextField("", tfStyle);
+        friendUsernameTextField.setAlignment(Align.center);
         friendUsernameTextField.setMessageText(gestorIdiomas.setTexto("amigos.username_message"));
 
-        TextButton.TextButtonStyle btnStyle = makeButtonStyle();
+        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.up = new TextureRegionDrawable(new TextureRegion(btnTex));
+        btnStyle.font = pixelFont;
+        btnStyle.fontColor = Color.valueOf("1E1E1E");
+
         TextButton addBtn = new TextButton(gestorIdiomas.setTexto("amigos.agregar"), btnStyle);
         addBtn.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
-                String friend = friendUsernameTextField.getText().trim();
-                if (friend.isEmpty()) return;
-                if (userLogic.agregarAmigo(main.username, friend)) {
-                    friendUsernameTextField.setText("");
-                    loadFriends();
-                }
+                addFriend(friendUsernameTextField.getText());
             }
         });
 
@@ -135,50 +111,56 @@ public class AmigosScreen implements Screen {
         topRow.defaults().space(12).height(46);
         topRow.add(friendUsernameTextField).width(380);
         topRow.add(addBtn).width(180);
-        topRow.add(backBtn).width(200);
         root.add(topRow).expandX().fillX().padBottom(14).row();
 
-        // ===== Lista con Scroll más pequeño (≈60% alto) =====
         listContainer = new Table();
         listContainer.top().defaults().pad(6);
 
-        // ScrollPane sin Skin: usamos el constructor por defecto y estilos vacíos
         ScrollPane scroll = new ScrollPane(listContainer);
         scroll.setFadeScrollBars(false);
 
-        // foreground simple: usamos una Tabla sin fondo para no depender de skins
-        Table fg = new Table();
-        fg.pad(12);
-        fg.add(scroll).expand().fill().row();
-
-        float desiredHeight = Math.max(280, Gdx.graphics.getHeight() * 0.60f);
-        root.add(fg).expandX().fillX().height(desiredHeight).padTop(6);
+        Table foreground = new Table();
+        foreground.setBackground(new TextureRegionDrawable(new TextureRegion(panelBgTex)));
+        foreground.pad(12);
+        foreground.add(scroll).expand().fill();
+        
+        float desiredHeight = Math.max(280, Gdx.graphics.getHeight() * 0.50f);
+        root.add(foreground).expand().fillX().height(desiredHeight).padTop(6).row();
+        
+        root.add(backBtn).width(300).height(50).padTop(20);
     }
 
     private void loadFriends() {
         listContainer.clear();
+        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
         List<String> amigos = userLogic.listarAmigos(main.username);
+        
         if (amigos == null || amigos.isEmpty()) {
-            listContainer.add(new Label(gestorIdiomas.setTexto("amigos.no_amigos"), makeLabelStyle()))
-                         .padTop(4).row();
+            listContainer.add(new Label(gestorIdiomas.setTexto("amigos.no_amigos"), labelStyle)).padTop(4).row();
             return;
         }
         for (String amigo : amigos) {
-            listContainer.add(makeFriendRow(amigo)).expandX().fillX().row();
+            listContainer.add(new Label(amigo, labelStyle)).expandX().fillX().left().padLeft(20).row();
         }
     }
 
-    private Table makeFriendRow(String username) {
-        Table row = new Table();
-        row.pad(10).defaults().space(6);
-
-        Label name = new Label(username, makeLabelStyle());
-        row.add(name).left().expandX();
-        // puedes añadir botones de acción aquí reutilizando btnStyle si los necesitas
-
-        return row;
+    private void addFriend(String friendName) {
+        if (friendName == null || friendName.trim().isEmpty()) {
+            messageLabel.setText(gestorIdiomas.setTexto("amigos.error_vacio"));
+            messageLabel.setColor(Color.RED);
+            return;
+        }
+        if (userLogic.agregarAmigo(main.username, friendName.trim())) {
+            messageLabel.setText(gestorIdiomas.setTexto("amigos.exito"));
+            messageLabel.setColor(Color.GREEN);
+            friendUsernameTextField.setText("");
+            loadFriends();
+        } else {
+            messageLabel.setText(gestorIdiomas.setTexto("amigos.error"));
+            messageLabel.setColor(Color.RED);
+        }
     }
-
+    
     @Override public void show() {
         Gdx.input.setInputProcessor(stage);
         transicionSuave.fadeIn(stage);
@@ -189,9 +171,7 @@ public class AmigosScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.getBatch().begin();
-        // fondo estirable
-        stage.getBatch().draw(backgroundTexture, 0, 0,
-                Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();
 
         stage.act(delta);
@@ -202,11 +182,9 @@ public class AmigosScreen implements Screen {
         stage.getViewport().update(width, height, true);
     }
 
-    @Override public void pause() { }
-
-    @Override public void resume() { }
-
-    @Override public void hide() { }
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 
     @Override public void dispose() {
         stage.dispose();
@@ -216,5 +194,6 @@ public class AmigosScreen implements Screen {
         btnTex.dispose();
         tfBgTex.dispose();
         cursorTex.dispose();
+        panelBgTex.dispose();
     }
 }

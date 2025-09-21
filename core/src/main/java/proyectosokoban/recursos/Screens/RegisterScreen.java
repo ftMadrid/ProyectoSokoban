@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
@@ -26,7 +25,6 @@ public class RegisterScreen implements Screen {
 
     private final Main main;
     private Stage stage;
-    private Skin skin;
     private LogicaUsuarios userLogic;
     private GestorIdiomas gestorIdiomas;
     private Texture backgroundTexture;
@@ -41,18 +39,17 @@ public class RegisterScreen implements Screen {
     public RegisterScreen(final Main main) {
         this.main = main;
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
         userLogic = new LogicaUsuarios();
         gestorIdiomas = GestorIdiomas.obtenerInstancia();
         backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 24;
+        parameter.size = 32;
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
 
-        parameter.size = 60;
+        parameter.size = 84;
         titleFont = generator.generateFont(parameter);
         generator.dispose();
 
@@ -64,85 +61,75 @@ public class RegisterScreen implements Screen {
     }
 
     private void createUI() {
-        Table table = new Table(); 
+        Table table = new Table();
         table.setFillParent(true);
+        table.center();
         stage.addActor(table);
 
-        Drawable tableBackground = skin.newDrawable("white", 0, 0, 0, 0.5f);
-        table.setBackground(tableBackground);
-        table.pad(20);
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
+        Label title = new Label(gestorIdiomas.setTexto("register.titulo"), titleStyle);
+        table.add(title).padBottom(50).colspan(2).row();
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
-        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, pixelFont.getColor());
-        
+
         TextField.TextFieldStyle textFieldStyle = new TextField.TextFieldStyle();
         textFieldStyle.font = new BitmapFont();
+        textFieldStyle.font.getData().setScale(1.5f);
         textFieldStyle.fontColor = Color.BLACK;
         TextureRegionDrawable fieldBackground = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/txtfield.png"))));
         fieldBackground.setLeftWidth(35f);
         textFieldStyle.background = fieldBackground;
         textFieldStyle.cursor = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/cursor 1.png")));
 
+        table.add(new Label(gestorIdiomas.setTexto("login.usuario"), labelStyle)).right().padRight(10);
+        usernameField = new TextField("", textFieldStyle);
+        usernameField.setMaxLength(15);
+        table.add(usernameField).width(380).height(52).row();
+        
+        table.add(new Label(gestorIdiomas.setTexto("register.nombre"), labelStyle)).right().padRight(10).padTop(10);
+        fullnameField = new TextField("", textFieldStyle);
+        fullnameField.setMaxLength(25);
+        table.add(fullnameField).width(380).height(52).padTop(10).row();
+
+        table.add(new Label(gestorIdiomas.setTexto("login.contrasena"), labelStyle)).right().padRight(10).padTop(10);
+        passwordField = new TextField("", textFieldStyle);
+        passwordField.setPasswordMode(true);
+        passwordField.setPasswordCharacter('*');
+        passwordField.setMaxLength(20);
+        table.add(passwordField).width(380).height(52).padTop(10).row();
+        
         CheckBox.CheckBoxStyle checkBoxStyle = new CheckBox.CheckBoxStyle();
         checkBoxStyle.font = pixelFont;
         checkBoxStyle.fontColor = pixelFont.getColor();
         checkBoxStyle.checkboxOn = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/checkbox.png")));
         checkBoxStyle.checkboxOff = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/chekbox no fill.png")));
-        
-        TextButton.TextButtonStyle labelButtonStyle = new TextButton.TextButtonStyle();
-        labelButtonStyle.font = pixelFont;
-        labelButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/users2.png"))));
+
+        showPasswordCheckBox = new CheckBox(gestorIdiomas.setTexto("login.mostrar_contrasena"), checkBoxStyle);
+        showPasswordCheckBox.getLabel().setStyle(labelStyle);
+        table.add(new Label("", labelStyle));
+        table.add(showPasswordCheckBox).left().padTop(10).row();
         
         TextButton.TextButtonStyle actionButtonStyle = new TextButton.TextButtonStyle();
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        table.add(new Label(gestorIdiomas.setTexto("register.titulo"), titleStyle)).padBottom(40).colspan(2).row();
-
-        TextButton userLabelButton = new TextButton(gestorIdiomas.setTexto("login.usuario"), labelButtonStyle);
-        userLabelButton.setDisabled(true);
-        table.add(userLabelButton).width(250).height(70).padRight(10);
-        usernameField = new TextField("", textFieldStyle);
-        usernameField.setMaxLength(15);
-        table.add(usernameField).width(350).height(70).padBottom(15).row();
-
-        TextButton nameLabelButton = new TextButton(gestorIdiomas.setTexto("register.nombre"), labelButtonStyle);
-        nameLabelButton.setDisabled(true);
-        table.add(nameLabelButton).width(250).height(70).padRight(10);
-        fullnameField = new TextField("", textFieldStyle);
-        fullnameField.setMaxLength(25);
-        table.add(fullnameField).width(350).height(70).padBottom(15).row();
-
-        TextButton passLabelButton = new TextButton(gestorIdiomas.setTexto("login.contrasena"), labelButtonStyle);
-        passLabelButton.setDisabled(true);
-        table.add(passLabelButton).width(250).height(70).padRight(10);
-        passwordField = new TextField("", textFieldStyle);
-        passwordField.setPasswordMode(true);
-        passwordField.setPasswordCharacter('*');
-        passwordField.setMaxLength(20);
-        table.add(passwordField).width(350).height(70).padBottom(15).row();
-        
-        showPasswordCheckBox = new CheckBox(gestorIdiomas.setTexto("login.mostrar_contrasena"), checkBoxStyle);
-        table.add(showPasswordCheckBox).colspan(2).left().pad(10, 80, 20, 0).row();
-        
         TextButton registerButton = new TextButton(gestorIdiomas.setTexto("register.registrarse"), actionButtonStyle);
-        table.add(registerButton).colspan(2).size(300, 60).padTop(10).row();
-
-        messageLabel = new Label("", labelStyle);
-        messageLabel.setWrap(true);
-        table.add(messageLabel).colspan(2).width(400).padTop(10).row();
+        table.add(registerButton).colspan(2).width(360).height(60).padTop(20).row();
 
         Table loginLinkTable = new Table();
         Label alreadyAccountLabel = new Label(gestorIdiomas.setTexto("register.ya_tienes_cuenta"), labelStyle);
         loginLinkTable.add(alreadyAccountLabel).padRight(5);
 
-        TextButton.TextButtonStyle linkStyle = new TextButton.TextButtonStyle(skin.get("toggle", TextButton.TextButtonStyle.class));
+        TextButton.TextButtonStyle linkStyle = new TextButton.TextButtonStyle();
         linkStyle.font = pixelFont;
         linkStyle.fontColor = Color.CYAN;
         TextButton loginButton = new TextButton(gestorIdiomas.setTexto("register.login"), linkStyle);
         loginLinkTable.add(loginButton);
+        table.add(loginLinkTable).colspan(2).padTop(20).row();
 
-        table.add(loginLinkTable).colspan(2).padTop(20);
+        messageLabel = new Label("", labelStyle);
+        messageLabel.setWrap(true);
+        table.add(messageLabel).colspan(2).width(450).padTop(10).center().row();
 
         showPasswordCheckBox.addListener(new ChangeListener() {
             @Override
@@ -177,6 +164,7 @@ public class RegisterScreen implements Screen {
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(stage);
         main.playLobbyMusic();
         transicionSuave.fadeIn(stage);
     }
@@ -207,7 +195,6 @@ public class RegisterScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        skin.dispose();
         pixelFont.dispose();
         titleFont.dispose();
         backgroundTexture.dispose();

@@ -35,15 +35,16 @@ public class GestorIdiomas {
         es.put("login.contrasena", "CONTRASENA");
         es.put("login.mostrar_contrasena", " MOSTRAR CONTRASENA");
         es.put("login.iniciar_sesion", "INICIAR SESION");
-        es.put("login.no_tienes_cuenta", "¿No tienes cuenta?");
+        es.put("login.no_tienes_cuenta", "No tienes cuenta?");
         es.put("login.registrate", "Registrate");
-        es.put("login.error", "Usuario o contraseña incorrectos.");
+        es.put("login.salir", "SALIR");
+        es.put("login.error", "Usuario o contrasena incorrectos.");
         es.put("register.titulo", "Registro de Usuario");
         es.put("register.nombre", "NOMBRE");
         es.put("register.registrarse", "REGISTRARSE");
-        es.put("register.ya_tienes_cuenta", "¿Ya tienes cuenta?");
+        es.put("register.ya_tienes_cuenta", "Ya tienes cuenta?");
         es.put("register.login", "Login");
-        es.put("register.error_password", "Contraseña invalida. Debe tener 8+ caracteres, letra, numero y simbolo.");
+        es.put("register.error_password", "Contrasena invalida. Debe tener 8+ caracteres, letra, numero y simbolo.");
         es.put("register.error_username", "El nombre de usuario ya existe o es invalido.");
         es.put("levelselect.titulo", "Nivel ");
         es.put("levelselect.iniciar_juego", "Iniciar Juego");
@@ -54,7 +55,7 @@ public class GestorIdiomas {
         es.put("game.tiempo", "Tiempo: ");
         es.put("game.menu_boton", "MENU");
         es.put("game.dialogo_victoria_titulo", "HAS GANADO!");
-        es.put("game.dialogo_victoria_mensaje", "¡FELICIDADES!\nScore: {0}\n\n¿Quieres jugar de nuevo?");
+        es.put("game.dialogo_victoria_mensaje", "FELICIDADES!\nScore: {0}\n\nQuieres jugar de nuevo?");
         es.put("game.dialogo_victoria_reintentar", "Reintentar");
         es.put("game.dialogo_victoria_menu", "Menu");
         es.put("amigos.titulo", "Gestionar Amigos");
@@ -98,6 +99,7 @@ public class GestorIdiomas {
         en.put("login.iniciar_sesion", "LOGIN");
         en.put("login.no_tienes_cuenta", "Don't have an account?");
         en.put("login.registrate", "Sign up");
+        en.put("login.salir", "EXIT");
         en.put("login.error", "Incorrect username or password.");
         en.put("register.titulo", "User Registration");
         en.put("register.nombre", "FULLNAME");
@@ -159,14 +161,15 @@ public class GestorIdiomas {
         ita.put("login.iniciar_sesion", "ACCEDI");
         ita.put("login.no_tienes_cuenta", "Non hai un account?");
         ita.put("login.registrate", "Registrati");
+        ita.put("login.salir", "USCIRE");
         ita.put("login.error", "Nome utente o password errati.");
         ita.put("register.titulo", "Registrazione utente");
         ita.put("register.nombre", "NOME COMPLETO");
         ita.put("register.registrarse", "REGISTRATI");
-        ita.put("register.ya_tienes_cuenta", "Hai già un account?");
+        ita.put("register.ya_tienes_cuenta", "Hai gia un account?");
         ita.put("register.login", "Accedi");
         ita.put("register.error_password", "Password non valida. Deve avere 8+ caratteri, lettera, numero e simbolo.");
-        ita.put("register.error_username", "Nome utente già esistente o non valido.");
+        ita.put("register.error_username", "Nome utente gia esistente o non valido.");
         ita.put("levelselect.titulo", "Livello ");
         ita.put("levelselect.iniciar_juego", "Inizia gioco");
         ita.put("levelselect.volver_menu", "Torna al Menu");
@@ -185,7 +188,7 @@ public class GestorIdiomas {
         ita.put("amigos.amigos_list", "Amici:");
         ita.put("amigos.no_amigos", "Non hai amici aggiunti.");
         ita.put("amigos.error_vacio", "Il nome utente non puo' essere vuoto.");
-        ita.put("amigos.error_existente", "Hai già questo utente come amico.");
+        ita.put("amigos.error_existente", "Hai gia questo utente come amico.");
         ita.put("amigos.exito", "Amico aggiunto con successo.");
         ita.put("amigos.error", "Impossibile aggiungere. Controlla il nome.");
         ita.put("preferences.titulo", "OPZIONI");
@@ -193,12 +196,12 @@ public class GestorIdiomas {
         ita.put("preferences.display", "DISPLAY");
         ita.put("preferences.controles", "Controlli");
         ita.put("preferences.arriba", "Su");
-        ita.put("preferences.abajo", "Giù");
+        ita.put("preferences.abajo", "Giu");
         ita.put("preferences.izquierda", "Sinistra");
         ita.put("preferences.derecha", "Destra");
         ita.put("preferences.cambiar", "Cambia");
         ita.put("preferences.esperando", "Premi un tasto...");
-        ita.put("preferences.tecla_en_uso", "Il tasto e' gia' in uso. Scegli un altro.");
+        ita.put("preferences.tecla_en_uso", "Il tasto e' gia in uso. Scegli un altro.");
         ita.put("preferences.control_actualizado", "Controllo aggiornato.");
         ita.put("preferences.guardar", "Salva e torna");
         ita.put("preferences.espera_tecla", "In attesa del tasto per: ");
@@ -220,7 +223,7 @@ public class GestorIdiomas {
 
         return "[" + clave + "]";
     }
-    
+
     public String setTexto(String clave, Object... args) {
         String texto = setTexto(clave);
         if (args != null) {
@@ -230,7 +233,10 @@ public class GestorIdiomas {
         }
         return texto;
     }
-
+    
+    public void resetToDefault() {
+        this.codigoIdioma = "es";
+    }
 
     public void cambiarIdioma(String nuevoIdioma) {
         if (diccionarios.containsKey(nuevoIdioma)) {
@@ -241,7 +247,7 @@ public class GestorIdiomas {
             }
         }
     }
-    
+
     private int getCodigoIdiomaByte(String codigo) {
         switch (codigo) {
             case "es":
@@ -262,7 +268,7 @@ public class GestorIdiomas {
     public String[] obtenerIdiomasDisponibles() {
         return new String[]{"es", "en", "ita"};
     }
-    
+
     public int getIdiomaIndex() {
         switch (codigoIdioma) {
             case "es": return 0;
@@ -275,7 +281,7 @@ public class GestorIdiomas {
     public String obtenerNombreIdioma(String codigo) {
         switch (codigo) {
             case "es":
-                return "Español";
+                return "Espanol";
             case "en":
                 return "English";
             case "ita":
