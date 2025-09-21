@@ -16,7 +16,7 @@ public class Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("SOKOBAN");
+        configuration.setTitle("SOKOMINE");
         configuration.useVsync(true);
 
         configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
