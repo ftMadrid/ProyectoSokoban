@@ -321,20 +321,14 @@ public class GameScreen implements Screen {
         pausePanel.setVisible(false);
     }
 
-<<<<<<< HEAD
     private void updatePauseMenuLanguage(){
         if(pauseTitle == null) return;
-=======
-    private void updatePauseMenuLanguage() {
-        if (pauseTitle == null) {
-            return;
-        }
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
         pauseTitle.setText(gestorIdiomas.setTexto("pause.title"));
         resumeButton.setText(gestorIdiomas.setTexto("pause.resume"));
         levelSelectButton.setText(gestorIdiomas.setTexto("pause.level_select"));
         menuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
+
 
     @Override
     public void show() {
@@ -354,10 +348,6 @@ public class GameScreen implements Screen {
             if (!juegoSokoban.isJuegoGanado()) {
                 // durante el juego: solo tiempo y movimientos
                 tiempoDeJuego += delta;
-<<<<<<< HEAD
-=======
-                score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int) (tiempoDeJuego * 2);
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
                 cantmoves.setText(gestorIdiomas.setTexto("game.movimientos") + juegoSokoban.getMovimientos());
                 cantempujes.setText(gestorIdiomas.setTexto("game.empujes") + juegoSokoban.getEmpujes());
                 timeLabel.setText(String.format(gestorIdiomas.setTexto("game.tiempo") + "%.0fs", tiempoDeJuego));
@@ -366,20 +356,11 @@ public class GameScreen implements Screen {
 
             juegoSokoban.render(delta);
 
-<<<<<<< HEAD
             if (juegoSokoban.isJuegoGanado()) {
                 // calcula el score SOLO cuando ganas, antes del diálogo
                 score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int)(tiempoDeJuego * 2);
                 if (score < 0) score = 0;
                 // para el historial en hide/dispose, el flag usará este score
-=======
-            if (juegoSokoban.isJuegoGanado() && !dialogoVictoriaMostrado) {
-                dialogoVictoriaMostrado = true;
-
-                LogicaUsuarios lu = new LogicaUsuarios();
-                lu.guardarScore(main.username, nivelActual, Math.max(0, score));
-                lu.marcarNivelPasado(main.username, nivelActual);
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
                 mostrarDialogoVictoria();
             }
         } else {
@@ -396,16 +377,11 @@ public class GameScreen implements Screen {
         juegoSokoban.resize(width, height);
     }
 
-<<<<<<< HEAD
     @Override public void hide() {
         // Si se abandona la pantalla por otra vía, registra según estado
         if (!partidaRegistrada) {
             registrarPartida(juegoSokoban.isJuegoGanado());
         }
-=======
-    @Override
-    public void hide() {
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
     }
 
     @Override
@@ -425,15 +401,10 @@ public class GameScreen implements Screen {
         }
     }
 
-<<<<<<< HEAD
     @Override public void dispose() {
         if (!partidaRegistrada) {
             registrarPartida(juegoSokoban.isJuegoGanado());
         }
-=======
-    @Override
-    public void dispose() {
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
         juegoSokoban.dispose();
         stage.dispose();
         pixelFont.dispose();

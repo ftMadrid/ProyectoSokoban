@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-<<<<<<< HEAD
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -21,10 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-=======
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -40,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Date;
+import java.util.List;
 
 public class MenuScreen implements Screen {
 
@@ -350,40 +347,25 @@ public class MenuScreen implements Screen {
         final Dialog dlg = profileDialog; // para inner listeners
 
         changeAvatarButton.addListener(new ClickListener() {
-<<<<<<< HEAD
-            @Override public void clicked(InputEvent event, float x, float y) {
-                dlg.hide();
-=======
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
                 showAvatarSelectionDialog(profileAvatar);
             }
         });
 
         viewHistoryButton.addListener(new ClickListener() {
-<<<<<<< HEAD
-            @Override public void clicked(InputEvent event, float x, float y) {
-                dlg.hide();
-=======
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
                 showHistoryDialog();
             }
         });
 
         closeButton.addListener(new ClickListener() {
-<<<<<<< HEAD
-            @Override public void clicked(InputEvent event, float x, float y) {
-                dlg.hide();
-=======
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
             }
         });
 
@@ -501,16 +483,10 @@ public class MenuScreen implements Screen {
         // Filas
         Table rows = new Table();
         rows.defaults().pad(4);
-<<<<<<< HEAD
-=======
 
         List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
-
-        java.util.List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
         SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-<<<<<<< HEAD
         boolean par = false;
         for (LogicaUsuarios.HistorialRegistro r : lista) {
             Table line = new Table();
@@ -527,8 +503,6 @@ public class MenuScreen implements Screen {
             rows.add(line).growX().row();
         }
 
-=======
->>>>>>> e726e7a1af429cf58bd574b8a8f1d1a0e5674516
         ScrollPane sp = new ScrollPane(rows);
         sp.setFadeScrollBars(false);
         sp.setScrollingDisabled(false, false);
