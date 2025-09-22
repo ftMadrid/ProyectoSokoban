@@ -1,3 +1,4 @@
+// Ruta: core/src/main/java/proyectosokoban/recursos/Utilidades/GestorIdiomas.java
 package proyectosokoban.recursos.Utilidades;
 
 import java.util.HashMap;
@@ -92,7 +93,6 @@ public class GestorIdiomas {
         es.put("profile.change_avatar", "Cambiar Avatar");
         es.put("profile.close", "Cerrar");
         es.put("avatar.title", "Seleccionar Avatar");
-        // Menú de pausa (dos variantes de claves)
         es.put("pause.titulo", "PAUSA");
         es.put("pause.continuar", "Continuar");
         es.put("pause.niveles", "Seleccionar Nivel");
@@ -107,7 +107,6 @@ public class GestorIdiomas {
         es.put("pause.main_menu", "Menu Principal");
         es.put("pause.options", "Opciones");
         es.put("pause.quit", "Salir");
-        // Historial (por si los usas)
         es.put("history.title", "Historial de partidas");
         es.put("history.fecha", "Fecha");
         es.put("history.nivel", "Nivel");
@@ -116,6 +115,17 @@ public class GestorIdiomas {
         es.put("history.duracion", "Duración");
         es.put("history.resultado", "Resultado");
         es.put("history.empty", "No hay registros.");
+        es.put("ranking.title", "Ranking");
+        es.put("ranking.view", "Vista");
+        es.put("ranking.type", "Tipo");
+        es.put("ranking.global", "Global");
+        es.put("ranking.friends", "Amigos");
+        es.put("ranking.total", "Total");
+        es.put("ranking.by_level", "Por Nivel");
+        es.put("ranking.header.rank", "#");
+        es.put("ranking.header.user", "Usuario");
+        es.put("ranking.header.score", "Puntuacion");
+        es.put("ranking.empty", "No hay datos disponibles");
         diccionarios.put("es", es);
 
         // ======= INGLÉS =======
@@ -186,7 +196,6 @@ public class GestorIdiomas {
         en.put("profile.change_avatar", "Change Avatar");
         en.put("profile.close", "Close");
         en.put("avatar.title", "Select Avatar");
-        // Pause (two key sets)
         en.put("pause.titulo", "PAUSE");
         en.put("pause.continuar", "Resume");
         en.put("pause.niveles", "Level Select");
@@ -201,7 +210,6 @@ public class GestorIdiomas {
         en.put("pause.main_menu", "Main Menu");
         en.put("pause.options", "Options");
         en.put("pause.quit", "Quit");
-        // History
         en.put("history.title", "Match history");
         en.put("history.fecha", "Date");
         en.put("history.nivel", "Level");
@@ -210,6 +218,17 @@ public class GestorIdiomas {
         en.put("history.duracion", "Duration");
         en.put("history.resultado", "Result");
         en.put("history.empty", "No records.");
+        en.put("ranking.title", "Leaderboard");
+        en.put("ranking.view", "View");
+        en.put("ranking.type", "Type");
+        en.put("ranking.global", "Global");
+        en.put("ranking.friends", "Friends");
+        en.put("ranking.total", "Total");
+        en.put("ranking.by_level", "By Level");
+        en.put("ranking.header.rank", "#");
+        en.put("ranking.header.user", "User");
+        en.put("ranking.header.score", "Score");
+        en.put("ranking.empty", "No data available");
         diccionarios.put("en", en);
 
         // ======= ITALIANO =======
@@ -280,7 +299,6 @@ public class GestorIdiomas {
         ita.put("profile.change_avatar", "Cambia Avatar");
         ita.put("profile.close", "Chiudi");
         ita.put("avatar.title", "Seleziona Avatar");
-        // Pausa (dos variantes)
         ita.put("pause.titulo", "PAUSA");
         ita.put("pause.continuar", "Continua");
         ita.put("pause.niveles", "Seleziona Livello");
@@ -295,7 +313,6 @@ public class GestorIdiomas {
         ita.put("pause.main_menu", "Menu Principale");
         ita.put("pause.options", "Opzioni");
         ita.put("pause.quit", "Esci");
-        // Storico
         ita.put("history.title", "Storico partite");
         ita.put("history.fecha", "Data");
         ita.put("history.nivel", "Livello");
@@ -304,6 +321,17 @@ public class GestorIdiomas {
         ita.put("history.duracion", "Durata");
         ita.put("history.resultado", "Risultato");
         ita.put("history.empty", "Nessun record.");
+        ita.put("ranking.title", "Classifica");
+        ita.put("ranking.view", "Vista");
+        ita.put("ranking.type", "Tipo");
+        ita.put("ranking.global", "Globale");
+        ita.put("ranking.friends", "Amici");
+        ita.put("ranking.total", "Totale");
+        ita.put("ranking.by_level", "Per Livello");
+        ita.put("ranking.header.rank", "#");
+        ita.put("ranking.header.user", "Utente");
+        ita.put("ranking.header.score", "Punteggio");
+        ita.put("ranking.empty", "Nessun dato disponibile");
         diccionarios.put("ita", ita);
     }
     
