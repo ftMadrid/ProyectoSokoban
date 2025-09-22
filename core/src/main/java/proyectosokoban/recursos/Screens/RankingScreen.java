@@ -101,7 +101,7 @@ public class RankingScreen implements Screen {
         // --- Título ---
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
         Label titleLabel = new Label(gestorIdiomas.setTexto("ranking.title"), titleStyle);
-        panelTable.add(titleLabel).expandX().center().padTop(10).padBottom(15).row();
+        panelTable.add(titleLabel).expandX().center().padTop(60).padBottom(15).row();
 
         // --- Filtros ---
         Table filtersTable = new Table();
