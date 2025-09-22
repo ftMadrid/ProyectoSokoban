@@ -74,6 +74,11 @@ public class LogicaUsuarios {
         }
 
         try {
+
+            Preferences prefs = Gdx.app.getPreferences("SokobanPrefs");
+            prefs.remove(username + "_tutorial_completado");
+            prefs.flush();
+
             dirUsuario(username).mkdir();
             dirScores(username).mkdir();
             long ahora = System.currentTimeMillis();
