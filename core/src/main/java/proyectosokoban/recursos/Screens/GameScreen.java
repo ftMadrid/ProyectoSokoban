@@ -48,7 +48,7 @@ public class GameScreen implements Screen {
     private boolean isPaused = false;
 
     private Label pauseTitle;
-    private TextButton resumeButton, levelSelectButton, menuButton;
+    private TextButton restartButton, resumeButton, levelSelectButton, menuButton;
 
     private boolean partidaRegistrada = false;
 
@@ -68,7 +68,7 @@ public class GameScreen implements Screen {
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
 
-        parameter.size = 36; 
+        parameter.size = 36;
         hudFont = generator.generateFont(parameter);
 
         generator.dispose();
@@ -86,7 +86,7 @@ public class GameScreen implements Screen {
 
     private void initializeUI() {
         stage = new Stage(new ScreenViewport());
-        
+
         // --- CAMBIO: Un solo estilo para todo el HUD ---
         Label.LabelStyle hudLabelStyle = new Label.LabelStyle(hudFont, hudFont.getColor());
         // --- FIN DEL CAMBIO ---
@@ -107,13 +107,15 @@ public class GameScreen implements Screen {
         scoreLabel = new Label("", hudLabelStyle); // Oculto, pero mantenemos consistencia
         scoreLabel.setVisible(false);
         timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", hudLabelStyle);
+        Label nivelLabel = new Label(gestorIdiomas.setTexto("game.nivel") + nivelActual, hudLabelStyle);
 
         // --- CAMBIO: Tabla interna para centrar los elementos ---
         Table hudElements = new Table();
+        hudElements.add(nivelLabel).padRight(60); // Nivel primero
         hudElements.add(cantmoves).padRight(60); // Espacio entre elementos
         hudElements.add(cantempujes).padRight(60);
         hudElements.add(timeLabel);
-        
+
         panel.add(hudElements).expandX().center();
         // --- FIN DEL CAMBIO ---
 
@@ -175,7 +177,7 @@ public class GameScreen implements Screen {
         LogicaUsuarios lu = new LogicaUsuarios();
         lu.guardarScore(main.username, nivelActual, score);
         lu.marcarNivelPasado(main.username, nivelActual);
-        
+
         lu.verificarYDesbloquearLogros(main.username);
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
@@ -231,7 +233,7 @@ public class GameScreen implements Screen {
                 dialogo.hide();
                 main.setScreen(new GameScreen(main, nivelActual));
             }
-            
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
@@ -241,7 +243,7 @@ public class GameScreen implements Screen {
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
-            
+
         });
 
         menuBtn.addListener(new ClickListener() {
@@ -250,7 +252,7 @@ public class GameScreen implements Screen {
                 dialogo.hide();
                 main.setScreen(new MenuScreen(main));
             }
-            
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
@@ -260,7 +262,7 @@ public class GameScreen implements Screen {
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
-            
+
         });
 
         dialogo.getContentTable().add(wrapper).prefWidth(900).prefHeight(520);
@@ -282,11 +284,11 @@ public class GameScreen implements Screen {
 
         Table container = new Table();
         container.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        container.pad(20);
+        container.pad(30);
 
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
         pauseTitle = new Label("", labelStyle);
-        container.add(pauseTitle).colspan(2).center().padBottom(20).row();
+        container.add(pauseTitle).colspan(2).center().padBottom(10).row();
 
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.font = pixelFont;
@@ -300,6 +302,26 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 resume();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
+
+        restartButton = new TextButton("", btnStyle);
+        restartButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resume();
+                reiniciarNivel();
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
 
@@ -355,7 +377,9 @@ public class GameScreen implements Screen {
             }
         });
 
+        // AGREGAR LOS BOTONES AL CONTENEDOR (incluyendo el nuevo)
         container.add(resumeButton).width(250).height(50).pad(10).row();
+        container.add(restartButton).width(250).height(50).pad(10).row(); // NUEVO BOTÓN
         container.add(levelSelectButton).width(250).height(50).pad(10).row();
         container.add(menuButton).width(250).height(50).pad(10).row();
 
@@ -364,12 +388,21 @@ public class GameScreen implements Screen {
         pausePanel.setVisible(false);
     }
 
+    private void reiniciarNivel() {
+        // Registrar la partida actual como fallida antes de reiniciar
+        registrarPartida(false);
+
+        // Crear una nueva instancia del nivel actual
+        transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, nivelActual));
+    }
+
     private void updatePauseMenuLanguage() {
         if (pauseTitle == null) {
             return;
         }
         pauseTitle.setText(gestorIdiomas.setTexto("pause.title"));
         resumeButton.setText(gestorIdiomas.setTexto("pause.resume"));
+        restartButton.setText(gestorIdiomas.setTexto("pause.restart"));
         levelSelectButton.setText(gestorIdiomas.setTexto("pause.level_select"));
         menuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
@@ -404,7 +437,7 @@ public class GameScreen implements Screen {
                 if (score < 0) {
                     score = 0;
                 }
-                
+
                 mostrarDialogoVictoria();
             }
         } else {

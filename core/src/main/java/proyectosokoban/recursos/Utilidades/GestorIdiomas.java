@@ -51,6 +51,7 @@ public class GestorIdiomas {
         es.put("levelselect.titulo", "Nivel ");
         es.put("levelselect.iniciar_juego", "Iniciar Juego");
         es.put("levelselect.volver_menu", "Volver al Menu");
+        es.put("game.nivel", "Nivel: ");
         es.put("game.movimientos", "Movimientos: ");
         es.put("game.empujes", "Empujes: ");
         es.put("game.score", "Score: ");
@@ -176,6 +177,7 @@ public class GestorIdiomas {
         en.put("levelselect.titulo", "Level ");
         en.put("levelselect.iniciar_juego", "Start Game");
         en.put("levelselect.volver_menu", "Back to Menu");
+        en.put("game.nivel", "Level: ");
         en.put("game.movimientos", "Moves: ");
         en.put("game.empujes", "Pushes: ");
         en.put("game.score", "Score: ");
@@ -301,6 +303,7 @@ public class GestorIdiomas {
         ita.put("levelselect.titulo", "Livello ");
         ita.put("levelselect.iniciar_juego", "Inizia gioco");
         ita.put("levelselect.volver_menu", "Torna al Menu");
+        ita.put("game.nivel", "Livello: ");
         ita.put("game.movimientos", "Mosse: ");
         ita.put("game.empujes", "Spinte: ");
         ita.put("game.score", "Punteggio: ");
