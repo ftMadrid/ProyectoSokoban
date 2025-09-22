@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.StretchViewport; // Cambio Importante
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import proyectosokoban.recursos.Main;
@@ -40,15 +40,21 @@ public class LevelSelectScreen implements Screen {
     private int keyUp, keyDown, keyLeft, keyRight;
     private boolean active = true;
     private BitmapFont font;
+    private BitmapFont titleFont;
+    private BitmapFont messageFont;
     private Texture buttonTexture;
     private Texture backgroundTexture;
-    
+
     private Table pausePanel;
     private boolean isPaused = false;
-    
+
     private Label pauseTitle;
     private TextButton resumeButton, backToMenuButton;
 
+    // Nuevos elementos para título y mensaje
+    private Label titleLabel;
+    private Label enterLevelMessage;
+    private Table messagePanel;
 
     public LevelSelectScreen(final Main main) {
         this.main = main;
@@ -71,63 +77,92 @@ public class LevelSelectScreen implements Screen {
         stage.addActor(mapaActor);
 
         buttonTexture = new Texture(Gdx.files.internal("ui/button1.png"));
+        inicializarFuentes();
         inicializarUI();
     }
 
-    private void inicializarUI() {
+    private void inicializarFuentes() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+
+        // Fuente normal para botones
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
         p.size = 24;
         p.color = Color.valueOf("1E1E1E");
         font = generator.generateFont(p);
-        generator.dispose();
 
+        // Fuente pixel para título
+        FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        titleParam.size = 40;
+        titleParam.color = Color.WHITE;
+        titleParam.borderColor = Color.BLACK;
+        titleParam.borderWidth = 2;
+        titleParam.magFilter = Texture.TextureFilter.Nearest;
+        titleParam.minFilter = Texture.TextureFilter.Nearest;
+        titleFont = generator.generateFont(titleParam);
+
+        // Fuente para mensaje de instrucción
+        FreeTypeFontGenerator.FreeTypeFontParameter messageParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        messageParam.size = 36;
+        messageParam.color = Color.YELLOW;
+        messageParam.borderColor = Color.BLACK;
+        messageParam.borderWidth = 2;
+        messageParam.shadowColor = Color.BLACK;
+        messageParam.shadowOffsetX = 1;
+        messageParam.shadowOffsetY = 1;
+        messageFont = generator.generateFont(messageParam);
+
+        generator.dispose();
+    }
+
+    private void inicializarUI() {
         Table tablaPrincipal = new Table();
         tablaPrincipal.setFillParent(true);
         stage.addActor(tablaPrincipal);
 
+        // Panel superior con título
         Table panelSuperior = new Table();
+        panelSuperior.setFillParent(true);
+        panelSuperior.top();
 
-        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
-        btnStyle.up = new TextureRegionDrawable(buttonTexture);
-        btnStyle.font = font;
+        // Título "Selector de Niveles"
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
+        titleLabel = new Label("SELECTOR DE NIVELES", titleStyle);
 
-        TextButton botonVolver = new TextButton(gestorIdiomas.setTexto("levelselect.volver_menu"), btnStyle);
-        botonVolver.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if(!active) return;
-                active = false;
-                transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
-            }
-            
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-            }
+        // Agregar título centrado en la parte superior
+        panelSuperior.add(titleLabel).expandX().center().pad(20).top().row();
 
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-            }
-            
-        });
-
-        panelSuperior.add(botonVolver).width(240).height(50).expandX().right().pad(10);
-        tablaPrincipal.add(panelSuperior).growX().top().row();
+        stage.addActor(panelSuperior);
         tablaPrincipal.add(mapaActor).expand().fill();
+
+        // Crear panel para mensaje de instrucción
+        createMessagePanel();
 
         buildPauseMenu();
     }
 
+    private void createMessagePanel() {
+        messagePanel = new Table();
+        messagePanel.setFillParent(true);
+        messagePanel.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+
+        Label.LabelStyle messageStyle = new Label.LabelStyle(messageFont, Color.YELLOW);
+        enterLevelMessage = new Label("Apretar ENTER para entrar al nivel", messageStyle);
+
+        messagePanel.add(enterLevelMessage).center();
+        stage.addActor(messagePanel);
+        messagePanel.setVisible(false);
+    }
+
     private void buildPauseMenu() {
-        if (pausePanel != null) pausePanel.remove();
+        if (pausePanel != null) {
+            pausePanel.remove();
+        }
 
         pausePanel = new Table();
         pausePanel.setFillParent(true);
 
-        Pixmap bgPixmap = new Pixmap(1,1, Pixmap.Format.RGBA8888);
-        bgPixmap.setColor(0,0,0,0.7f);
+        Pixmap bgPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        bgPixmap.setColor(0, 0, 0, 0.7f);
         bgPixmap.fill();
         pausePanel.setBackground(new TextureRegionDrawable(new Texture(bgPixmap)));
         bgPixmap.dispose();
@@ -139,7 +174,7 @@ public class LevelSelectScreen implements Screen {
         Label.LabelStyle labelStyle = new Label.LabelStyle(font, Color.valueOf("1E1E1E"));
         pauseTitle = new Label("", labelStyle);
         container.add(pauseTitle).colspan(2).center().padBottom(20).row();
-        
+
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.up = new TextureRegionDrawable(buttonTexture);
         btnStyle.font = font;
@@ -150,6 +185,7 @@ public class LevelSelectScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 resume();
             }
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
@@ -165,10 +201,13 @@ public class LevelSelectScreen implements Screen {
         backToMenuButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(!active) return;
+                if (!active) {
+                    return;
+                }
                 active = false;
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
+
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
@@ -187,14 +226,22 @@ public class LevelSelectScreen implements Screen {
         stage.addActor(pausePanel);
         pausePanel.setVisible(false);
     }
-    
-    private void updatePauseMenuLanguage(){
-        if(pauseTitle == null) return;
+
+    private void updatePauseMenuLanguage() {
+        if (pauseTitle == null) {
+            return;
+        }
         pauseTitle.setText(gestorIdiomas.setTexto("pause.title"));
         resumeButton.setText(gestorIdiomas.setTexto("pause.resume"));
         backToMenuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
 
+    // Método para mostrar/ocultar el mensaje de instrucción
+    public void showEnterLevelMessage(boolean show) {
+        if (messagePanel != null) {
+            messagePanel.setVisible(show && !isPaused);
+        }
+    }
 
     @Override
     public void render(float delta) {
@@ -212,11 +259,11 @@ public class LevelSelectScreen implements Screen {
                 pause();
             }
         }
-        
-        if(!isPaused) {
+
+        if (!isPaused) {
             mapaActor.handleInput(delta);
         }
-        
+
         stage.act(delta);
         stage.draw();
     }
@@ -243,30 +290,49 @@ public class LevelSelectScreen implements Screen {
     @Override
     public void pause() {
         isPaused = true;
-        if(pausePanel != null){
+        if (pausePanel != null) {
             updatePauseMenuLanguage();
             pausePanel.setVisible(true);
         }
+        // Ocultar mensaje cuando está pausado
+        showEnterLevelMessage(false);
     }
 
     @Override
     public void resume() {
         isPaused = false;
-        if(pausePanel != null){
+        if (pausePanel != null) {
             pausePanel.setVisible(false);
         }
     }
 
     @Override
     public void dispose() {
-        if(stage != null) stage.dispose();
-        if(mapaActor != null) mapaActor.dispose();
-        if(font != null) font.dispose();
-        if(buttonTexture != null) buttonTexture.dispose();
-        if(backgroundTexture != null) backgroundTexture.dispose();
+        if (stage != null) {
+            stage.dispose();
+        }
+        if (mapaActor != null) {
+            mapaActor.dispose();
+        }
+        if (font != null) {
+            font.dispose();
+        }
+        if (titleFont != null) {
+            titleFont.dispose();
+        }
+        if (messageFont != null) {
+            messageFont.dispose();
+        }
+        if (buttonTexture != null) {
+            buttonTexture.dispose();
+        }
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
+        }
     }
 
     class MapaActor extends Actor {
+
         private OrthographicCamera camera;
         private Viewport viewport;
         private SpriteBatch batch;
@@ -285,7 +351,6 @@ public class LevelSelectScreen implements Screen {
             float worldHeight = mapa.getFilas() * TILE;
 
             camera = new OrthographicCamera();
-            // --- CORRECCIÓN AQUÍ: Se cambia a StretchViewport ---
             viewport = new StretchViewport(worldWidth, worldHeight, camera);
         }
 
@@ -297,19 +362,34 @@ public class LevelSelectScreen implements Screen {
             tiempoDesdeUltimoMovimiento += delta;
             if (tiempoDesdeUltimoMovimiento >= delayMovimiento && !selector.estaMoviendose()) {
                 boolean seMovio = false;
-                if (Gdx.input.isKeyJustPressed(keyRight)) seMovio = selector.mover(1, 0);
-                else if (Gdx.input.isKeyJustPressed(keyLeft)) seMovio = selector.mover(-1, 0);
-                else if (Gdx.input.isKeyJustPressed(keyUp)) seMovio = selector.mover(0, 1);
-                else if (Gdx.input.isKeyJustPressed(keyDown)) seMovio = selector.mover(0, -1);
-                else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+                if (Gdx.input.isKeyJustPressed(keyRight)) {
+                    seMovio = selector.mover(1, 0);
+                } else if (Gdx.input.isKeyJustPressed(keyLeft)) {
+                    seMovio = selector.mover(-1, 0);
+                } else if (Gdx.input.isKeyJustPressed(keyUp)) {
+                    seMovio = selector.mover(0, 1);
+                } else if (Gdx.input.isKeyJustPressed(keyDown)) {
+                    seMovio = selector.mover(0, -1);
+                } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                     int nivelSeleccionado = selector.getNivelSeleccionado();
                     if (nivelSeleccionado > 0 && mapa.isNivelDesbloqueado(nivelSeleccionado)) {
                         active = false;
                         transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, nivelSeleccionado));
                     }
                 }
-                if (seMovio) tiempoDesdeUltimoMovimiento = 0f;
+                if (seMovio) {
+                    tiempoDesdeUltimoMovimiento = 0f;
+                }
             }
+
+            // Verificar si el personaje está sobre un nivel desbloqueado
+            checkIfOnLevel();
+        }
+
+        private void checkIfOnLevel() {
+            int nivelSeleccionado = selector.getNivelSeleccionado();
+            boolean mostrarMensaje = (nivelSeleccionado > 0 && mapa.isNivelDesbloqueado(nivelSeleccionado));
+            showEnterLevelMessage(mostrarMensaje);
         }
 
         @Override
@@ -336,9 +416,15 @@ public class LevelSelectScreen implements Screen {
         }
 
         public void dispose() {
-            if (batch != null) batch.dispose();
-            if (mapa != null) mapa.dispose();
-            if (selector != null) selector.dispose();
+            if (batch != null) {
+                batch.dispose();
+            }
+            if (mapa != null) {
+                mapa.dispose();
+            }
+            if (selector != null) {
+                selector.dispose();
+            }
         }
     }
 }
