@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -100,16 +102,19 @@ public class PreferenciasScreen implements Screen {
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        p.size = 64; p.color = Color.valueOf("F5F5DC");
+        p.size = 64;
+        p.color = Color.valueOf("F5F5DC");
         titleFont = gen.generateFont(p);
 
-        p.size = 32; p.color = Color.valueOf("1E1E1E");
+        p.size = 32;
+        p.color = Color.valueOf("1E1E1E");
         sectionFont = gen.generateFont(p);
 
         p.size = 24;
         pixelFont = gen.generateFont(p);
 
-        p.size = 18; p.color = Color.valueOf("F5F5DC");
+        p.size = 18;
+        p.color = Color.valueOf("F5F5DC");
         smallFont = gen.generateFont(p);
 
         gen.dispose();
@@ -165,13 +170,14 @@ public class PreferenciasScreen implements Screen {
         displayContainer.add(displayLabel).center().padBottom(4).row();
 
         displayButton = new CycleButton(new String[]{"Fullscreen", "Windowed", "Borderless"}, createButtonStyle());
-        displayButton.addListener(new ClickListener() {
+        displayButton.addListener(createButtonListener(displayButton, new Runnable() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void run() {
+                displayButton.cycle();
                 int displayMode = displayButton.getIndex();
                 main.applyDisplayMode(displayMode);
             }
-        });
+        }));
         displayContainer.add(displayButton).width(130).height(32).center();
 
         Table languageContainer = new Table();
@@ -181,14 +187,15 @@ public class PreferenciasScreen implements Screen {
         languageContainer.add(languageLabel).center().padBottom(4).row();
 
         languageButton = new CycleButton(new String[]{"Espanol", "English", "Italiano"}, createButtonStyle());
-        languageButton.addListener(new ClickListener() {
+        languageButton.addListener(createButtonListener(languageButton, new Runnable() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void run() {
+                languageButton.cycle();
                 String[] idiomas = {"es", "en", "ita"};
                 gestorIdiomas.cambiarIdioma(idiomas[languageButton.getIndex()]);
                 updateUITexts();
             }
-        });
+        }));
         languageContainer.add(languageButton).width(120).height(32).center();
 
         content.add().height(15).row();
@@ -246,26 +253,26 @@ public class PreferenciasScreen implements Screen {
         content.add(buttonTable).center().padBottom(10).row();
 
         saveButton = new TextButton(gestorIdiomas.setTexto("preferences.guardar"), createButtonStyle());
-        saveButton.addListener(new ClickListener() {
+        saveButton.addListener(createButtonListener(saveButton, new Runnable() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void run() {
                 savePreferences();
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
-        });
+        }));
         buttonTable.add(saveButton).width(180).height(38).padRight(10);
 
         cancelButton = new TextButton(gestorIdiomas.setTexto("back.button"), createButtonStyle());
         if (gestorIdiomas.setTexto("back.button").length() > 12) {
             cancelButton.getLabel().setFontScale(0.85f);
         }
-        cancelButton.addListener(new ClickListener() {
+        cancelButton.addListener(createButtonListener(cancelButton, new Runnable() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void run() {
                 loadPreferences();
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
-        });
+        }));
         buttonTable.add(cancelButton).width(150).height(38);
 
         msgLabel = new Label("", new Label.LabelStyle(smallFont, Color.WHITE));
@@ -305,6 +312,8 @@ public class PreferenciasScreen implements Screen {
     private TextButton.TextButtonStyle createButtonStyle() {
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.up = new TextureRegionDrawable(new TextureRegion(buttonTex));
+        style.down = new TextureRegionDrawable(new TextureRegion(buttonTex));
+        style.over = new TextureRegionDrawable(new TextureRegion(buttonTex));
         style.font = pixelFont;
         style.fontColor = Color.valueOf("1E1E1E");
         return style;
@@ -317,27 +326,89 @@ public class PreferenciasScreen implements Screen {
     }
 
     private ClickListener createKeyListener(final KeyButton button) {
-        return new ClickListener() {
+        ClickListener listener = new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 startKeyCapture(button);
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+
+                button.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         };
+
+        button.setTransform(true);
+        button.setOrigin(Align.center);
+        button.setScale(1f);
+        button.getColor().a = 1f;
+
+        return listener;
+    }
+
+    private ClickListener createButtonListener(final TextButton button, final Runnable action) {
+        ClickListener listener = new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Ejecutar la acción original
+                if (action != null) {
+                    action.run();
+                }
+
+                // Aplicar animación
+                button.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        };
+
+        button.setTransform(true);
+        button.setOrigin(Align.center);
+        button.setScale(1f);
+        button.getColor().a = 1f;
+
+        return listener;
     }
 
     private void startKeyCapture(KeyButton button) {
         if (waitingKeyButton != null) {
             waitingKeyButton.setWaiting(false);
         }
-        
+
         waitingKeyButton = button;
         captureMode = true;
         button.setWaiting(true);
-        
+
         msgLabel.setText(gestorIdiomas.setTexto("preferences.espera_tecla") + getActionName(button.getAction()));
         msgLabel.setColor(Color.YELLOW);
         lastMsgTime = System.currentTimeMillis();
-        
+
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
@@ -355,7 +426,7 @@ public class PreferenciasScreen implements Screen {
             cancelKeyCapture();
             return;
         }
-        
+
         String action = waitingKeyButton.getAction();
         if (isKeyInUse(keycode, action)) {
             msgLabel.setText(gestorIdiomas.setTexto("preferences.tecla_en_uso"));
@@ -363,16 +434,16 @@ public class PreferenciasScreen implements Screen {
             lastMsgTime = System.currentTimeMillis();
             return;
         }
-        
+
         assignKey(action, keycode);
         updateKeyButtons();
-        
+
         msgLabel.setText(gestorIdiomas.setTexto("preferences.control_actualizado") + ": " + Input.Keys.toString(keycode));
         msgLabel.setColor(Color.GREEN);
         lastMsgTime = System.currentTimeMillis();
-        
+
         Gdx.input.setInputProcessor(multiplexer);
-        
+
         waitingKeyButton.setWaiting(false);
         waitingKeyButton = null;
         captureMode = false;
@@ -385,24 +456,40 @@ public class PreferenciasScreen implements Screen {
         }
         captureMode = false;
         msgLabel.setText("");
-        
+
         Gdx.input.setInputProcessor(multiplexer);
     }
 
     private boolean isKeyInUse(int keycode, String currentAction) {
-        if (!"up".equals(currentAction) && keycode == keyUp) return true;
-        if (!"down".equals(currentAction) && keycode == keyDown) return true;
-        if (!"left".equals(currentAction) && keycode == keyLeft) return true;
-        if (!"right".equals(currentAction) && keycode == keyRight) return true;
+        if (!"up".equals(currentAction) && keycode == keyUp) {
+            return true;
+        }
+        if (!"down".equals(currentAction) && keycode == keyDown) {
+            return true;
+        }
+        if (!"left".equals(currentAction) && keycode == keyLeft) {
+            return true;
+        }
+        if (!"right".equals(currentAction) && keycode == keyRight) {
+            return true;
+        }
         return false;
     }
 
     private void assignKey(String action, int keycode) {
         switch (action) {
-            case "up": keyUp = keycode; break;
-            case "down": keyDown = keycode; break;
-            case "left": keyLeft = keycode; break;
-            case "right": keyRight = keycode; break;
+            case "up":
+                keyUp = keycode;
+                break;
+            case "down":
+                keyDown = keycode;
+                break;
+            case "left":
+                keyLeft = keycode;
+                break;
+            case "right":
+                keyRight = keycode;
+                break;
         }
     }
 
@@ -415,41 +502,46 @@ public class PreferenciasScreen implements Screen {
 
     private String getActionName(String action) {
         switch (action) {
-            case "up": return gestorIdiomas.setTexto("preferences.arriba");
-            case "down": return gestorIdiomas.setTexto("preferences.abajo");
-            case "left": return gestorIdiomas.setTexto("preferences.izquierda");
-            case "right": return gestorIdiomas.setTexto("preferences.derecha");
-            default: return action.toUpperCase();
+            case "up":
+                return gestorIdiomas.setTexto("preferences.arriba");
+            case "down":
+                return gestorIdiomas.setTexto("preferences.abajo");
+            case "left":
+                return gestorIdiomas.setTexto("preferences.izquierda");
+            case "right":
+                return gestorIdiomas.setTexto("preferences.derecha");
+            default:
+                return action.toUpperCase();
         }
     }
 
     private void loadPreferences() {
         int[] prefs = userLogic.getPreferencias(main.username);
-        
+
         float volume = prefs[0] / 100f;
         main.setVolume(volume);
         volumeSlider.setValue(volume);
-        
+
         int displayIndex = Math.max(0, Math.min(2, prefs[8]));
         displayButton.setIndex(displayIndex);
-        
+
         int languageIndex = Math.max(0, Math.min(2, prefs[1]));
         languageButton.setIndex(languageIndex);
-        
+
         keyUp = prefs[4];
         keyDown = prefs[5];
         keyLeft = prefs[6];
         keyRight = prefs[7];
-        
+
         if (keyUp == 0 || keyDown == 0 || keyLeft == 0 || keyRight == 0) {
             keyUp = Input.Keys.W;
             keyDown = Input.Keys.S;
             keyLeft = Input.Keys.A;
             keyRight = Input.Keys.D;
         }
-        
+
         main.updateControls(keyUp, keyDown, keyLeft, keyRight);
-        
+
         updateKeyButtons();
     }
 
@@ -457,17 +549,17 @@ public class PreferenciasScreen implements Screen {
         int[] oldPrefs = userLogic.getPreferencias(main.username);
 
         userLogic.setPreferencias(
-            main.username,
-            (int)(volumeSlider.getValue() * 100),
-            (byte) languageButton.getIndex(),
-            (byte) oldPrefs[2],
-            (oldPrefs[3] == 1),
-            keyUp, keyDown, keyLeft, keyRight,
-            (byte) displayButton.getIndex()
+                main.username,
+                (int) (volumeSlider.getValue() * 100),
+                (byte) languageButton.getIndex(),
+                (byte) oldPrefs[2],
+                (oldPrefs[3] == 1),
+                keyUp, keyDown, keyLeft, keyRight,
+                (byte) displayButton.getIndex()
         );
-        
+
         main.updateControls(keyUp, keyDown, keyLeft, keyRight);
-        
+
         msgLabel.setText(gestorIdiomas.setTexto("preferences.control_actualizado"));
         msgLabel.setColor(Color.GREEN);
         lastMsgTime = System.currentTimeMillis();
@@ -490,7 +582,7 @@ public class PreferenciasScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
-        
+
         if (msgLabel.getText().length > 0 && System.currentTimeMillis() - lastMsgTime > 3000) {
             msgLabel.setText("");
         }
@@ -502,11 +594,16 @@ public class PreferenciasScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
+
     @Override
-    public void resume() {}
+    public void resume() {
+    }
+
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
     public void dispose() {
@@ -523,22 +620,18 @@ public class PreferenciasScreen implements Screen {
     }
 
     public static class CycleButton extends TextButton {
+
         private String[] options;
         private int currentIndex = 0;
 
         public CycleButton(String[] options, TextButtonStyle style) {
             super(options[0], style);
             this.options = options;
-            
-            addListener(new ClickListener() {
-                @Override
-                public void clicked(InputEvent event, float x, float y) {
-                    cycle();
-                }
-            });
+            // REMOVER el listener automático aquí
         }
 
-        private void cycle() {
+        // Añadir este método público para ciclar manualmente
+        public void cycle() {
             currentIndex = (currentIndex + 1) % options.length;
             setText(options[currentIndex]);
         }
@@ -554,6 +647,7 @@ public class PreferenciasScreen implements Screen {
     }
 
     private static class KeyButton extends TextButton {
+
         private String action;
         private boolean waiting = false;
         private Color normalColor;
