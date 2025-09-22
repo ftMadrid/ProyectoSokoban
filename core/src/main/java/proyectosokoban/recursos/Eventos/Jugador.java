@@ -7,20 +7,19 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Jugador {
 
-    private Texture[] texturasNormales; // Arriba, abajo, izquierda, derecha
-    private Texture[][] texturasEmpuje; // Animaciones de empuje [direccion][frame]
-    private Texture[][] texturasMovimiento; // Animaciones de movimiento normal [direccion][frame]
+    private Texture[] texturasNormales;
+    private Texture[][] texturasEmpuje;
+    private Texture[][] texturasMovimiento;
 
-    private volatile int x, y; // coordenadas de celda
-    private volatile float renderX, renderY; // posición interpolada
-    private volatile int direccion; // 0=abajo, 1=arriba, 2=izquierda, 3=derecha
+    private volatile int x, y;
+    private volatile float renderX, renderY;
+    private volatile int direccion;
 
     private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
     private final AtomicBoolean estaEmpujando = new AtomicBoolean(false);
 
-    // Duraciones de animación
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.7f;
+    private final float duracionAnimacion = 0.4f;
 
     private volatile float tiempoAnimacionMovimiento = 0f;
     private volatile int frameActualMovimiento = 0;
@@ -36,16 +35,16 @@ public class Jugador {
         this.y = y;
         this.renderX = x * TILE;
         this.renderY = y * TILE;
-        this.direccion = 0; // mirando abajo
+        this.direccion = 0;
         cargarTexturas();
     }
 
     private void cargarTexturas() {
         texturasNormales = new Texture[4];
-        texturasNormales[0] = new Texture("Juego/muneco/south.png"); // abajo
-        texturasNormales[1] = new Texture("Juego/muneco/north.png"); // arriba
-        texturasNormales[2] = new Texture("Juego/muneco/west.png");  // izquierda
-        texturasNormales[3] = new Texture("Juego/muneco/east.png");  // derecha
+        texturasNormales[0] = new Texture("Juego/muneco/south.png");
+        texturasNormales[1] = new Texture("Juego/muneco/north.png");
+        texturasNormales[2] = new Texture("Juego/muneco/west.png");
+        texturasNormales[3] = new Texture("Juego/muneco/east.png");
 
         texturasEmpuje = new Texture[4][FRAMES_EMPUEJE];
         for (int i = 0; i < FRAMES_EMPUEJE; i++) {
@@ -55,8 +54,8 @@ public class Jugador {
             texturasEmpuje[3][i] = new Texture("Juego/muneco/caja/east_00" + i + ".png");
         }
 
-        texturasMovimiento = new Texture[4][4]; // 4 frames por movimiento normal
-        for (int i = 0; i < 4; i++) {
+        texturasMovimiento = new Texture[4][6];
+        for (int i = 0; i < 6; i++) {
             texturasMovimiento[0][i] = new Texture("Juego/muneco/moves/south_00" + i + ".png");
             texturasMovimiento[1][i] = new Texture("Juego/muneco/moves/north_00" + i + ".png");
             texturasMovimiento[2][i] = new Texture("Juego/muneco/moves/west_00" + i + ".png");
@@ -65,8 +64,6 @@ public class Jugador {
     }
 
     public boolean mover(int dx, int dy, Nivel nivel, int TILE) {
-        // Actualizar dirección
-        
         if (dx > 0) {
             direccion = 3;
         } else if (dx < 0) {
@@ -128,14 +125,12 @@ public class Jugador {
         if (estaMoviendose.get()) {
             tiempoAnimacion += delta;
             float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1f);
-            progreso = 1f - (1f - progreso) * (1f - progreso); // easing
             renderX = MathUtils.lerp(startX, targetX, progreso);
             renderY = MathUtils.lerp(startY, targetY, progreso);
 
-            // Movimiento normal
             if (!estaEmpujando.get()) {
                 tiempoAnimacionMovimiento += delta;
-                if (tiempoAnimacionMovimiento >= duracionAnimacion / 4f) {
+                if (tiempoAnimacionMovimiento >= duracionAnimacion / texturasMovimiento[direccion].length) {
                     frameActualMovimiento = (frameActualMovimiento + 1) % texturasMovimiento[direccion].length;
                     tiempoAnimacionMovimiento = 0f;
                 }
@@ -153,7 +148,6 @@ public class Jugador {
             }
         }
 
-        // Animacion de empuje
         if (estaEmpujando.get()) {
             tiempoAnimacionEmpuje += delta;
             float duracionFrameEmpuje = duracionAnimacion / FRAMES_EMPUEJE;
@@ -178,8 +172,8 @@ public class Jugador {
         float ancho = TILE + 35;
         float alto = TILE + 35;
 
-        float offsetX = (TILE - ancho) / 2f;  // negativo si ancho > TILE
-        float offsetY = (TILE - alto) / 2f;   // negativo si alto > TILE
+        float offsetX = (TILE - ancho) / 2f;
+        float offsetY = (TILE - alto) / 2f;
 
         batch.draw(getTexturaActual(), renderX + offsetX, renderY + offsetY, ancho, alto);
     }

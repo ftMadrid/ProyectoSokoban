@@ -140,7 +140,7 @@ public class MenuScreen implements Screen {
 
     private void showProfileDialog() {
         Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
-        final Dialog profileDialog = new Dialog("", windowStyle); // sin título nativo (evita recorte)
+        final Dialog profileDialog = new Dialog("", windowStyle);
 
         Table root = new Table();
         root.pad(18);
@@ -215,7 +215,7 @@ public class MenuScreen implements Screen {
         viewHistoryButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
-                showHistoryDialog(); // reabrimos perfil al volver
+                showHistoryDialog();
             }
         });
 
@@ -301,7 +301,7 @@ public class MenuScreen implements Screen {
         header.add(new Label(t("history.nivel", "Nivel"), labelStyle)).width(colW[1]).center();
         header.add(new Label(t("history.score", "Score"), labelStyle)).width(colW[2]).center();
         header.add(new Label(t("history.intentos", "Intentos"), labelStyle)).width(colW[3]).center();
-        header.add(new Label(t("history.duracion", "Duración"), labelStyle)).width(colW[4]).center();
+        header.add(new Label(t("history.duracion", "Duracion"), labelStyle)).width(colW[4]).center();
         header.add(new Label(t("history.resultado", "Resultado"), labelStyle)).width(colW[5]).center();
 
         root.add(header).width(W).row();
@@ -309,18 +309,18 @@ public class MenuScreen implements Screen {
         Table rows = new Table();
         rows.defaults().pad(4);
         
-List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
+        List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
 
         SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-for (LogicaUsuarios.HistorialRegistro r : lista) {
-    rows.add(new Label(fmt.format(new Date(r.fechaMs)), labelStyle)).width(colW[0]).left();
-    rows.add(new Label(String.valueOf(r.nivel), labelStyle)).width(colW[1]).center();
-    rows.add(new Label(String.valueOf(r.score), labelStyle)).width(colW[2]).center();
-    rows.add(new Label(String.valueOf(r.intentos), labelStyle)).width(colW[3]).center();
-    rows.add(new Label(formatDur(r.duracionMs), labelStyle)).width(colW[4]).center();
-    rows.add(new Label(r.exito ? "✓" : "✗", labelStyle)).width(colW[5]).center();
-    rows.row();
-}
+        for (LogicaUsuarios.HistorialRegistro r : lista) {
+            rows.add(new Label(fmt.format(new Date(r.fechaMs)), labelStyle)).width(colW[0]).left();
+            rows.add(new Label(String.valueOf(r.nivel), labelStyle)).width(colW[1]).center();
+            rows.add(new Label(String.valueOf(r.score), labelStyle)).width(colW[2]).center();
+            rows.add(new Label(String.valueOf(r.intentos), labelStyle)).width(colW[3]).center();
+            rows.add(new Label(formatDur(r.duracionMs), labelStyle)).width(colW[4]).center();
+            rows.add(new Label(r.exito ? "✓" : "✗", labelStyle)).width(colW[5]).center();
+            rows.row();
+        }
 
 
         ScrollPane sp = new ScrollPane(rows);

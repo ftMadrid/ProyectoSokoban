@@ -5,6 +5,8 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 
 public class Caja {
 
@@ -14,39 +16,44 @@ public class Caja {
     private boolean enObjetivo = false;
 
     private float visualX, visualY;
+    private float startX, startY;
     private boolean isMoving = false;
     private float moveTimer = 0f;
-    private static final float MOVE_DURATION = 0.2f; // Duración de la animación en segundos
+    private static final float MOVE_DURATION = 0.5f;
+    private int TILE;
 
-    private static Sound sonidoObjetivo; // Estático para cargar el sonido una sola vez
-    private boolean sonidoReproducido = false;
+    private Sound sonidoObjetivo;
 
     public Caja(int x, int y, int TILE) {
         this.x = x;
         this.y = y;
+        this.TILE = TILE;
         this.visualX = x * TILE;
         this.visualY = y * TILE;
         this.textura = new Texture("Juego/caja.png");
-        this.texturaEnObjetivo = new Texture("Juego/caja_objetivo.png");
+        this.texturaEnObjetivo = new Texture("Juego/caja.png");
 
-        // Carga el sonido una sola vez para todas las cajas
-        if (sonidoObjetivo == null) {
-            try {
-                sonidoObjetivo = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/correct.mp3"));
-            } catch (Exception e) {
-                Gdx.app.error("Caja", "No se pudo cargar el sonido 'correct.mp3'", e);
-                sonidoObjetivo = null;
-            }
+        FileHandle soundFile = Gdx.files.internal("Juego/audios/caja_objetivo.mp3");
+        if (soundFile.exists()) {
+            sonidoObjetivo = Gdx.audio.newSound(soundFile);
         }
     }
 
     public void render(SpriteBatch batch, int TILE) {
-        batch.draw(enObjetivo ? texturaEnObjetivo : textura, visualX, visualY, TILE, TILE);
+        if (enObjetivo) {
+            batch.setColor(Color.GREEN);
+        } else {
+            batch.setColor(Color.WHITE);
+        }
+        batch.draw(textura, visualX, visualY, TILE, TILE);
+        batch.setColor(Color.WHITE);
     }
 
     public void mover(int nuevoX, int nuevoY) {
         this.x = nuevoX;
         this.y = nuevoY;
+        this.startX = visualX;
+        this.startY = visualY;
         isMoving = true;
         moveTimer = 0f;
     }
@@ -55,33 +62,23 @@ public class Caja {
         if (isMoving) {
             moveTimer += delta;
             float progress = Math.min(1f, moveTimer / MOVE_DURATION);
-            visualX = Interpolation.linear.apply(visualX, x * 64, progress);
-            visualY = Interpolation.linear.apply(visualY, y * 64, progress);
+            visualX = Interpolation.linear.apply(startX, x * TILE, progress);
+            visualY = Interpolation.linear.apply(startY, y * TILE, progress);
 
             if (progress >= 1f) {
                 isMoving = false;
-                visualX = x * 64;
-                visualY = y * 64;
+                visualX = x * TILE;
+                visualY = y * TILE;
             }
         }
     }
 
-    /**
-     * Actualiza el estado de la caja y reproduce un sonido si llega a un objetivo.
-     * @param enObjetivo True si la caja está en un objetivo.
-     * @param volume El volumen al que se debe reproducir el sonido.
-     */
     public void setEnObjetivo(boolean enObjetivo, float volume) {
         boolean estabaEnObjetivo = this.enObjetivo;
         this.enObjetivo = enObjetivo;
 
-        if (enObjetivo && !estabaEnObjetivo && sonidoObjetivo != null && !sonidoReproducido) {
+        if (enObjetivo && !estabaEnObjetivo && sonidoObjetivo != null) {
             sonidoObjetivo.play(volume);
-            sonidoReproducido = true;
-        }
-
-        if (!enObjetivo) {
-            sonidoReproducido = false;
         }
     }
 
@@ -96,6 +93,8 @@ public class Caja {
     public void dispose() {
         textura.dispose();
         texturaEnObjetivo.dispose();
-        // El sonido estático no se libera aquí, sino al cerrar el juego si es necesario.
+        if(sonidoObjetivo != null) {
+            sonidoObjetivo.dispose();
+        }
     }
 }

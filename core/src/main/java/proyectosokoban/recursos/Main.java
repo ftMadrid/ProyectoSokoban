@@ -6,7 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Screens.IntroScreen;
 import proyectosokoban.recursos.Screens.PantallaDeCarga;
@@ -30,25 +29,19 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        try {
+        if (Gdx.files.internal("main.mp3").exists()) {
             menuMusic = Gdx.audio.newMusic(Gdx.files.internal("main.mp3"));
             menuMusic.setLooping(true);
-        } catch (GdxRuntimeException e) {
-            menuMusic = null;
         }
 
-        try {
+        if (Gdx.files.internal("Juego/audios/audiofondo.mp3").exists()) {
             gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Juego/audios/audiofondo.mp3"));
             gameMusic.setLooping(true);
-        } catch (GdxRuntimeException e) {
-            gameMusic = null;
         }
         
-        try {
+        if (Gdx.files.internal("lobby.mp3").exists()) {
             lobbyMusic = Gdx.audio.newMusic(Gdx.files.internal("lobby.mp3"));
             lobbyMusic.setLooping(true);
-        } catch (GdxRuntimeException e) {
-            lobbyMusic = null;
         }
         
         transitionStage = new Stage(new ScreenViewport());
@@ -65,7 +58,7 @@ public class Main extends Game {
 
         GestorIdiomas.obtenerInstancia().cargarPreferenciasUsuario(username);
 
-        updateControls(prefs[5], prefs[6], prefs[7], prefs[8]);
+        updateControls(prefs[4], prefs[5], prefs[6], prefs[7]);
 
         applyDisplayMode(prefs[8]);
     }

@@ -389,11 +389,7 @@ public class Nivel {
         actualizarEstadoCajas(1.0f); // Llama al método principal con volumen por defecto
     }
 
-    /**
-     * ---- MÉTODO CORREGIDO ----
-     * Ahora acepta el volumen como parámetro y se lo pasa a cada caja.
-     * @param volume El volumen actual del juego.
-     */
+    
     public void actualizarEstadoCajas(float volume) {
         for (Caja caja : cajas) {
             boolean enObjetivo = false;

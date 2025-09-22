@@ -4,12 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.FitViewport; // <-- Cambio a FitViewport
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import proyectosokoban.recursos.Main;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import com.badlogic.gdx.files.FileHandle;
 
 public class Sokoban extends Juego {
 
@@ -22,7 +23,7 @@ public class Sokoban extends Juego {
     private int nivelNumero;
     private String username;
 
-    public float soundVolume = 1.0f; // <-- Variable para el volumen
+    public float soundVolume = 1.0f;
     public boolean isMuted = false;
 
     private ExecutorService collisionDetector;
@@ -58,14 +59,16 @@ public class Sokoban extends Juego {
         camera = new OrthographicCamera();
         float worldWidth = nivelActual.getCOLUMNAS() * nivelActual.getTILE();
         float worldHeight = nivelActual.getFILAS() * nivelActual.getTILE();
-        viewport = new FitViewport(worldWidth, worldHeight, camera); // <-- Cambio a FitViewport
+        viewport = new FitViewport(worldWidth, worldHeight, camera);
         
-        audiomove = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/movimiento.mp3"));
+        FileHandle moveSoundFile = Gdx.files.internal("Juego/audios/movimiento.mp3");
+        if (moveSoundFile.exists()) {
+            audiomove = Gdx.audio.newSound(moveSoundFile);
+        }
 
-        try {
-            sonidoVictoria = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/audiovictoria.mp3"));
-        } catch (Exception e) {
-            sonidoVictoria = null;
+        FileHandle victorySoundFile = Gdx.files.internal("Juego/audios/audiovictoria.mp3");
+        if (victorySoundFile.exists()) {
+            sonidoVictoria = Gdx.audio.newSound(victorySoundFile);
         }
 
         initializeThreads();
@@ -89,10 +92,10 @@ public class Sokoban extends Juego {
     private void startCollisionDetectionThread() {
         collisionDetector.submit(() -> {
             while (gameRunning.get()) {
+                if (!juegoGanado.get() && nivelActual.verificarVictoria()) {
+                    needsVictoryCheck.set(true);
+                }
                 try {
-                    if (!juegoGanado.get() && nivelActual.verificarVictoria()) {
-                        needsVictoryCheck.set(true);
-                    }
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -106,16 +109,16 @@ public class Sokoban extends Juego {
         animationUpdater.submit(() -> {
             long lastTime = System.nanoTime();
             while (gameRunning.get()) {
+                if (jugador.estaMoviendose() || jugador.estaEmpujando()) {
+                    long currentTime = System.nanoTime();
+                    float delta = (currentTime - lastTime) / 1000000000f;
+                    lastTime = currentTime;
+                    jugador.actualizar(delta);
+                    nivelActual.actualizarAnimacionCajas(delta);
+                } else {
+                    lastTime = System.nanoTime();
+                }
                 try {
-                    if (jugador.estaMoviendose() || jugador.estaEmpujando()) {
-                        long currentTime = System.nanoTime();
-                        float delta = (currentTime - lastTime) / 1000000000f;
-                        lastTime = currentTime;
-                        jugador.actualizar(delta);
-                        nivelActual.actualizarAnimacionCajas(delta);
-                    } else {
-                        lastTime = System.nanoTime();
-                    }
                     Thread.sleep(16);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -144,7 +147,7 @@ public class Sokoban extends Juego {
         }
         main.stopAllMusic();
         if (sonidoVictoria != null) {
-            sonidoVictoria.play(soundVolume); // <-- Usa la variable de volumen
+            sonidoVictoria.play(soundVolume);
         }
     }
 
@@ -155,17 +158,17 @@ public class Sokoban extends Juego {
         }
         if (playMoveSound.getAndSet(false)) {
             if (audiomove != null && !isMuted) {
-                audiomove.play(soundVolume); // <-- Usa la variable de volumen
+                audiomove.play(soundVolume);
             }
         }
         jugador.actualizar(delta);
         nivelActual.actualizar(delta);
-        nivelActual.actualizarEstadoCajas(soundVolume); // <-- Pasa el volumen a las cajas
+        nivelActual.actualizarEstadoCajas(soundVolume);
     }
 
     @Override
     public void renderizar() {
-        viewport.apply(true); // <-- Centra el viewport
+        viewport.apply(true);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         nivelActual.render(batch);
@@ -232,7 +235,7 @@ public class Sokoban extends Juego {
     @Override
     public void resize(int width, int height) {
         if (viewport != null) {
-            viewport.update(width, height, true); // <-- Centra al redimensionar
+            viewport.update(width, height, true);
         }
     }
 

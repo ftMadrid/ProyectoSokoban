@@ -49,11 +49,11 @@ public class GameScreen implements Screen {
         this.main = main;
         this.nivelActual = nivel;
         this.juegoSokoban = new Sokoban(main, nivel, main.username);
-        this.juegoSokoban.soundVolume = main.getVolume(); // Establece el volumen para los efectos de sonido
+        this.juegoSokoban.soundVolume = main.getVolume();
         this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
         backgroundTexture = new Texture(Gdx.files.internal("background.png"));
-        loadControls(); // Carga los controles desde Main
+        loadControls();
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -240,6 +240,9 @@ public class GameScreen implements Screen {
     }
 
     @Override public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         handleInput();
 
         if (!isPaused) {
@@ -252,21 +255,14 @@ public class GameScreen implements Screen {
                 timeLabel.setText(String.format(gestorIdiomas.setTexto("game.tiempo") + "%.0fs", tiempoDeJuego));
             }
 
-            juegoSokoban.render(delta); // Actualiza y renderiza el juego
+            juegoSokoban.render(delta);
 
             if (juegoSokoban.isJuegoGanado()) {
                 mostrarDialogoVictoria();
             }
+        } else {
+            juegoSokoban.renderizar();
         }
-
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        stage.getBatch().begin();
-        stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        stage.getBatch().end();
-
-        juegoSokoban.renderizar(); // Llama a renderizar después de limpiar la pantalla
 
         stage.act(delta);
         stage.draw();
