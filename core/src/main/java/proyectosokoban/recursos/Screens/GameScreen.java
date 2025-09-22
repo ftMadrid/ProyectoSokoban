@@ -4,14 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -138,7 +141,9 @@ public class GameScreen implements Screen {
     }
 
     private void registrarPartida(boolean exitoFinal) {
-        if (partidaRegistrada || main.username == null) return;
+        if (partidaRegistrada || main.username == null) {
+            return;
+        }
 
         LogicaUsuarios lu = new LogicaUsuarios();
         int intentos = juegoSokoban.getEmpujes();
@@ -155,10 +160,9 @@ public class GameScreen implements Screen {
         }
         dialogoVictoriaMostrado = true;
 
-        // --- FUENTES MÁS GRANDES PARA EL DIÁLOGO ---
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        p.size = 64; // Tamaño grande para el título
+        p.size = 64;
         p.color = Color.valueOf("1E1E1E");
         BitmapFont titleFont = generator.generateFont(p);
 
@@ -166,7 +170,6 @@ public class GameScreen implements Screen {
         p.size = 40; // Tamaño legible para el mensaje
         BitmapFont messageFont = generator.generateFont(p);
         generator.dispose();
-
 
         Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK,
                 new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
@@ -214,6 +217,17 @@ public class GameScreen implements Screen {
                 dialogo.hide();
                 main.setScreen(new GameScreen(main, nivelActual));
             }
+            
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+            
         });
 
         menuBtn.addListener(new ClickListener() {
@@ -222,13 +236,23 @@ public class GameScreen implements Screen {
                 dialogo.hide();
                 main.setScreen(new MenuScreen(main));
             }
+            
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+            
         });
 
         // --- HACER EL DIÁLOGO MÁS GRANDE ---
         dialogo.getContentTable().add(wrapper).prefWidth(900).prefHeight(520);
         dialogo.show(stage);
     }
-
 
     private void buildPauseMenu() {
         if (pausePanel != null) {
@@ -253,14 +277,27 @@ public class GameScreen implements Screen {
 
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.font = pixelFont;
-        btnStyle.fontColor = Color.valueOf("1E1E1E");
         btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        btnStyle.down = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        btnStyle.over = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        btnStyle.fontColor = Color.valueOf("1E1E1E");
 
         resumeButton = new TextButton("", btnStyle);
         resumeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 resume();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -271,6 +308,17 @@ public class GameScreen implements Screen {
                 resume();
                 registrarPartida(false);
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -281,6 +329,16 @@ public class GameScreen implements Screen {
                 resume();
                 registrarPartida(false);
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -293,14 +351,15 @@ public class GameScreen implements Screen {
         pausePanel.setVisible(false);
     }
 
-    private void updatePauseMenuLanguage(){
-        if(pauseTitle == null) return;
+    private void updatePauseMenuLanguage() {
+        if (pauseTitle == null) {
+            return;
+        }
         pauseTitle.setText(gestorIdiomas.setTexto("pause.title"));
         resumeButton.setText(gestorIdiomas.setTexto("pause.resume"));
         levelSelectButton.setText(gestorIdiomas.setTexto("pause.level_select"));
         menuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
-
 
     @Override
     public void show() {
@@ -328,8 +387,10 @@ public class GameScreen implements Screen {
 
             if (juegoSokoban.isJuegoGanado() && !dialogoVictoriaMostrado) {
 
-                score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int)(tiempoDeJuego * 2);
-                if (score < 0) score = 0;
+                score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int) (tiempoDeJuego * 2);
+                if (score < 0) {
+                    score = 0;
+                }
 
                 LogicaUsuarios lu = new LogicaUsuarios();
                 lu.guardarScore(main.username, nivelActual, score);
@@ -351,7 +412,8 @@ public class GameScreen implements Screen {
         juegoSokoban.resize(width, height);
     }
 
-    @Override public void hide() {
+    @Override
+    public void hide() {
         if (!partidaRegistrada) {
             registrarPartida(juegoSokoban.isJuegoGanado());
         }
@@ -374,7 +436,8 @@ public class GameScreen implements Screen {
         }
     }
 
-    @Override public void dispose() {
+    @Override
+    public void dispose() {
         if (!partidaRegistrada) {
             registrarPartida(juegoSokoban.isJuegoGanado());
         }

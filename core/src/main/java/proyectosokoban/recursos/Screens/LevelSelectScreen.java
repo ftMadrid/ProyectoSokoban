@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -99,6 +100,17 @@ public class LevelSelectScreen implements Screen {
                 active = false;
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
+            
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+            
         });
 
         panelSuperior.add(botonVolver).width(240).height(50).expandX().right().pad(10);
@@ -138,6 +150,15 @@ public class LevelSelectScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 resume();
             }
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
         });
 
         backToMenuButton = new TextButton("", btnStyle);
@@ -147,6 +168,15 @@ public class LevelSelectScreen implements Screen {
                 if(!active) return;
                 active = false;
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
+            }
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
