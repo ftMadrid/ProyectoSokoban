@@ -718,7 +718,7 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
-        
+
         back.setTransform(true);
         back.setOrigin(Align.center);
         back.setScale(1f);
@@ -742,7 +742,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        main.playLobbyMusic();
+        main.playMenuMusic();
         transicionSuave.fadeIn(stage);
     }
 

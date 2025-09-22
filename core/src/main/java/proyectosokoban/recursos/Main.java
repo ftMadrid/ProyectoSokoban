@@ -38,12 +38,12 @@ public class Main extends Game {
             gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Juego/audios/audiofondo.mp3"));
             gameMusic.setLooping(true);
         }
-        
+
         if (Gdx.files.internal("lobby.mp3").exists()) {
             lobbyMusic = Gdx.audio.newMusic(Gdx.files.internal("lobby.mp3"));
             lobbyMusic.setLooping(true);
         }
-        
+
         transitionStage = new Stage(new ScreenViewport());
         transitionAnimation = new PantallaDeCarga(transitionStage);
         setScreen(new IntroScreen(this));
@@ -66,7 +66,7 @@ public class Main extends Game {
     public PantallaDeCarga getTransitionAnimation() {
         return transitionAnimation;
     }
-    
+
     public void resetToDefaults() {
         keyUp = Input.Keys.W;
         keyDown = Input.Keys.S;
@@ -82,7 +82,7 @@ public class Main extends Game {
         this.keyLeft = left;
         this.keyRight = right;
     }
-    
+
     public void applyDisplayMode(int displayMode) {
         switch (displayMode) {
             case 0:
@@ -97,12 +97,12 @@ public class Main extends Game {
                 break;
         }
     }
-    
+
     public void applyDisplayPreferences() {
         if (username != null && !username.isEmpty()) {
             LogicaUsuarios lu = new LogicaUsuarios();
             int[] prefs = lu.getPreferencias(username);
-            int displayMode = prefs[8]; 
+            int displayMode = prefs[8];
             applyDisplayMode(displayMode);
         }
     }
@@ -121,7 +121,7 @@ public class Main extends Game {
         transitionStage.act(Gdx.graphics.getDeltaTime());
         transitionStage.draw();
     }
-    
+
     @Override
     public void resize(int width, int height) {
         if (screen != null) {
@@ -144,18 +144,22 @@ public class Main extends Game {
     }
 
     public void playMenuMusic() {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            return;
+        }
+
         if (gameMusic != null && gameMusic.isPlaying()) {
             gameMusic.stop();
         }
         if (lobbyMusic != null && lobbyMusic.isPlaying()) {
             lobbyMusic.stop();
         }
-        if (menuMusic != null && !menuMusic.isPlaying()) {
+        if (menuMusic != null) {
             menuMusic.setVolume(this.volume);
             menuMusic.play();
         }
     }
-    
+
     public void playLobbyMusic() {
         if (gameMusic != null && gameMusic.isPlaying()) {
             gameMusic.stop();
@@ -219,7 +223,7 @@ public class Main extends Game {
         if (gameMusic != null) {
             gameMusic.dispose();
         }
-        if(lobbyMusic != null){
+        if (lobbyMusic != null) {
             lobbyMusic.dispose();
         }
         if (transitionStage != null) {
