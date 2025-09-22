@@ -126,7 +126,7 @@ public class LevelSelectScreen implements Screen {
 
         // Título "Selector de Niveles"
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
-        titleLabel = new Label("SELECTOR DE NIVELES", titleStyle);
+        titleLabel = new Label(gestorIdiomas.setTexto("level_selector.title"), titleStyle);
 
         // Agregar título centrado en la parte superior
         panelSuperior.add(titleLabel).expandX().center().pad(20).top().row();
@@ -146,7 +146,7 @@ public class LevelSelectScreen implements Screen {
         messagePanel.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
 
         Label.LabelStyle messageStyle = new Label.LabelStyle(messageFont, Color.YELLOW);
-        enterLevelMessage = new Label("Apretar ENTER para entrar al nivel", messageStyle);
+        enterLevelMessage = new Label(gestorIdiomas.setTexto("level_selector.enter"), messageStyle);
 
         messagePanel.add(enterLevelMessage).center();
         stage.addActor(messagePanel);

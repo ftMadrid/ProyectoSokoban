@@ -4,14 +4,17 @@ package proyectosokoban.recursos.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -41,8 +44,13 @@ public class RankingScreen implements Screen {
     private Table levelSelectorTable;
     private Table panelTable;
 
-    private enum RankingType { TOTAL, LEVEL }
-    private enum RankingScope { GLOBAL, FRIENDS }
+    private enum RankingType {
+        TOTAL, LEVEL
+    }
+
+    private enum RankingScope {
+        GLOBAL, FRIENDS
+    }
 
     private RankingType currentRankingType = RankingType.TOTAL;
     private RankingScope currentRankingScope = RankingScope.GLOBAL;
@@ -95,7 +103,7 @@ public class RankingScreen implements Screen {
 
         float panelWidth = Gdx.graphics.getWidth() * 0.9f;
         float panelHeight = Gdx.graphics.getHeight() * 0.9f;
-        
+
         rootTable.add(panelTable).width(panelWidth).height(panelHeight);
 
         // --- Título ---
@@ -113,25 +121,99 @@ public class RankingScreen implements Screen {
         filtersTable.add(new Label(gestorIdiomas.setTexto("ranking.view"), sectionStyle)).padRight(10);
 
         TextButton globalButton = new TextButton(gestorIdiomas.setTexto("ranking.global"), buttonStyle);
-        globalButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingScope = RankingScope.GLOBAL; populateRankingTable(); }});
+        globalButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent e, float x, float y) {
+                currentRankingScope = RankingScope.GLOBAL;
+                populateRankingTable();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                globalButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
 
         TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("ranking.friends"), buttonStyle);
-        friendsButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingScope = RankingScope.FRIENDS; populateRankingTable(); }});
+        friendsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent e, float x, float y) {
+                currentRankingScope = RankingScope.FRIENDS;
+                populateRankingTable();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                friendsButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
 
         filtersTable.add(globalButton).height(45).padRight(5);
         filtersTable.add(friendsButton).height(45).padRight(30);
 
         filtersTable.add(new Label(gestorIdiomas.setTexto("ranking.type"), sectionStyle)).padRight(10);
         TextButton totalButton = new TextButton(gestorIdiomas.setTexto("ranking.total"), buttonStyle);
-        totalButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingType = RankingType.TOTAL; levelSelectorTable.setVisible(false); populateRankingTable(); }});
+        totalButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent e, float x, float y) {
+                currentRankingType = RankingType.TOTAL;
+                levelSelectorTable.setVisible(false);
+                populateRankingTable();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                totalButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
 
         TextButton byLevelButton = new TextButton(gestorIdiomas.setTexto("ranking.by_level"), buttonStyle);
-        byLevelButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingType = RankingType.LEVEL; levelSelectorTable.setVisible(true); populateRankingTable(); }});
+        byLevelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent e, float x, float y) {
+                currentRankingType = RankingType.LEVEL;
+                levelSelectorTable.setVisible(true);
+                populateRankingTable();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                byLevelButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
 
         filtersTable.add(totalButton).height(45).padRight(5);
         filtersTable.add(byLevelButton).height(45);
         panelTable.add(filtersTable).center().padBottom(10).row();
-        
+
         // --- Selector de Nivel ---
         levelSelectorTable = new Table();
         levelSelectorTable.setVisible(false);
@@ -147,7 +229,36 @@ public class RankingScreen implements Screen {
 
         // --- Botón de Volver ---
         TextButton backButton = new TextButton(gestorIdiomas.setTexto("back.button"), buttonStyle);
-        backButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main)); }});
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent e, float x, float y) {
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                backButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+        });
+        
+        globalButton.setTransform(true);
+        globalButton.setOrigin(Align.center);
+        friendsButton.setTransform(true);
+        friendsButton.setOrigin(Align.center);
+        totalButton.setTransform(true);
+        totalButton.setOrigin(Align.center);
+        byLevelButton.setTransform(true);
+        byLevelButton.setOrigin(Align.center);
+        backButton.setTransform(true);
+        backButton.setOrigin(Align.center);
+        
         panelTable.add(backButton).width(200).height(50).center().padTop(10);
     }
 
@@ -161,7 +272,29 @@ public class RankingScreen implements Screen {
         for (int i = 1; i <= 7; i++) {
             final int level = i;
             TextButton levelButton = new TextButton(String.valueOf(level), levelButtonStyle);
-            levelButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { selectedLevel = level; populateRankingTable(); }});
+            levelButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent e, float x, float y) {
+                    selectedLevel = level;
+                    populateRankingTable();
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                    levelButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+                }
+
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+                }
+
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                }
+            });
+            
+            levelButton.setTransform(true);
+            levelButton.setOrigin(Align.center);
+        
             levelSelectorTable.add(levelButton).size(45, 45).pad(3);
         }
     }
@@ -176,7 +309,7 @@ public class RankingScreen implements Screen {
         if (availableWidth <= 0) {
             availableWidth = Gdx.graphics.getWidth() * 0.9f - 80;
         }
-        
+
         // Distribución de anchos: 20% para rank, 50% para usuario, 30% para score
         float rankWidth = availableWidth * 0.2f;
         float userWidth = availableWidth * 0.5f;
@@ -187,15 +320,15 @@ public class RankingScreen implements Screen {
         Label rankHeader = new Label(gestorIdiomas.setTexto("ranking.header.rank"), headerStyle);
         rankHeader.setAlignment(Align.center);
         headerTable.add(rankHeader).width(rankWidth).center();
-        
+
         Label userHeader = new Label(gestorIdiomas.setTexto("ranking.header.user"), headerStyle);
         userHeader.setAlignment(Align.center);
         headerTable.add(userHeader).width(userWidth).center();
-        
+
         Label scoreHeader = new Label(gestorIdiomas.setTexto("ranking.header.score"), headerStyle);
         scoreHeader.setAlignment(Align.center);
         headerTable.add(scoreHeader).width(scoreWidth).center();
-        
+
         rankingContentTable.add(headerTable).width(availableWidth).center().padBottom(10).row();
 
         List<LogicaUsuarios.RankingEntry> rankingList;
@@ -218,15 +351,15 @@ public class RankingScreen implements Screen {
                 if (rank % 2 == 0) {
                     rowContent.setBackground(rowBackground);
                 }
-                
+
                 Label rankLabel = new Label(String.valueOf(rank), rowStyle);
                 rankLabel.setAlignment(Align.center);
                 rowContent.add(rankLabel).width(rankWidth).center();
-                
+
                 Label userLabel = new Label(entry.username, rowStyle);
                 userLabel.setAlignment(Align.center);
                 rowContent.add(userLabel).width(userWidth).center();
-                
+
                 Label scoreLabel = new Label(String.valueOf(entry.totalScore), rowStyle);
                 scoreLabel.setAlignment(Align.center);
                 rowContent.add(scoreLabel).width(scoreWidth).center();
@@ -236,7 +369,7 @@ public class RankingScreen implements Screen {
             }
         }
     }
-    
+
     // Métodos restantes (show, render, resize, etc.) sin cambios...
     @Override
     public void show() {
@@ -264,10 +397,20 @@ public class RankingScreen implements Screen {
         populateRankingTable();
     }
 
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void dispose() {
         stage.dispose();
         backgroundTexture.dispose();
         font.dispose();

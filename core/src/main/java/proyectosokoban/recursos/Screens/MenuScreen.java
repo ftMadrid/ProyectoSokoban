@@ -219,7 +219,7 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
-        
+
         logoutButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -339,6 +339,18 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showAvatarSelectionDialog(profileAvatar);
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                changeAvatarButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -347,14 +359,38 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showHistoryDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                viewHistoryButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
-        
+
         achievementsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showAchievementsDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                achievementsButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -362,6 +398,18 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                closeButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -401,13 +449,17 @@ public class MenuScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     selectedAvatarPath = path;
-                    for (Image image : avatarImages) image.setColor(Color.WHITE);
+                    for (Image image : avatarImages) {
+                        image.setColor(Color.WHITE);
+                    }
                     img.setColor(Color.LIME);
                 }
             });
             avatarTable.add(img);
             avatarImages.add(img);
-            if (avatarImages.size() % 4 == 0) avatarTable.row();
+            if (avatarImages.size() % 4 == 0) {
+                avatarTable.row();
+            }
         }
         wrapper.add(avatarTable).row();
 
@@ -436,6 +488,18 @@ public class MenuScreen implements Screen {
                 }
                 avatarDialog.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                saveButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -444,8 +508,26 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 avatarDialog.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                backButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        saveButton.setTransform(true);
+        saveButton.setOrigin(Align.center);
+
+        backButton.setTransform(true);
+        backButton.setOrigin(Align.center);
 
         avatarDialog.getContentTable().add(wrapper).prefWidth(820).prefHeight(480);
         avatarDialog.show(stage);
@@ -487,7 +569,9 @@ public class MenuScreen implements Screen {
         for (int i = 0; i < lista.size(); i++) {
             LogicaUsuarios.HistorialRegistro r = lista.get(i);
             Table line = new Table();
-            if (i % 2 == 0) line.setBackground(solid(0, 0, 0, 0.05f));
+            if (i % 2 == 0) {
+                line.setBackground(solid(0, 0, 0, 0.05f));
+            }
             line.defaults().pad(5);
             line.add(new Label(fmt.format(new Date(r.fechaMs)), cellStyle)).width(colW[0]).left().padLeft(15);
             line.add(new Label(String.valueOf(r.nivel), cellStyle)).width(colW[1]).center();
@@ -509,9 +593,24 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 dlg.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                back.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
         
+        back.setTransform(true);
+        back.setOrigin(Align.center);
+
         Table btnRow = new Table();
         btnRow.add(back).width(340).height(60).padTop(6).center();
         root.add(btnRow).center().padTop(10).row();
@@ -519,7 +618,7 @@ public class MenuScreen implements Screen {
         dlg.getContentTable().add(root).prefWidth(1120).prefHeight(620);
         dlg.show(stage);
     }
-    
+
     // --- MÉTODO DE LOGROS MODIFICADO ---
     private void showAchievementsDialog() {
         Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.valueOf("1E1E1E"),
@@ -527,35 +626,35 @@ public class MenuScreen implements Screen {
 
         final Dialog achievementsDialog = new Dialog(gestorIdiomas.setTexto("achievements.title"), windowStyle);
         achievementsDialog.getTitleLabel().setAlignment(Align.center);
-        
+
         // **CAMBIO 1: Bajar más el título**
-        achievementsDialog.padTop(85); 
+        achievementsDialog.padTop(85);
 
         Table contentTable = new Table();
         contentTable.top();
 
         Set<String> unlockedAchievements = userLogic.getLogrosDesbloqueados(main.username);
         String[] achievementKeys = {"complete_3_levels", "complete_6_levels", "complete_all_levels", "high_score", "speed_demon"};
-        
+
         Texture unlockedTex = new Texture(Gdx.files.internal("ui/checkbox.png"));
         Texture lockedTex = new Texture(Gdx.files.internal("ui/chekbox no fill.png"));
         Label.LabelStyle nameStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
         Label.LabelStyle descStyle = new Label.LabelStyle(pixelFont, Color.GRAY);
-        
+
         for (String key : achievementKeys) {
             Table achievementRow = new Table();
             achievementRow.left().defaults().pad(5);
             achievementRow.add(new Image(unlockedAchievements.contains(key) ? unlockedTex : lockedTex)).size(40, 40);
-            
+
             Table textTable = new Table();
             textTable.left();
-            
+
             // **CAMBIO 2: Añadir espacio entre nombre y descripción**
             textTable.add(new Label(gestorIdiomas.setTexto("achievement." + key + ".name"), nameStyle)).left().padBottom(5).row();
             textTable.add(new Label(gestorIdiomas.setTexto("achievement." + key + ".desc"), descStyle)).left();
-            
+
             achievementRow.add(textTable).expandX().left();
-            
+
             // **CAMBIO 3: Mover la fila un poco a la derecha**
             contentTable.add(achievementRow).expandX().fillX().padLeft(20).padBottom(10).row();
         }
@@ -567,16 +666,31 @@ public class MenuScreen implements Screen {
         btnStyle.font = pixelFont;
         btnStyle.fontColor = Color.valueOf("1E1E1E");
         btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
-        
+
         TextButton backButton = new TextButton(gestorIdiomas.setTexto("achievements.back"), btnStyle);
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 achievementsDialog.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                backButton.addAction(Actions.sequence(Actions.scaleTo(0.9f, 0.9f, 0.05f), Actions.scaleTo(1f, 1f, 0.05f)));
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
         
+        backButton.setTransform(true);
+        backButton.setOrigin(Align.center);
+
         achievementsDialog.getButtonTable().add(backButton).width(280).height(58).padBottom(30);
 
         achievementsDialog.show(stage);
@@ -607,13 +721,16 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
     public void dispose() {
