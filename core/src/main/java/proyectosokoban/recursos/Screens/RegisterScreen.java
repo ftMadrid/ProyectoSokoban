@@ -3,6 +3,7 @@ package proyectosokoban.recursos.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,10 +12,12 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
@@ -55,7 +58,7 @@ public class RegisterScreen implements Screen {
 
         createUI();
     }
-    
+
     private boolean isPasswordValid(String password) {
         return password != null && password.length() >= 8 && password.matches(".*[A-Za-z].*") && password.matches(".*\\d.*") && password.matches(".*[^A-Za-z0-9].*");
     }
@@ -85,7 +88,7 @@ public class RegisterScreen implements Screen {
         usernameField = new TextField("", textFieldStyle);
         usernameField.setMaxLength(15);
         table.add(usernameField).width(380).height(52).row();
-        
+
         table.add(new Label(gestorIdiomas.setTexto("register.nombre"), labelStyle)).right().padRight(10).padTop(10);
         fullnameField = new TextField("", textFieldStyle);
         fullnameField.setMaxLength(25);
@@ -97,7 +100,7 @@ public class RegisterScreen implements Screen {
         passwordField.setPasswordCharacter('*');
         passwordField.setMaxLength(20);
         table.add(passwordField).width(380).height(52).padTop(10).row();
-        
+
         CheckBox.CheckBoxStyle checkBoxStyle = new CheckBox.CheckBoxStyle();
         checkBoxStyle.font = pixelFont;
         checkBoxStyle.fontColor = pixelFont.getColor();
@@ -108,10 +111,13 @@ public class RegisterScreen implements Screen {
         showPasswordCheckBox.getLabel().setStyle(labelStyle);
         table.add(new Label("", labelStyle));
         table.add(showPasswordCheckBox).left().padTop(10).row();
-        
+
         TextButton.TextButtonStyle actionButtonStyle = new TextButton.TextButtonStyle();
         actionButtonStyle.font = pixelFont;
         actionButtonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionButtonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionButtonStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionButtonStyle.fontColor = Color.valueOf("1E1E1E");
 
         TextButton registerButton = new TextButton(gestorIdiomas.setTexto("register.registrarse"), actionButtonStyle);
         table.add(registerButton).colspan(2).width(360).height(60).padTop(20).row();
@@ -142,6 +148,13 @@ public class RegisterScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 String password = passwordField.getText();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                registerButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
                 if (!isPasswordValid(password)) {
                     messageLabel.setText(gestorIdiomas.setTexto("register.error_password"));
                     return;
@@ -152,14 +165,52 @@ public class RegisterScreen implements Screen {
                     messageLabel.setText(gestorIdiomas.setTexto("register.error_username"));
                 }
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
         });
 
         loginButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                loginButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        loginButton.setTransform(true);
+        loginButton.setOrigin(Align.center);
+        loginButton.setScale(1f);
+        loginButton.getColor().a = 1f;
+
+        registerButton.setTransform(true);
+        registerButton.setOrigin(Align.center);
+        registerButton.setScale(1f);
+        registerButton.getColor().a = 1f;
+
     }
 
     @Override
@@ -179,19 +230,24 @@ public class RegisterScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-    
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-    
+
     @Override
-    public void pause() {}
+    public void pause() {
+    }
+
     @Override
-    public void resume() {}
+    public void resume() {
+    }
+
     @Override
-    public void hide() {}
-    
+    public void hide() {
+    }
+
     @Override
     public void dispose() {
         stage.dispose();

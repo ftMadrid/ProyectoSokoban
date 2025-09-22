@@ -3,13 +3,16 @@ package proyectosokoban.recursos.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -92,6 +95,8 @@ public class MenuScreen implements Screen {
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = pixelFont;
         buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        buttonStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
         TextButton playButton = new TextButton(gestorIdiomas.setTexto("menu.jugar"), buttonStyle);
         table.add(playButton).width(380).height(60).pad(10).row();
@@ -109,6 +114,23 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                playButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -116,6 +138,23 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new AmigosScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                friendsButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -123,6 +162,23 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                preferencesButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -134,8 +190,46 @@ public class MenuScreen implements Screen {
                 main.resetToDefaults();
                 gestorIdiomas.resetToDefault();
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                logoutButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        playButton.setTransform(true);
+        playButton.setOrigin(Align.center);
+        playButton.setScale(1f);
+        playButton.getColor().a = 1f;
+
+        friendsButton.setTransform(true);
+        friendsButton.setOrigin(Align.center);
+        friendsButton.setScale(1f);
+        friendsButton.getColor().a = 1f;
+
+        preferencesButton.setTransform(true);
+        preferencesButton.setOrigin(Align.center);
+        preferencesButton.setScale(1f);
+        preferencesButton.getColor().a = 1f;
+
+        logoutButton.setTransform(true);
+        logoutButton.setOrigin(Align.center);
+        logoutButton.setScale(1f);
+        logoutButton.getColor().a = 1f;
+
     }
 
     private void showProfileDialog() {
@@ -206,21 +300,24 @@ public class MenuScreen implements Screen {
         root.add(btns).padTop(8).row();
 
         changeAvatarButton.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showAvatarSelectionDialog(profileAvatar);
             }
         });
 
         viewHistoryButton.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showHistoryDialog();
             }
         });
 
         closeButton.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
             }
         });
@@ -238,15 +335,16 @@ public class MenuScreen implements Screen {
         avatarTable.defaults().size(80, 80).pad(10);
 
         final String[] avatarPaths = {
-                "avatares/south.png", "avatares/avatar1.png", "avatares/avatar2.png",
-                "avatares/avatar3.png", "avatares/avatar4.png", "avatares/avatar5.png", "avatares/avatar6.png"
+            "avatares/south.png", "avatares/avatar1.png", "avatares/avatar2.png",
+            "avatares/avatar3.png", "avatares/avatar4.png", "avatares/avatar5.png", "avatares/avatar6.png"
         };
 
         int col = 0;
         for (final String path : avatarPaths) {
             Image img = new Image(new Texture(Gdx.files.internal(path)));
             img.addListener(new ClickListener() {
-                @Override public void clicked(InputEvent event, float x, float y) {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
                     userLogic.setAvatar(main.username, path);
                     Texture newAvatarTexture = new Texture(Gdx.files.internal(path));
                     avatarImage.setDrawable(new TextureRegionDrawable(newAvatarTexture));
@@ -257,7 +355,9 @@ public class MenuScreen implements Screen {
             });
             avatarTable.add(img);
             col++;
-            if (col % 4 == 0) avatarTable.row();
+            if (col % 4 == 0) {
+                avatarTable.row();
+            }
         }
 
         ScrollPane sp = new ScrollPane(avatarTable);
@@ -274,7 +374,9 @@ public class MenuScreen implements Screen {
 
     private String t(String key, String fallback) {
         String s = gestorIdiomas.setTexto(key);
-        if (s == null || s.startsWith("[")) return fallback;
+        if (s == null || s.startsWith("[")) {
+            return fallback;
+        }
         return s;
     }
 
@@ -308,7 +410,7 @@ public class MenuScreen implements Screen {
 
         Table rows = new Table();
         rows.defaults().pad(4);
-        
+
         List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
 
         SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -321,7 +423,6 @@ public class MenuScreen implements Screen {
             rows.add(new Label(r.exito ? "✓" : "✗", labelStyle)).width(colW[5]).center();
             rows.row();
         }
-
 
         ScrollPane sp = new ScrollPane(rows);
         sp.setFadeScrollBars(false);
@@ -340,7 +441,8 @@ public class MenuScreen implements Screen {
         root.add(btnRow).center().padTop(6).row();
 
         back.addListener(new ClickListener() {
-            @Override public void clicked(InputEvent event, float x, float y) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
                 dlg.hide();
                 showProfileDialog();
             }
@@ -374,11 +476,25 @@ public class MenuScreen implements Screen {
         stage.draw();
     }
 
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void dispose() {
         stage.dispose();
         backgroundTexture.dispose();
         pixelFont.dispose();

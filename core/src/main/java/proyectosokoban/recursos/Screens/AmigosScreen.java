@@ -119,13 +119,11 @@ public class AmigosScreen implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                addBtn.addAction(Actions.color(new Color(0.8f, 0.8f, 0.8f, 1f), 0.1f));
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                addBtn.addAction(Actions.color(Color.WHITE, 0.1f));
             }
         });
 
@@ -146,25 +144,13 @@ public class AmigosScreen implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-                backBtn.addAction(Actions.color(new Color(0.8f, 0.8f, 0.8f, 1f), 0.1f));
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                backBtn.addAction(Actions.color(Color.WHITE, 0.1f));
             }
         });
-
-        addBtn.setTransform(true);
-        addBtn.setOrigin(Align.center);
-        addBtn.setScale(1f);
-        addBtn.getColor().a = 1f;
-        
-        backBtn.setTransform(true);
-        backBtn.setOrigin(Align.center);
-        backBtn.setScale(1f);
-        backBtn.getColor().a = 1f;
 
         Table topRow = new Table();
         topRow.defaults().space(12).height(46);
@@ -187,6 +173,17 @@ public class AmigosScreen implements Screen {
         root.add(foreground).expand().fillX().height(desiredHeight).padTop(6).row();
 
         root.add(backBtn).width(300).height(50).padTop(20);
+        
+        addBtn.setTransform(true);
+        addBtn.setOrigin(Align.center);
+        addBtn.setScale(1f);
+        addBtn.getColor().a = 1f;
+        
+        backBtn.setTransform(true);
+        backBtn.setOrigin(Align.center);
+        backBtn.setScale(1f);
+        backBtn.getColor().a = 1f;
+        
     }
 
     private void loadFriends() {

@@ -3,6 +3,7 @@ package proyectosokoban.recursos.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,10 +12,12 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
@@ -105,6 +108,9 @@ public class LoginScreen implements Screen {
         TextButton.TextButtonStyle actionStyle = new TextButton.TextButtonStyle();
         actionStyle.font = pixelFont;
         actionStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        actionStyle.fontColor = Color.valueOf("1E1E1E");
 
         final TextButton loginBtn = new TextButton(gestorIdiomas.setTexto("login.iniciar_sesion"), actionStyle);
         table.add(loginBtn).colspan(2).width(360).height(60).padTop(20).row();
@@ -130,6 +136,23 @@ public class LoginScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                exitButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -140,21 +163,71 @@ public class LoginScreen implements Screen {
                 if (userLogic.login(u, p)) {
                     main.username = u;
                     LogicaUsuarios.usuarioLogged = u;
-                    // --- Llamada al nuevo método centralizado ---
                     main.loadUserPreferences(u);
                     transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
                 } else {
                     messageLabel.setColor(Color.RED);
                     messageLabel.setText(gestorIdiomas.setTexto("login.error"));
                 }
+                
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                loginBtn.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
         registerButton.addListener(new ClickListener(){
             @Override public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new RegisterScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                registerButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+        
+        loginBtn.setTransform(true);
+        loginBtn.setOrigin(Align.center);
+        loginBtn.setScale(1f);
+        loginBtn.getColor().a = 1f;
+        
+        registerButton.setTransform(true);
+        registerButton.setOrigin(Align.center);
+        registerButton.setScale(1f);
+        registerButton.getColor().a = 1f;
+        
+        exitButton.setTransform(true);
+        exitButton.setOrigin(Align.center);
+        exitButton.setScale(1f);
+        exitButton.getColor().a = 1f;
+        
     }
 
     @Override public void show() {
