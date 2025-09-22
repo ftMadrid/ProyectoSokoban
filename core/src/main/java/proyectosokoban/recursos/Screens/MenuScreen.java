@@ -97,6 +97,22 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showProfileDialog();
+                avatarImage.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -116,10 +132,8 @@ public class MenuScreen implements Screen {
         TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("menu.amigos"), buttonStyle);
         table.add(friendsButton).width(380).height(60).pad(10).row();
 
-        // --- INICIO DEL CÓDIGO AÑADIDO ---
         TextButton rankingButton = new TextButton(gestorIdiomas.setTexto("ranking.title"), buttonStyle);
         table.add(rankingButton).width(380).height(60).pad(10).row();
-        // --- FIN DEL CÓDIGO AÑADIDO ---
 
         TextButton preferencesButton = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), buttonStyle);
         table.add(preferencesButton).width(380).height(60).pad(10).row();
@@ -144,7 +158,24 @@ public class MenuScreen implements Screen {
 
                 transicionSuave.fadeOutAndChangeScreen(main, stage, siguienteScreen);
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                playButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
             }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+
         });
 
         friendsButton.addListener(new ClickListener() {
@@ -152,6 +183,12 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new AmigosScreen(main));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                friendsButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
             }
 
             @Override
@@ -165,12 +202,17 @@ public class MenuScreen implements Screen {
             }
         });
 
-        // --- INICIO DEL CÓDIGO AÑADIDO ---
         rankingButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new RankingScreen(main));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                rankingButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
             }
 
             @Override
@@ -183,13 +225,18 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
-        // --- FIN DEL CÓDIGO AÑADIDO ---
 
         preferencesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                preferencesButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
             }
 
             @Override
@@ -211,6 +258,12 @@ public class MenuScreen implements Screen {
                 gestorIdiomas.resetToDefault();
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                logoutButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
             }
 
             @Override
@@ -223,6 +276,36 @@ public class MenuScreen implements Screen {
                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        avatarImage.setOrigin(Align.center);
+        avatarImage.setScale(1f);
+        avatarImage.getColor().a = 1f;
+
+        playButton.setTransform(true);
+        playButton.setOrigin(Align.center);
+        playButton.setScale(1f);
+        playButton.getColor().a = 1f;
+
+        friendsButton.setTransform(true);
+        friendsButton.setOrigin(Align.center);
+        friendsButton.setScale(1f);
+        friendsButton.getColor().a = 1f;
+
+        rankingButton.setTransform(true);
+        rankingButton.setOrigin(Align.center);
+        rankingButton.setScale(1f);
+        rankingButton.getColor().a = 1f;
+
+        preferencesButton.setTransform(true);
+        preferencesButton.setOrigin(Align.center);
+        preferencesButton.setScale(1f);
+        preferencesButton.getColor().a = 1f;
+
+        logoutButton.setTransform(true);
+        logoutButton.setOrigin(Align.center);
+        logoutButton.setScale(1f);
+        logoutButton.getColor().a = 1f;
+
     }
 
     private TextureRegionDrawable solid(float r, float g, float b, float a) {
@@ -299,7 +382,7 @@ public class MenuScreen implements Screen {
         ScrollPane sp = new ScrollPane(scoresTable);
         wrapper.add(sp).width(700).height(220).padTop(6).row();
 
-        TextButton viewHistoryButton = new TextButton(t("history.view", "Ver Historial"), btnStyle);
+        TextButton viewHistoryButton = new TextButton(gestorIdiomas.setTexto("historial.view"), btnStyle);
         TextButton closeButton = new TextButton(t("profile.close", "Cerrar"), btnStyle);
 
         Table btns = new Table();
@@ -313,6 +396,23 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showAvatarSelectionDialog(profileAvatar);
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                changeAvatarButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
         viewHistoryButton.addListener(new ClickListener() {
@@ -320,14 +420,63 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
                 showHistoryDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                viewHistoryButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
         closeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 profileDialog.hide();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                closeButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        changeAvatarButton.setTransform(true);
+        changeAvatarButton.setOrigin(Align.center);
+        changeAvatarButton.setScale(1f);
+        changeAvatarButton.getColor().a = 1f;
+
+        viewHistoryButton.setTransform(true);
+        viewHistoryButton.setOrigin(Align.center);
+        viewHistoryButton.setScale(1f);
+        viewHistoryButton.getColor().a = 1f;
+
+        closeButton.setTransform(true);
+        closeButton.setOrigin(Align.center);
+        closeButton.setScale(1f);
+        closeButton.getColor().a = 1f;
 
         profileDialog.getContentTable().add(wrapper).prefWidth(1040).prefHeight(560);
         profileDialog.show(stage);
@@ -402,6 +551,23 @@ public class MenuScreen implements Screen {
                 }
                 avatarDialog.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                saveButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
@@ -410,8 +576,35 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 avatarDialog.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                backButton.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+
+        saveButton.setTransform(true);
+        saveButton.setOrigin(Align.center);
+        saveButton.setScale(1f);
+        saveButton.getColor().a = 1f;
+
+        backButton.setTransform(true);
+        backButton.setOrigin(Align.center);
+        backButton.setScale(1f);
+        backButton.getColor().a = 1f;
 
         avatarDialog.getContentTable().add(wrapper).prefWidth(820).prefHeight(480);
         avatarDialog.show(stage);
@@ -506,8 +699,30 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 dlg.hide();
                 showProfileDialog();
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+                back.addAction(
+                        Actions.sequence(
+                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
+                                Actions.scaleTo(1f, 1f, 0.05f)
+                        )
+                );
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
+        
+        back.setTransform(true);
+        back.setOrigin(Align.center);
+        back.setScale(1f);
+        back.getColor().a = 1f;
 
         Table btnRow = new Table();
         btnRow.add(back).width(340).height(60).padTop(6).center();
