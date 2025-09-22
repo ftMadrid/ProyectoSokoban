@@ -59,22 +59,23 @@ public class MenuScreen implements Screen {
         table.setFillParent(true);
         table.center();
         stage.addActor(table);
-        
+
         Table profileTable = new Table();
         profileTable.setFillParent(true);
         profileTable.top().right();
         stage.addActor(profileTable);
 
-        // --- CORRECCIÓN: Se usa el método que sí existe ---
-        String avatarPath = userLogic.getAvatar(main.username);
+        // Avatar actual desde LogicaUsuarios
+        String usernameActual = main.username != null ? main.username : "";
+        String avatarPath = userLogic.getAvatar(usernameActual);
         avatarImage = new Image(new Texture(Gdx.files.internal(avatarPath)));
-        
+
         Label.LabelStyle nameStyle = new Label.LabelStyle(pixelFont, Color.WHITE);
-        Label nameLabel = new Label(main.username, nameStyle);
-        
+        Label nameLabel = new Label(usernameActual, nameStyle);
+
         profileTable.add(nameLabel).right().pad(20);
         profileTable.add(avatarImage).size(80, 80).pad(20);
-        
+
         avatarImage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -92,13 +93,13 @@ public class MenuScreen implements Screen {
 
         TextButton playButton = new TextButton(gestorIdiomas.setTexto("menu.jugar"), buttonStyle);
         table.add(playButton).width(380).height(60).pad(10).row();
-        
+
         TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("menu.amigos"), buttonStyle);
         table.add(friendsButton).width(380).height(60).pad(10).row();
-        
+
         TextButton preferencesButton = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), buttonStyle);
         table.add(preferencesButton).width(380).height(60).pad(10).row();
-        
+
         TextButton logoutButton = new TextButton(gestorIdiomas.setTexto("menu.cerrar_sesion"), buttonStyle);
         table.add(logoutButton).width(380).height(60).pad(10).row();
 
@@ -136,31 +137,36 @@ public class MenuScreen implements Screen {
     }
 
     private void showProfileDialog() {
-        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
+        Window.WindowStyle windowStyle = new Window.WindowStyle(
+                pixelFont,
+                Color.BLACK,
+                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png")))
+        );
         final Dialog profileDialog = new Dialog(gestorIdiomas.setTexto("profile.title"), windowStyle);
-        
+
         Table contentTable = new Table();
         contentTable.pad(20);
 
-        // --- CORRECCIÓN: Se usa el método nuevo para obtener todos los datos ---
-        String[] perfil = userLogic.getPerfil(main.username);
-        final Image profileAvatar = new Image(new Texture(Gdx.files.internal(perfil[3])));
-        
+        // Datos de perfil + avatar actual
+        String[] perfil = userLogic.getPerfil(main.username); // [username, password, nombreCompleto]
+        String avatarPath = userLogic.getAvatar(main.username);
+        final Image profileAvatar = new Image(new Texture(Gdx.files.internal(avatarPath)));
+
         Label.LabelStyle style = new Label.LabelStyle(pixelFont, Color.BLACK);
         Label nameLabel = new Label(gestorIdiomas.setTexto("profile.username") + main.username, style);
-        Label fullNameLabel = new Label(gestorIdiomas.setTexto("profile.fullname") + perfil[2], style);
-        
+        Label fullNameLabel = new Label(gestorIdiomas.setTexto("profile.fullname") + (perfil[2] != null ? perfil[2] : ""), style);
+
         Table textInfoTable = new Table();
         textInfoTable.add(nameLabel).left().row();
         textInfoTable.add(fullNameLabel).left().padTop(10).row();
-        
+
         Table infoTable = new Table();
         infoTable.add(profileAvatar).size(128, 128).padRight(20);
         infoTable.add(textInfoTable).left();
         contentTable.add(infoTable).padBottom(20).row();
-        
+
         contentTable.add(new Label(gestorIdiomas.setTexto("profile.highscores"), style)).padBottom(10).row();
-        
+
         Table scoresTable = new Table();
         Map<Integer, Integer> highScores = userLogic.getHighScores(main.username);
         if (highScores.isEmpty()) {
@@ -173,30 +179,30 @@ public class MenuScreen implements Screen {
                 scoresTable.add(new Label(String.valueOf(highScores.get(level)), style)).left().row();
             }
         }
-        
+
         ScrollPane scrollPane = new ScrollPane(scoresTable);
         contentTable.add(scrollPane).height(150).width(400).padTop(10).row();
-        
+
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = pixelFont;
         buttonStyle.fontColor = Color.BLACK;
-        buttonStyle.up = new TextureRegionDrawable(new Texture("ui/button1.png"));
-        
+        buttonStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+
         TextButton changeAvatarButton = new TextButton(gestorIdiomas.setTexto("profile.change_avatar"), buttonStyle);
         TextButton closeButton = new TextButton(gestorIdiomas.setTexto("profile.close"), buttonStyle);
-        
+
         Table buttonTable = new Table();
         buttonTable.add(changeAvatarButton).width(250).height(50).pad(15);
         buttonTable.add(closeButton).width(250).height(50).pad(15);
         contentTable.add(buttonTable).padTop(20).row();
-        
+
         changeAvatarButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showAvatarSelectionDialog(profileAvatar);
             }
         });
-        
+
         closeButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -207,32 +213,41 @@ public class MenuScreen implements Screen {
         profileDialog.getContentTable().add(contentTable);
         profileDialog.show(stage);
     }
-    
+
     private void showAvatarSelectionDialog(final Image profileAvatarImage) {
-        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
+        Window.WindowStyle windowStyle = new Window.WindowStyle(
+                pixelFont,
+                Color.BLACK,
+                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png")))
+        );
         final Dialog avatarDialog = new Dialog(gestorIdiomas.setTexto("avatar.title"), windowStyle);
-        
+
         Table avatarTable = new Table();
         avatarTable.pad(20);
-        
+
         final String[] avatarPaths = {
-            "avatares/south.png", "avatares/avatar1.png", "avatares/avatar2.png", 
-            "avatares/avatar3.png", "avatares/avatar4.png", "avatares/avatar5.png", "avatares/avatar6.png"
+                "avatares/south.png",
+                "avatares/avatar1.png",
+                "avatares/avatar2.png",
+                "avatares/avatar3.png",
+                "avatares/avatar4.png",
+                "avatares/avatar5.png",
+                "avatares/avatar6.png"
         };
-        
+
         int col = 0;
         for (final String path : avatarPaths) {
             final Image img = new Image(new Texture(Gdx.files.internal(path)));
             img.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    // --- CORRECCIÓN PARA GUARDAR AVATAR ---
+                    // Guardar avatar y reflejar cambios en UI
                     userLogic.setAvatar(main.username, path);
-                    
+
                     Texture newAvatarTexture = new Texture(Gdx.files.internal(path));
                     avatarImage.setDrawable(new TextureRegionDrawable(newAvatarTexture));
                     profileAvatarImage.setDrawable(new TextureRegionDrawable(newAvatarTexture));
-                    
+
                     avatarDialog.hide();
                 }
             });
@@ -242,9 +257,9 @@ public class MenuScreen implements Screen {
                 avatarTable.row();
             }
         }
-        
+
         ScrollPane scrollPane = new ScrollPane(avatarTable);
-        avatarDialog.getContentTable().add(scrollPane);
+        avatarDialog.getContentTable().add(scrollPane).width(420).height(260);
         avatarDialog.show(stage);
     }
 
@@ -265,11 +280,17 @@ public class MenuScreen implements Screen {
         stage.draw();
     }
 
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+    @Override
+    public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
+    @Override
+    public void pause() {}
+    @Override
+    public void resume() {}
+    @Override
+    public void hide() {}
+
+    @Override
+    public void dispose() {
         stage.dispose();
         backgroundTexture.dispose();
         pixelFont.dispose();
