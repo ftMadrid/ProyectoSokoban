@@ -35,7 +35,7 @@ public class Nivel {
         switch (numero) {
             case 1:
 
-                FILAS = 6;
+                /*FILAS = 6;
                 COLUMNAS = 6;
                 TILE = 50;
                 mapa = new String[][]{
@@ -47,9 +47,8 @@ public class Nivel {
                     {"#", "#", "#", "#", "#", "#"},};
 
                 cargarMapa(mapa, TILE);
-                break;
-
-            /*FILAS = 19;
+                break;*/
+                FILAS = 19;
                 COLUMNAS = 20;
                 TILE = 50;
 
@@ -75,7 +74,7 @@ public class Nivel {
                     {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},};
 
                 cargarMapa(mapa, TILE);
-                break;*/
+                break;
             case 2:
                 FILAS = 21;
                 COLUMNAS = 24;
