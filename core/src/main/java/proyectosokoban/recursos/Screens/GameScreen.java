@@ -160,13 +160,20 @@ public class GameScreen implements Screen {
         }
         dialogoVictoriaMostrado = true;
 
+        LogicaUsuarios lu = new LogicaUsuarios();
+        lu.guardarScore(main.username, nivelActual, score);
+        lu.marcarNivelPasado(main.username, nivelActual);
+        
+        // --- ÚNICO CAMBIO EN ESTE ARCHIVO ---
+        lu.verificarYDesbloquearLogros(main.username);
+        // --- FIN DEL CAMBIO ---
+
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
         p.size = 64;
         p.color = Color.valueOf("1E1E1E");
         BitmapFont titleFont = generator.generateFont(p);
 
-        // --- CORRECCIÓN AQUÍ: Aumentamos el tamaño de la fuente del mensaje ---
         p.size = 40; // Tamaño legible para el mensaje
         BitmapFont messageFont = generator.generateFont(p);
         generator.dispose();
@@ -179,12 +186,10 @@ public class GameScreen implements Screen {
         wrapper.pad(26);
         wrapper.defaults().pad(10);
 
-        // --- Título "VICTORIA" ---
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
         Label titleLabel = new Label(gestorIdiomas.setTexto("game.dialogo_victoria_titulo"), titleStyle);
         wrapper.add(titleLabel).padBottom(25).row();
 
-        // --- Mensaje con estadísticas ---
         int minutos = (int) tiempoDeJuego / 60;
         int segundos = (int) tiempoDeJuego % 60;
         String tiempoFormateado = String.format("%02d:%02d", minutos, segundos);
@@ -196,7 +201,6 @@ public class GameScreen implements Screen {
         messageLabel.setAlignment(Align.center);
         wrapper.add(messageLabel).width(750).padBottom(30).row();
 
-        // --- Botones "Reintentar" y "Menú" ---
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.font = pixelFont;
         btnStyle.fontColor = Color.valueOf("1E1E1E");
@@ -249,7 +253,6 @@ public class GameScreen implements Screen {
             
         });
 
-        // --- HACER EL DIÁLOGO MÁS GRANDE ---
         dialogo.getContentTable().add(wrapper).prefWidth(900).prefHeight(520);
         dialogo.show(stage);
     }
@@ -391,11 +394,7 @@ public class GameScreen implements Screen {
                 if (score < 0) {
                     score = 0;
                 }
-
-                LogicaUsuarios lu = new LogicaUsuarios();
-                lu.guardarScore(main.username, nivelActual, score);
-                lu.marcarNivelPasado(main.username, nivelActual);
-
+                
                 mostrarDialogoVictoria();
             }
         } else {

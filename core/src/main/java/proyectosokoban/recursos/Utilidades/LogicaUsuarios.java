@@ -3,17 +3,19 @@ package proyectosokoban.recursos.Utilidades;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.files.FileHandle;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
+import java.io.DataOutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LogicaUsuarios {
 
@@ -726,7 +728,78 @@ public class LogicaUsuarios {
             return 0;
         }
     }
-    
+
+    public Set<String> getLogrosDesbloqueados(String username) {
+        Set<String> logros = new HashSet<>();
+        FileHandle file = Gdx.files.local("assets/Usuarios/" + username + "/logros.dat");
+        if (file.exists()) {
+            try (DataInputStream dis = new DataInputStream(file.read())) {
+                int count = dis.readInt();
+                for (int i = 0; i < count; i++) {
+                    logros.add(dis.readUTF());
+                }
+            } catch (IOException e) {
+                System.err.println("Error al leer logros: " + e.getMessage());
+            }
+        }
+        return logros;
+    }
+
+    public void guardarLogros(String username, Set<String> logros) {
+        FileHandle file = Gdx.files.local("assets/Usuarios/" + username + "/logros.dat");
+        try (DataOutputStream dos = new DataOutputStream(file.write(false))) {
+            dos.writeInt(logros.size());
+            for (String logro : logros) {
+                dos.writeUTF(logro);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al guardar logros: " + e.getMessage());
+        }
+    }
+
+    public void verificarYDesbloquearLogros(String username) {
+        Set<String> logrosActuales = getLogrosDesbloqueados(username);
+        boolean nuevoLogro = false;
+
+        int nivelMax = ultimoNivelDesbloqueado(username);
+        if (nivelMax >= 3 && !logrosActuales.contains("complete_3_levels")) {
+            logrosActuales.add("complete_3_levels");
+            nuevoLogro = true;
+        }
+        if (nivelMax >= 6 && !logrosActuales.contains("complete_6_levels")) {
+            logrosActuales.add("complete_6_levels");
+            nuevoLogro = true;
+        }
+        if (nivelMax >= 7 && !logrosActuales.contains("complete_all_levels")) {
+            logrosActuales.add("complete_all_levels");
+            nuevoLogro = true;
+        }
+
+        Map<Integer, Integer> highScores = getHighScores(username);
+        int totalScore = 0;
+        for (int score : highScores.values()) {
+            totalScore += score;
+        }
+        if (totalScore > 60000 && !logrosActuales.contains("high_score")) {
+            logrosActuales.add("high_score");
+            nuevoLogro = true;
+        }
+
+        List<HistorialRegistro> historial = leerHistorial(username);
+        for (HistorialRegistro r : historial) {
+            if (r.nivel == 7 && r.exito && r.duracionMs < 300000) {
+                if (!logrosActuales.contains("speed_demon")) {
+                    logrosActuales.add("speed_demon");
+                    nuevoLogro = true;
+                    break;
+                }
+            }
+        }
+
+        if (nuevoLogro) {
+            guardarLogros(username, logrosActuales);
+        }
+    }
 
     private int getTotalScore(String username) {
         int total = 0;

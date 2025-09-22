@@ -133,7 +133,21 @@ public class GestorIdiomas {
         es.put("ranking.empty", "No hay datos disponibles");
         es.put("history.yes", "SI");
 es.put("history.no", "NO");
+es.put("profile.achievements", "Logros");
+es.put("achievements.title", "Mis Logros");
+es.put("achievements.back", "Volver al Perfil");
+es.put("achievement.complete_3_levels.name", "Principiante");
+es.put("achievement.complete_3_levels.desc", "Completa los primeros 3 niveles.");
+es.put("achievement.complete_6_levels.name", "Intermedio");
+es.put("achievement.complete_6_levels.desc", "Completa los primeros 6 niveles.");
+es.put("achievement.complete_all_levels.name", "Maestro del Almacen");
+es.put("achievement.complete_all_levels.desc", "Completa todos los 7 niveles.");
+es.put("achievement.high_score.name", "Acumulador de Puntos");
+es.put("achievement.high_score.desc", "Consigue mas de 60,000 puntos en total.");
+es.put("achievement.speed_demon.name", "Demonio de la Velocidad");
+es.put("achievement.speed_demon.desc", "Completa el nivel 7 en menos de 5 minutos.");
 diccionarios.put("es", es);
+
 
         // ======= INGLÉS =======
         Map<String, String> en = new HashMap<>();
@@ -243,6 +257,19 @@ diccionarios.put("es", es);
         en.put("ranking.empty", "No data available");
         en.put("history.yes", "YES");
 en.put("history.no", "NO");
+en.put("profile.achievements", "Achievements");
+en.put("achievements.title", "My Achievements");
+en.put("achievements.back", "Back to Profile");
+en.put("achievement.complete_3_levels.name", "Beginner");
+en.put("achievement.complete_3_levels.desc", "Complete the first 3 levels.");
+en.put("achievement.complete_6_levels.name", "Intermediate");
+en.put("achievement.complete_6_levels.desc", "Complete the first 6 levels.");
+en.put("achievement.complete_all_levels.name", "Warehouse Master");
+en.put("achievement.complete_all_levels.desc", "Complete all 7 levels.");
+en.put("achievement.high_score.name", "Point Hoarder");
+en.put("achievement.high_score.desc", "Get more than 60,000 total points.");
+en.put("achievement.speed_demon.name", "Speed Demon");
+en.put("achievement.speed_demon.desc", "Complete level 7 in less than 5 minutes.");
 diccionarios.put("en", en);
 
 
@@ -354,6 +381,19 @@ diccionarios.put("en", en);
         ita.put("ranking.empty", "Nessun dato disponibile");
         ita.put("history.yes", "SI");
 ita.put("history.no", "NO");
+ita.put("profile.achievements", "Obiettivi");
+ita.put("achievements.title", "I Miei Obiettivi");
+ita.put("achievements.back", "Torna al Profilo");
+ita.put("achievement.complete_3_levels.name", "Principiante");
+ita.put("achievement.complete_3_levels.desc", "Completa i primi 3 livelli.");
+ita.put("achievement.complete_6_levels.name", "Intermedio");
+ita.put("achievement.complete_6_levels.desc", "Completa i primi 6 livelli.");
+ita.put("achievement.complete_all_levels.name", "Maestro del Magazzino");
+ita.put("achievement.complete_all_levels.desc", "Completa tutti i 7 livelli.");
+ita.put("achievement.high_score.name", "Accumulatore di Punti");
+ita.put("achievement.high_score.desc", "Ottieni piu di 60,000 punti in totale.");
+ita.put("achievement.speed_demon.name", "Demone della Velocita");
+ita.put("achievement.speed_demon.desc", "Completa il livello 7 in meno di 5 minuti.");
 diccionarios.put("ita", ita);
     }
     
