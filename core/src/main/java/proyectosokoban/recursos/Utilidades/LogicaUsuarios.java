@@ -1,6 +1,8 @@
 package proyectosokoban.recursos.Utilidades;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -443,6 +445,17 @@ public class LogicaUsuarios {
         }
     }
 
+    public boolean esPrimeraVezJugando(String username) {
+        Preferences prefs = Gdx.app.getPreferences("SokobanPrefs");
+        return prefs.getBoolean(username + "_tutorial_completado", false);
+    }
+
+    public void marcarTutorialCompletado(String username) {
+        Preferences prefs = Gdx.app.getPreferences("SokobanPrefs");
+        prefs.putBoolean(username + "_tutorial_completado", true);
+        prefs.flush();
+    }
+
     public static class HistorialRegistro {
 
         public final long fechaMs;
@@ -501,15 +514,17 @@ public class LogicaUsuarios {
 
     // --- MÉTODOS DE LEADERBOARD ORIGINALES (DEVUELVEN LIST<STRING>) ---
     private static class ScoreEntry {
+
         String user;
         int score;
+
         ScoreEntry(String user, int score) {
             this.user = user;
             this.score = score;
         }
     }
     private Comparator<ScoreEntry> scoreComparator = Comparator.comparingInt(s -> -s.score);
-    
+
     private List<String> formatLeaderboard(List<ScoreEntry> scores, int topN) {
         List<String> leaderboard = new ArrayList<>();
         int limit = Math.min(topN > 0 ? topN : scores.size(), scores.size());
@@ -620,10 +635,10 @@ public class LogicaUsuarios {
             return false;
         }
     }
-    
+
     // --- MÉTODOS NUEVOS PARA RANKINGSCREEN (DEVUELVEN LIST<RANKINGENTRY>) ---
-    
     public static class RankingEntry {
+
         public final String username;
         public final int totalScore;
 
@@ -665,7 +680,7 @@ public class LogicaUsuarios {
         }
         return getRankingEntries(amigos);
     }
-    
+
     public List<RankingEntry> getRankingGlobalPorNivel(int nivel) {
         List<RankingEntry> entries = new ArrayList<>();
         File[] userFiles = raiz.listFiles();
@@ -674,7 +689,7 @@ public class LogicaUsuarios {
                 if (userFile.isDirectory()) {
                     String username = userFile.getName();
                     int score = getScoreDeNivel(username, nivel);
-                    if(score > 0){
+                    if (score > 0) {
                         entries.add(new RankingEntry(username, score));
                     }
                 }
@@ -690,9 +705,9 @@ public class LogicaUsuarios {
         if (!amigos.contains(username)) {
             amigos.add(username);
         }
-        for(String amigo : amigos){
+        for (String amigo : amigos) {
             int score = getScoreDeNivel(amigo, nivel);
-            if(score > 0){
+            if (score > 0) {
                 entries.add(new RankingEntry(amigo, score));
             }
         }
