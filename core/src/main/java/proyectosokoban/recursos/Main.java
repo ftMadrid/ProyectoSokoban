@@ -18,7 +18,7 @@ public class Main extends Game {
     public Music menuMusic;
     public Music gameMusic;
     public Music lobbyMusic;
-    private float volume = 1.0f;
+    private float volume = 0.25f;
     public Stage transitionStage;
     public PantallaDeCarga transitionAnimation;
 
@@ -72,7 +72,7 @@ public class Main extends Game {
         keyDown = Input.Keys.S;
         keyLeft = Input.Keys.A;
         keyRight = Input.Keys.D;
-        setVolume(1.0f);
+        setVolume(0.25f);
         applyDisplayMode(1);
     }
 

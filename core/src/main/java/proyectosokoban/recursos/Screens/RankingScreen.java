@@ -103,7 +103,6 @@ public class RankingScreen implements Screen {
         Label titleLabel = new Label(gestorIdiomas.setTexto("ranking.title"), titleStyle);
         panelTable.add(titleLabel).expandX().center().padTop(60).padBottom(15).row();
 
-        // --- Filtros ---
         Table filtersTable = new Table();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = smallFont;

@@ -88,12 +88,9 @@ public class AmigosScreen implements Screen {
     }
 
     private void createUI() {
-        // Tabla raíz que ocupa toda la pantalla
         Table root = new Table();
         root.setFillParent(true);
         stage.addActor(root);
-
-        // Panel principal con un tamaño proporcional
         panelTable = new Table();
         panelTable.setBackground(new TextureRegionDrawable(new TextureRegion(panelBgTex)));
         panelTable.pad(20, 40, 20, 40);
@@ -102,18 +99,15 @@ public class AmigosScreen implements Screen {
         float panelHeight = Gdx.graphics.getHeight() * 0.9f;
         
         root.add(panelTable).width(panelWidth).height(panelHeight);
-        
-        // --- Título (dentro del panel) ---
+
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
         Label title = new Label(gestorIdiomas.setTexto("amigos.titulo"), titleStyle);
         panelTable.add(title).expandX().center().padTop(60).padBottom(15).row();
 
-        // --- Mensajes ---
         Label.LabelStyle messageStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
         messageLabel = new Label("", messageStyle);
         panelTable.add(messageLabel).height(30).padBottom(10).row();
         
-        // --- Fila para añadir amigos ---
         Table topRow = new Table();
         topRow.defaults().space(12).height(46);
         
@@ -136,7 +130,6 @@ public class AmigosScreen implements Screen {
         
         panelTable.add(topRow).expandX().center().padBottom(15).row();
 
-        // --- Contenedor de la lista de amigos (con Scroll) ---
         listContainer = new Table();
         listContainer.top(); 
 
@@ -145,8 +138,7 @@ public class AmigosScreen implements Screen {
         scroll.setScrollingDisabled(true, false);
 
         panelTable.add(scroll).expand().fill().padBottom(15).row();
-        
-        // --- Botón de Volver ---
+
         TextButton backBtn = new TextButton(gestorIdiomas.setTexto("amigos.volver_menu"), btnStyle);
         panelTable.add(backBtn).width(200).height(50).center().padTop(10);
         
@@ -179,14 +171,11 @@ public class AmigosScreen implements Screen {
             return;
         }
         
-        // Calcular el ancho disponible dentro del panel (restando padding)
-        float availableWidth = panelTable.getWidth() - 80; // 40 padding left + 40 padding right
+        float availableWidth = panelTable.getWidth() - 80; 
         if (availableWidth <= 0) {
             availableWidth = Gdx.graphics.getWidth() * 0.9f - 80;
         }
-        
-        // Distribución de anchos: 15% para avatar, 60% para nombre, 25% para nivel
-        float avatarWidth = availableWidth * 0.15f;
+                float avatarWidth = availableWidth * 0.15f;
         float nameWidth = availableWidth * 0.60f;
         float levelWidth = availableWidth * 0.25f;
         
@@ -196,24 +185,20 @@ public class AmigosScreen implements Screen {
         for (String amigo : amigos) {
             Table friendRow = new Table();
             
-            // Alternar color de fondo
             if (index % 2 == 0) {
                 friendRow.setBackground(rowBackground);
             }
             
-            // Avatar
             String avatarPath = userLogic.getAvatar(amigo);
             Image avatar = new Image(new Texture(Gdx.files.internal(avatarPath)));
             Table avatarCell = new Table();
             avatarCell.add(avatar).size(40, 40);
             friendRow.add(avatarCell).width(avatarWidth).center();
             
-            // Nombre del usuario
             Label nameLabel = new Label(amigo, nameStyle);
             nameLabel.setAlignment(Align.center);
             friendRow.add(nameLabel).width(nameWidth).center();
             
-            // Nivel
             int nivel = userLogic.ultimoNivelDesbloqueado(amigo) + 1;
             Label levelLabel = new Label("Lvl " + nivel, levelStyle);
             levelLabel.setAlignment(Align.center);
@@ -241,7 +226,6 @@ public class AmigosScreen implements Screen {
         }
     }
     
-    // Métodos restantes (show, render, etc.) sin cambios...
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -264,7 +248,6 @@ public class AmigosScreen implements Screen {
     @Override 
     public void resize(int width, int height) { 
         stage.getViewport().update(width, height, true);
-        // Volvemos a construir la UI para que se ajuste al nuevo tamaño
         createUI();
         loadFriends();
     }

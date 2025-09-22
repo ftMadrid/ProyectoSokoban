@@ -93,6 +93,9 @@ public class GestorIdiomas {
         es.put("profile.change_avatar", "Cambiar Avatar");
         es.put("profile.close", "Cerrar");
         es.put("avatar.title", "Seleccionar Avatar");
+        es.put("avatar.select", "Selecciona un Avatar");
+        es.put("avatar.save", "Guardar");
+        es.put("avatar.back", "Volver");
         es.put("pause.titulo", "PAUSA");
         es.put("pause.continuar", "Continuar");
         es.put("pause.niveles", "Seleccionar Nivel");
@@ -115,6 +118,8 @@ public class GestorIdiomas {
         es.put("history.duracion", "Duración");
         es.put("history.resultado", "Resultado");
         es.put("history.empty", "No hay registros.");
+        es.put("historial.view", "Ver Historial");
+        es.put("profile.no_scores", "No hay puntuaciones guardadas.");
         es.put("ranking.title", "Ranking");
         es.put("ranking.view", "Vista");
         es.put("ranking.type", "Tipo");
@@ -126,7 +131,9 @@ public class GestorIdiomas {
         es.put("ranking.header.user", "Usuario");
         es.put("ranking.header.score", "Puntuacion");
         es.put("ranking.empty", "No hay datos disponibles");
-        diccionarios.put("es", es);
+        es.put("history.yes", "SI");
+es.put("history.no", "NO");
+diccionarios.put("es", es);
 
         // ======= INGLÉS =======
         Map<String, String> en = new HashMap<>();
@@ -196,6 +203,9 @@ public class GestorIdiomas {
         en.put("profile.change_avatar", "Change Avatar");
         en.put("profile.close", "Close");
         en.put("avatar.title", "Select Avatar");
+        en.put("avatar.select", "Select an Avatar");
+        en.put("avatar.save", "Save");
+        en.put("avatar.back", "Back");
         en.put("pause.titulo", "PAUSE");
         en.put("pause.continuar", "Resume");
         en.put("pause.niveles", "Level Select");
@@ -218,6 +228,8 @@ public class GestorIdiomas {
         en.put("history.duracion", "Duration");
         en.put("history.resultado", "Result");
         en.put("history.empty", "No records.");
+        en.put("historial.view", "View History");
+        en.put("profile.no_scores", "No scores saved.");
         en.put("ranking.title", "Leaderboard");
         en.put("ranking.view", "View");
         en.put("ranking.type", "Type");
@@ -229,7 +241,10 @@ public class GestorIdiomas {
         en.put("ranking.header.user", "User");
         en.put("ranking.header.score", "Score");
         en.put("ranking.empty", "No data available");
-        diccionarios.put("en", en);
+        en.put("history.yes", "YES");
+en.put("history.no", "NO");
+diccionarios.put("en", en);
+
 
         // ======= ITALIANO =======
         Map<String, String> ita = new HashMap<>();
@@ -299,6 +314,9 @@ public class GestorIdiomas {
         ita.put("profile.change_avatar", "Cambia Avatar");
         ita.put("profile.close", "Chiudi");
         ita.put("avatar.title", "Seleziona Avatar");
+        ita.put("avatar.select", "Seleziona un Avatar");
+        ita.put("avatar.save", "Salva");
+        ita.put("avatar.back", "Indietro");
         ita.put("pause.titulo", "PAUSA");
         ita.put("pause.continuar", "Continua");
         ita.put("pause.niveles", "Seleziona Livello");
@@ -321,6 +339,8 @@ public class GestorIdiomas {
         ita.put("history.duracion", "Durata");
         ita.put("history.resultado", "Risultato");
         ita.put("history.empty", "Nessun record.");
+        ita.put("historial.view", "Vedi Cronologia");
+        ita.put("profile.no_scores", "Nessun punteggio salvato.");
         ita.put("ranking.title", "Classifica");
         ita.put("ranking.view", "Vista");
         ita.put("ranking.type", "Tipo");
@@ -332,7 +352,9 @@ public class GestorIdiomas {
         ita.put("ranking.header.user", "Utente");
         ita.put("ranking.header.score", "Punteggio");
         ita.put("ranking.empty", "Nessun dato disponibile");
-        diccionarios.put("ita", ita);
+        ita.put("history.yes", "SI");
+ita.put("history.no", "NO");
+diccionarios.put("ita", ita);
     }
     
     public String setTexto(String clave) {

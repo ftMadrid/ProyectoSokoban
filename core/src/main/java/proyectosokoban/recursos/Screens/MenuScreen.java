@@ -332,8 +332,8 @@ public class MenuScreen implements Screen {
 
         Table textInfo = new Table();
         Label.LabelStyle styleDark = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
-        Label nameUser = new Label(t("profile.username", "Usuario: ") + main.username, styleDark);
-        Label fullName = new Label(t("profile.fullname", "Nombre: ") + (perfil != null && perfil.length >= 3 ? perfil[2] : ""), styleDark);
+        Label nameUser = new Label(gestorIdiomas.setTexto("profile.username") + main.username, styleDark);
+        Label fullName = new Label(gestorIdiomas.setTexto("profile.fullname") + (perfil != null && perfil.length >= 3 ? perfil[2] : ""), styleDark);
         textInfo.add(nameUser).left().row();
         textInfo.add(fullName).left().padTop(6).row();
 
@@ -344,14 +344,14 @@ public class MenuScreen implements Screen {
         btnStyle.font = pixelFont;
         btnStyle.fontColor = Color.valueOf("1E1E1E");
         btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
-        final TextButton changeAvatarButton = new TextButton(t("profile.change_avatar", "Cambiar Avatar"), btnStyle);
+        final TextButton changeAvatarButton = new TextButton(gestorIdiomas.setTexto("profile.change_avatar"), btnStyle);
         profileHeader.add(changeAvatarButton).right().width(260).height(60);
 
         wrapper.add(profileHeader).growX().row();
 
         Table bandScoresTitle = new Table();
         bandScoresTitle.setBackground(solid(0, 0, 0, 0.08f));
-        Label hsTitle = new Label(t("profile.highscores", "Mejores Puntuaciones"), styleDark);
+        Label hsTitle = new Label(gestorIdiomas.setTexto("profile.highscores"), styleDark);
         hsTitle.setAlignment(Align.center);
         bandScoresTitle.add(hsTitle).growX().pad(6);
         wrapper.add(bandScoresTitle).growX().padTop(12).row();
@@ -359,22 +359,22 @@ public class MenuScreen implements Screen {
         Table headerScores = new Table();
         headerScores.setBackground(solid(0, 0, 0, 0.05f));
         float[] cw = new float[]{320f, 320f};
-        headerScores.add(new Label(t("history.nivel", "Nivel"), styleDark)).width(cw[0]).center().pad(4);
-        headerScores.add(new Label(t("history.score", "Puntuacion"), styleDark)).width(cw[1]).center().pad(4);
+        headerScores.add(new Label(gestorIdiomas.setTexto("history.nivel"), styleDark)).width(cw[0]).center().pad(4);
+        headerScores.add(new Label(gestorIdiomas.setTexto("history.score"), styleDark)).width(cw[1]).center().pad(4);
         wrapper.add(headerScores).padTop(4).row();
 
         Table scoresTable = new Table();
         scoresTable.defaults().pad(4);
         Map<Integer, Integer> highScores = userLogic.getHighScores(main.username);
         if (highScores.isEmpty()) {
-            Label empty = new Label(t("profile.no_scores", "No hay puntuaciones guardadas."), styleDark);
+            Label empty = new Label(gestorIdiomas.setTexto("profile.no_scores"), styleDark);
             empty.setAlignment(Align.center);
             scoresTable.add(empty).pad(6).colspan(2);
         } else {
             ArrayList<Integer> sortedLevels = new ArrayList<>(highScores.keySet());
             Collections.sort(sortedLevels);
             for (Integer level : sortedLevels) {
-                scoresTable.add(new Label(t("history.nivel", "Nivel") + " " + level, styleDark)).width(cw[0]).center();
+                scoresTable.add(new Label(gestorIdiomas.setTexto("history.nivel") + " " + level, styleDark)).width(cw[0]).center();
                 scoresTable.add(new Label(String.valueOf(highScores.get(level)), styleDark)).width(cw[1]).center();
                 scoresTable.row();
             }
@@ -383,7 +383,7 @@ public class MenuScreen implements Screen {
         wrapper.add(sp).width(700).height(220).padTop(6).row();
 
         TextButton viewHistoryButton = new TextButton(gestorIdiomas.setTexto("historial.view"), btnStyle);
-        TextButton closeButton = new TextButton(t("profile.close", "Cerrar"), btnStyle);
+        TextButton closeButton = new TextButton(gestorIdiomas.setTexto("profile.close"), btnStyle);
 
         Table btns = new Table();
         btns.defaults().width(280).height(58).pad(8);
@@ -491,7 +491,7 @@ public class MenuScreen implements Screen {
         wrapper.pad(28);
 
         Label.LabelStyle styleDark = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
-        Label title = new Label(t("avatar.select", "Selecciona un Avatar"), styleDark);
+        Label title = new Label(gestorIdiomas.setTexto("avatar.select"), styleDark);
         wrapper.add(title).padBottom(15).row();
 
         Table avatarTable = new Table();
@@ -531,8 +531,8 @@ public class MenuScreen implements Screen {
         btnStyle.fontColor = Color.valueOf("1E1E1E");
         btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
 
-        TextButton saveButton = new TextButton(t("avatar.save", "Guardar"), btnStyle);
-        TextButton backButton = new TextButton(t("avatar.back", "Volver"), btnStyle);
+        TextButton saveButton = new TextButton(gestorIdiomas.setTexto("avatar.save"), btnStyle);
+        TextButton backButton = new TextButton(gestorIdiomas.setTexto("avatar.back"), btnStyle);
 
         Table buttonTable = new Table();
         buttonTable.defaults().width(250).height(58).pad(10);
@@ -627,7 +627,7 @@ public class MenuScreen implements Screen {
 
         Table band = new Table();
         band.setBackground(solid(0, 0, 0, 0.08f));
-        Label title = new Label(t("history.title", "Historial de partidas"),
+        Label title = new Label(gestorIdiomas.setTexto("history.title"),
                 new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E")));
         title.setAlignment(Align.center);
         band.add(title).growX().pad(15, 0, 15, 0).row();
@@ -654,12 +654,12 @@ public class MenuScreen implements Screen {
         Table header = new Table();
         header.setBackground(solid(0, 0, 0, 0.06f));
         header.defaults().pad(4);
-        header.add(new Label(t("history.fecha", "Fecha"), headerStyle)).width(colW[0]).center();
-        header.add(new Label(t("history.nivel", "Nivel"), headerStyle)).width(colW[1]).center();
-        header.add(new Label(t("history.score", "Score"), headerStyle)).width(colW[2]).center();
-        header.add(new Label(t("history.intentos", "Intentos"), headerStyle)).width(colW[3]).center();
-        header.add(new Label(t("history.duracion", "Duracion"), headerStyle)).width(colW[4]).center();
-        header.add(new Label(t("history.resultado", "Resultado"), headerStyle)).width(colW[5]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.fecha"), headerStyle)).width(colW[0]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.nivel"), headerStyle)).width(colW[1]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.score"), headerStyle)).width(colW[2]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.intentos"), headerStyle)).width(colW[3]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.duracion"), headerStyle)).width(colW[4]).center();
+        header.add(new Label(gestorIdiomas.setTexto("history.resultado"), headerStyle)).width(colW[5]).center();
         root.add(header).width(W).row();
 
         Table rows = new Table();
@@ -669,30 +669,31 @@ public class MenuScreen implements Screen {
 
         boolean par = false;
         for (LogicaUsuarios.HistorialRegistro r : lista) {
-            Table line = new Table();
-            if (par) {
-                line.setBackground(solid(0, 0, 0, 0.05f));
-            }
-            par = !par;
+    Table line = new Table();
+    if (par) {
+        line.setBackground(solid(0, 0, 0, 0.05f));
+    }
+    par = !par;
 
-            line.defaults().pad(5);
-            line.add(new Label(fmt.format(new Date(r.fechaMs)), cellStyle)).width(colW[0]).left().padLeft(15);
-            line.add(new Label(String.valueOf(r.nivel), cellStyle)).width(colW[1]).center();
-            line.add(new Label(String.valueOf(r.score), cellStyle)).width(colW[2]).center();
-            line.add(new Label(String.valueOf(r.intentos), cellStyle)).width(colW[3]).center();
-            line.add(new Label(formatDur(r.duracionMs), cellStyle)).width(colW[4]).center();
-            line.add(new Label(r.exito ? "SI" : "NO", cellStyle)).width(colW[5]).center();
+    line.defaults().pad(5);
+    line.add(new Label(fmt.format(new Date(r.fechaMs)), cellStyle)).width(colW[0]).left().padLeft(15);
+    line.add(new Label(String.valueOf(r.nivel), cellStyle)).width(colW[1]).center();
+    line.add(new Label(String.valueOf(r.score), cellStyle)).width(colW[2]).center();
+    line.add(new Label(String.valueOf(r.intentos), cellStyle)).width(colW[3]).center();
+    line.add(new Label(formatDur(r.duracionMs), cellStyle)).width(colW[4]).center();
+    
+    String resultadoTexto = r.exito ? gestorIdiomas.setTexto("history.yes") : gestorIdiomas.setTexto("history.no");
+    line.add(new Label(resultadoTexto, cellStyle)).width(colW[5]).center();
 
-            rows.add(line).growX().row();
-        }
-
+    rows.add(line).growX().row();
+}
         ScrollPane sp = new ScrollPane(rows);
         root.add(sp).width(W).height(H - 140f).padTop(6).row();
 
         TextButton.TextButtonStyle btn = new TextButton.TextButtonStyle();
         btn.font = pixelFont;
         btn.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
-        TextButton back = new TextButton(t("back.button", "VOLVER"), btn);
+        TextButton back = new TextButton(gestorIdiomas.setTexto("back.button"), btn);
 
         back.addListener(new ClickListener() {
             @Override
