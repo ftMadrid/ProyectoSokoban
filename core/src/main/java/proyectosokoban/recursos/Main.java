@@ -55,27 +55,18 @@ public class Main extends Game {
         transitionAnimation = new PantallaDeCarga(transitionStage);
         setScreen(new IntroScreen(this));
     }
-    
-    /**
-     * Carga y aplica TODAS las preferencias del usuario (volumen, idioma, controles, display).
-     * Este método se llama una sola vez, justo después de un inicio de sesión exitoso.
-     * @param username El nombre del usuario cuyas preferencias se van a cargar.
-     */
+
     public void loadUserPreferences(String username) {
         this.username = username;
         LogicaUsuarios lu = new LogicaUsuarios();
         int[] prefs = lu.getPreferencias(username);
 
-        // 1. Cargar y aplicar volumen
         setVolume(prefs[0] / 100f);
 
-        // 2. Cargar y aplicar idioma
         GestorIdiomas.obtenerInstancia().cargarPreferenciasUsuario(username);
 
-        // 3. Cargar controles
         updateControls(prefs[5], prefs[6], prefs[7], prefs[8]);
-        
-        // 4. Aplicar modo de pantalla
+
         applyDisplayMode(prefs[8]);
     }
 
@@ -89,7 +80,7 @@ public class Main extends Game {
         keyLeft = Input.Keys.A;
         keyRight = Input.Keys.D;
         setVolume(1.0f);
-        applyDisplayMode(1); // 1 es Windowed
+        applyDisplayMode(1);
     }
 
     public void updateControls(int up, int down, int left, int right) {

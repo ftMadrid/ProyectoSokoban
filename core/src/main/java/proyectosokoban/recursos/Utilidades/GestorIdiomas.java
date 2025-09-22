@@ -8,11 +8,11 @@ public class GestorIdiomas {
     private static GestorIdiomas instancia;
     private String codigoIdioma = "es";
     private Map<String, Map<String, String>> diccionarios;
-    private UserManager userManager; // Usamos UserManager
+    private UserManager userManager;
 
     private GestorIdiomas() {
         diccionarios = new HashMap<>();
-        userManager = new UserManager(); // Usamos UserManager
+        userManager = new UserManager();
         inicializarIdiomas();
     }
 
@@ -24,7 +24,7 @@ public class GestorIdiomas {
     }
 
     private void inicializarIdiomas() {
-        // --- IDIOMA ESPAÑOL ---
+        // ======= ESPAÑOL =======
         Map<String, String> es = new HashMap<>();
         es.put("app.name", "SOKOMINE");
         es.put("menu.jugar", "Jugar");
@@ -85,7 +85,6 @@ public class GestorIdiomas {
         es.put("preferences.idioma", "IDIOMA");
         es.put("amigos.username_message", " Nombre de usuario");
         es.put("back.button", "VOLVER AL MENU");
-        // --- Textos añadidos ---
         es.put("profile.title", "Perfil de Usuario");
         es.put("profile.username", "Usuario: ");
         es.put("profile.fullname", "Nombre: ");
@@ -93,9 +92,33 @@ public class GestorIdiomas {
         es.put("profile.change_avatar", "Cambiar Avatar");
         es.put("profile.close", "Cerrar");
         es.put("avatar.title", "Seleccionar Avatar");
+        // Menú de pausa (dos variantes de claves)
+        es.put("pause.titulo", "PAUSA");
+        es.put("pause.continuar", "Continuar");
+        es.put("pause.niveles", "Seleccionar Nivel");
+        es.put("pause.menu", "Menu Principal");
+        es.put("pause.opciones", "Opciones");
+        es.put("pause.reiniciar", "Reiniciar");
+        es.put("pause.salir", "Salir");
+        es.put("pause.title", "PAUSA");
+        es.put("pause.resume", "Continuar");
+        es.put("pause.restart", "Reiniciar");
+        es.put("pause.level_select", "Seleccionar Nivel");
+        es.put("pause.main_menu", "Menu Principal");
+        es.put("pause.options", "Opciones");
+        es.put("pause.quit", "Salir");
+        // Historial (por si los usas)
+        es.put("history.title", "Historial de partidas");
+        es.put("history.fecha", "Fecha");
+        es.put("history.nivel", "Nivel");
+        es.put("history.score", "Score");
+        es.put("history.intentos", "Intentos");
+        es.put("history.duracion", "Duración");
+        es.put("history.resultado", "Resultado");
+        es.put("history.empty", "No hay registros.");
         diccionarios.put("es", es);
 
-        // --- IDIOMA INGLÉS ---
+        // ======= INGLÉS =======
         Map<String, String> en = new HashMap<>();
         en.put("app.name", "SOKOMINE");
         en.put("menu.jugar", "Play");
@@ -156,7 +179,6 @@ public class GestorIdiomas {
         en.put("preferences.idioma", "LANGUAGE");
         en.put("amigos.username_message", " Username");
         en.put("back.button", "BACK TO MENU");
-        // --- Textos añadidos ---
         en.put("profile.title", "User Profile");
         en.put("profile.username", "Username: ");
         en.put("profile.fullname", "Full Name: ");
@@ -164,9 +186,33 @@ public class GestorIdiomas {
         en.put("profile.change_avatar", "Change Avatar");
         en.put("profile.close", "Close");
         en.put("avatar.title", "Select Avatar");
+        // Pause (two key sets)
+        en.put("pause.titulo", "PAUSE");
+        en.put("pause.continuar", "Resume");
+        en.put("pause.niveles", "Level Select");
+        en.put("pause.menu", "Main Menu");
+        en.put("pause.opciones", "Options");
+        en.put("pause.reiniciar", "Restart");
+        en.put("pause.salir", "Quit");
+        en.put("pause.title", "PAUSE");
+        en.put("pause.resume", "Resume");
+        en.put("pause.restart", "Restart");
+        en.put("pause.level_select", "Level Select");
+        en.put("pause.main_menu", "Main Menu");
+        en.put("pause.options", "Options");
+        en.put("pause.quit", "Quit");
+        // History
+        en.put("history.title", "Match history");
+        en.put("history.fecha", "Date");
+        en.put("history.nivel", "Level");
+        en.put("history.score", "Score");
+        en.put("history.intentos", "Attempts");
+        en.put("history.duracion", "Duration");
+        en.put("history.resultado", "Result");
+        en.put("history.empty", "No records.");
         diccionarios.put("en", en);
 
-        // --- IDIOMA ITALIANO ---
+        // ======= ITALIANO =======
         Map<String, String> ita = new HashMap<>();
         ita.put("app.name", "SOKOMINE");
         ita.put("menu.jugar", "Gioca");
@@ -227,7 +273,6 @@ public class GestorIdiomas {
         ita.put("preferences.idioma", "LINGUA");
         ita.put("amigos.username_message", " Nome utente");
         ita.put("back.button", "TORNA AL MENU");
-        // --- Textos añadidos ---
         ita.put("profile.title", "Profilo Utente");
         ita.put("profile.username", "Utente: ");
         ita.put("profile.fullname", "Nome: ");
@@ -235,6 +280,30 @@ public class GestorIdiomas {
         ita.put("profile.change_avatar", "Cambia Avatar");
         ita.put("profile.close", "Chiudi");
         ita.put("avatar.title", "Seleziona Avatar");
+        // Pausa (dos variantes)
+        ita.put("pause.titulo", "PAUSA");
+        ita.put("pause.continuar", "Continua");
+        ita.put("pause.niveles", "Seleziona Livello");
+        ita.put("pause.menu", "Menu Principale");
+        ita.put("pause.opciones", "Opzioni");
+        ita.put("pause.reiniciar", "Ricomincia");
+        ita.put("pause.salir", "Esci");
+        ita.put("pause.title", "PAUSA");
+        ita.put("pause.resume", "Continua");
+        ita.put("pause.restart", "Ricomincia");
+        ita.put("pause.level_select", "Seleziona Livello");
+        ita.put("pause.main_menu", "Menu Principale");
+        ita.put("pause.options", "Opzioni");
+        ita.put("pause.quit", "Esci");
+        // Storico
+        ita.put("history.title", "Storico partite");
+        ita.put("history.fecha", "Data");
+        ita.put("history.nivel", "Livello");
+        ita.put("history.score", "Punteggio");
+        ita.put("history.intentos", "Tentativi");
+        ita.put("history.duracion", "Durata");
+        ita.put("history.resultado", "Risultato");
+        ita.put("history.empty", "Nessun record.");
         diccionarios.put("ita", ita);
     }
     
@@ -247,7 +316,6 @@ public class GestorIdiomas {
         if (esp != null && esp.containsKey(clave)) {
             return esp.get(clave);
         }
-
         return "[" + clave + "]";
     }
 
@@ -268,20 +336,15 @@ public class GestorIdiomas {
     public void cambiarIdioma(String nuevoIdioma) {
         if (diccionarios.containsKey(nuevoIdioma)) {
             codigoIdioma = nuevoIdioma;
-            // La lógica de guardar preferencias se centraliza en Main y UserManager/LogicaUsuarios.
         }
     }
 
     private int getCodigoIdiomaByte(String codigo) {
         switch (codigo) {
-            case "es":
-                return 0;
-            case "en":
-                return 1;
-            case "ita":
-                return 2;
-            default:
-                return 0;
+            case "es": return 0;
+            case "en": return 1;
+            case "ita": return 2;
+            default: return 0;
         }
     }
 
@@ -304,19 +367,26 @@ public class GestorIdiomas {
 
     public String obtenerNombreIdioma(String codigo) {
         switch (codigo) {
-            case "es":
-                return "Espanol";
-            case "en":
-                return "English";
-            case "ita":
-                return "Italiano";
-            default:
-                return codigo;
+            case "es": return "Espanol";
+            case "en": return "English";
+            case "ita": return "Italiano";
+            default: return codigo;
         }
     }
 
     public void cargarPreferenciasUsuario(String username) {
-        // Esta lógica necesitará adaptarse a cómo lees las preferencias de idioma
-        // desde tu archivo de preferencias central.
+        if (username == null || username.trim().isEmpty()) return;
+        LogicaUsuarios lu = new LogicaUsuarios();
+        byte idioma = lu.getIdiomaGuardado(username);
+        setIdioma(idioma);
+    }
+
+    public void setIdioma(byte idioma) {
+        switch (idioma) {
+            case 0: codigoIdioma = "es"; break;
+            case 1: codigoIdioma = "en"; break;
+            case 2: codigoIdioma = "ita"; break;
+            default: codigoIdioma = "es"; break;
+        }
     }
 }

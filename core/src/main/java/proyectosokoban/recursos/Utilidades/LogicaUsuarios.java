@@ -250,22 +250,22 @@ public class LogicaUsuarios {
         }
         return scores;
     }
-    
-    // --- RESTO DE TUS MÉTODOS ORIGINALES (SIN CAMBIOS) ---
-    
     public List<String> listarAmigos(String username) {
-        List<String> amigos = new ArrayList<>();
-        File amigosFile = fileAmigos(username);
-        if (!amigosFile.exists()) return amigos;
-
-        try (RandomAccessFile raf = new RandomAccessFile(amigosFile, "r")) {
-            int count = raf.readInt();
-            for (int i = 0; i < count; i++) {
-                amigos.add(readString(raf));
-            }
-        } catch (IOException e) { e.printStackTrace(); }
-        return amigos;
+    List<String> amigos = new ArrayList<>();
+    File amigosFile = fileAmigos(username);
+    if (!amigosFile.exists()) return amigos;
+    try (RandomAccessFile raf = new RandomAccessFile(amigosFile, "r")) {
+        if (raf.length() < 4) {
+            return amigos;
+        }
+        int count = raf.readInt();
+        for (int i = 0; i < count && raf.getFilePointer() < raf.length(); i++) {
+            amigos.add(readString(raf));
+        }
+    } catch (IOException e) {
     }
+    return amigos;
+}
 
     public boolean agregarAmigo(String username, String amigo) {
         if (username.equals(amigo) || listarAmigos(username).contains(amigo) || !dirUsuario(amigo).exists()) {
@@ -412,7 +412,6 @@ public List<HistorialRegistro> leerHistorial(String username) {
             lista.add(new HistorialRegistro(fecha, nivel, score, intentos, dur, exito));
         }
     } catch (IOException e) {
-        // en caso de error, devolvemos lo leído hasta el momento
     }
     return lista;
 }
@@ -526,6 +525,12 @@ public List<HistorialRegistro> leerHistorial(String username) {
         }
         return -1;
     }
+    
+    public byte getIdiomaGuardado(String username) {
+    int[] p = getPreferencias(username);
+    return (byte) p[1];
+}
+
     
     public boolean actualizarMiRankingGeneralGlobalTotal(String username) {
         int ranking = miPosicionEnLeaderboardGlobalTotal(username);

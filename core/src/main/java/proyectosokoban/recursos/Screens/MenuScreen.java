@@ -13,35 +13,29 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import proyectosokoban.recursos.Main;
 import proyectosokoban.recursos.Utilidades.GestorIdiomas;
 import proyectosokoban.recursos.Utilidades.LogicaUsuarios;
 import proyectosokoban.recursos.Utilidades.transicionSuave;
+import java.util.List;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class MenuScreen implements Screen {
 
     private final Main main;
-    private final Stage stage;
-    private final LogicaUsuarios userLogic;
-    private final GestorIdiomas gestorIdiomas;
-    private final Texture backgroundTexture;
-    private final BitmapFont pixelFont;
-    private final BitmapFont titleFont;
+    private Stage stage;
+    private LogicaUsuarios userLogic;
+    private GestorIdiomas gestorIdiomas;
+    private Texture backgroundTexture;
+    private BitmapFont pixelFont;
+    private BitmapFont titleFont;
     private Image avatarImage;
-
-    private final String[] AVATARS = new String[]{
-            "avatares/south.png",
-            "avatares/avatar1.png",
-            "avatares/avatar2.png",
-            "avatares/avatar3.png",
-            "avatares/avatar4.png",
-            "avatares/avatar5.png",
-            "avatares/avatar6.png"
-    };
-    private final Map<String, Texture> avatarCache = new HashMap<String, Texture>();
 
     public MenuScreen(final Main main) {
         this.main = main;
@@ -50,14 +44,15 @@ public class MenuScreen implements Screen {
         this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
         this.backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
 
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        p.size = 32; p.color = Color.valueOf("F5F5DC");
-        pixelFont = gen.generateFont(p);
-        p.size = 84; titleFont = gen.generateFont(p);
-        gen.dispose();
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 32;
+        parameter.color = Color.valueOf("F5F5DC");
+        pixelFont = generator.generateFont(parameter);
 
-        for (String path : AVATARS) avatarCache.put(path, new Texture(Gdx.files.internal(path)));
+        parameter.size = 84;
+        titleFont = generator.generateFont(parameter);
+        generator.dispose();
 
         createUI();
     }
@@ -68,332 +63,309 @@ public class MenuScreen implements Screen {
         table.center();
         stage.addActor(table);
 
-        Table profileBar = new Table();
-        profileBar.setFillParent(true);
-        profileBar.top().right();
-        stage.addActor(profileBar);
+        Table profileTable = new Table();
+        profileTable.setFillParent(true);
+        profileTable.top().right();
+        stage.addActor(profileTable);
 
-        String username = main.username != null ? main.username : "";
-        String avatarPath = userLogic.getAvatar(username);
-        Texture avatarTex = avatarCache.containsKey(avatarPath) ? avatarCache.get(avatarPath) : new Texture(Gdx.files.internal(avatarPath));
-        avatarImage = new Image(new TextureRegionDrawable(new TextureRegion(avatarTex)));
+        String usuarioActual = (main.username != null) ? main.username : LogicaUsuarios.usuarioLogged;
+        String avatarPath = userLogic.getAvatar(usuarioActual);
+        avatarImage = new Image(new Texture(Gdx.files.internal(avatarPath)));
 
         Label.LabelStyle nameStyle = new Label.LabelStyle(pixelFont, Color.WHITE);
-        Label nameLabel = new Label(username, nameStyle);
+        Label nameLabel = new Label(usuarioActual, nameStyle);
 
-        profileBar.add(nameLabel).right().pad(20);
-        profileBar.add(avatarImage).size(80, 80).pad(20);
-        avatarImage.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y){ showProfileDialog(); }});
+        profileTable.add(nameLabel).right().pad(20);
+        profileTable.add(avatarImage).size(80, 80).pad(20);
+
+        avatarImage.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                showProfileDialog();
+            }
+        });
 
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
         Label title = new Label(gestorIdiomas.setTexto("app.name"), titleStyle);
         table.add(title).padBottom(40).row();
 
-        TextButton.TextButtonStyle btn = new TextButton.TextButtonStyle();
-        btn.font = pixelFont;
-        btn.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = pixelFont;
+        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/button1.png"))));
 
-        TextButton play = new TextButton(gestorIdiomas.setTexto("menu.jugar"), btn);
-        TextButton amigos = new TextButton(gestorIdiomas.setTexto("menu.amigos"), btn);
-        TextButton prefs = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), btn);
-        TextButton logout = new TextButton(gestorIdiomas.setTexto("menu.cerrar_sesion"), btn);
+        TextButton playButton = new TextButton(gestorIdiomas.setTexto("menu.jugar"), buttonStyle);
+        table.add(playButton).width(380).height(60).pad(10).row();
 
-        table.add(play).width(380).height(60).pad(10).row();
-        table.add(amigos).width(380).height(60).pad(10).row();
-        table.add(prefs).width(380).height(60).pad(10).row();
-        table.add(logout).width(380).height(60).pad(10).row();
+        TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("menu.amigos"), buttonStyle);
+        table.add(friendsButton).width(380).height(60).pad(10).row();
 
-        play.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){ transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main)); }});
-        amigos.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){ transicionSuave.fadeOutAndChangeScreen(main, stage, new AmigosScreen(main)); }});
-        prefs.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){ transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main)); }});
-        logout.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){
-            main.username = null; LogicaUsuarios.usuarioLogged = null; main.resetToDefaults(); gestorIdiomas.resetToDefault();
-            transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
-        }});
+        TextButton preferencesButton = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), buttonStyle);
+        table.add(preferencesButton).width(380).height(60).pad(10).row();
+
+        TextButton logoutButton = new TextButton(gestorIdiomas.setTexto("menu.cerrar_sesion"), buttonStyle);
+        table.add(logoutButton).width(380).height(60).pad(10).row();
+
+        playButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main));
+            }
+        });
+
+        friendsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new AmigosScreen(main));
+            }
+        });
+
+        preferencesButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main));
+            }
+        });
+
+        logoutButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                main.username = null;
+                LogicaUsuarios.usuarioLogged = null;
+                main.resetToDefaults();
+                gestorIdiomas.resetToDefault();
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new LoginScreen(main));
+            }
+        });
     }
 
-    // ===================== PERFIL =====================
     private void showProfileDialog() {
-        Window.WindowStyle ws = new Window.WindowStyle(
-                pixelFont, Color.BLACK,
-                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        final Dialog dlg = new Dialog("", ws);
-        dlg.setModal(true); dlg.setMovable(false);
-
-        final float DW = 540f, DH = 450f;     // field
-        final float PAD = 18f;
-        final float INNER_W = DW - 2*PAD;
-
-        Label.LabelStyle styleDark  = new Label.LabelStyle(pixelFont, Color.BLACK);
-        Label.LabelStyle styleMuted = new Label.LabelStyle(pixelFont, Color.valueOf("2b2b2b"));
+        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
+        final Dialog profileDialog = new Dialog("", windowStyle); // sin título nativo (evita recorte)
 
         Table root = new Table();
-        root.pad(PAD);
-        root.defaults().space(6);
+        root.pad(18);
+        root.defaults().pad(6);
 
-        // header
+        Label lblTitle = new Label(gestorIdiomas.setTexto("profile.title"), new Label.LabelStyle(pixelFont, Color.BLACK));
+        lblTitle.setAlignment(Align.center);
+        root.add(lblTitle).growX().center().padBottom(8).row();
+
         String[] perfil = userLogic.getPerfil(main.username);
-        String avatarPath = userLogic.getAvatar(main.username);
-        final Image bigAvatar = new Image(new TextureRegionDrawable(avatarCache.get(avatarPath)));
+        Image profileAvatar = new Image(new Texture(Gdx.files.internal(userLogic.getAvatar(main.username))));
+
+        Label.LabelStyle style = new Label.LabelStyle(pixelFont, Color.BLACK);
+        Label nameUser = new Label(gestorIdiomas.setTexto("profile.username") + main.username, style);
+        Label fullName = new Label(gestorIdiomas.setTexto("profile.fullname") + (perfil != null && perfil.length >= 3 ? perfil[2] : ""), style);
 
         Table header = new Table();
-        header.add(bigAvatar).size(96, 96).padRight(14).top();
+        header.add(profileAvatar).size(96, 96).padRight(16);
+        Table textInfo = new Table();
+        textInfo.add(nameUser).left().row();
+        textInfo.add(fullName).left().padTop(6).row();
+        header.add(textInfo).left();
+        root.add(header).left().padBottom(6).row();
 
-        Table info = new Table();
-        Label lUserCaption = new Label("Usuario:", styleMuted);  lUserCaption.setFontScale(0.85f);
-        Label lUserValue   = new Label(" " + main.username, styleDark);
-        Label lNameCaption = new Label("Nombre:", styleMuted);   lNameCaption.setFontScale(0.85f);
-        Label lNameValue   = new Label(" " + (perfil[2] != null ? perfil[2] : ""), styleDark);
-        info.add(lUserCaption).left(); info.add(lUserValue).left().row();
-        info.add(lNameCaption).left().padTop(4); info.add(lNameValue).left().padTop(4).row();
-        header.add(info).left().top().width(INNER_W - 96 - 14);
-        root.add(header).width(INNER_W).row();
+        Label hsTitle = new Label(gestorIdiomas.setTexto("profile.highscores"), style);
+        hsTitle.setAlignment(Align.center);
+        root.add(hsTitle).growX().center().padTop(6).row();
 
-        // separador
-        Image sep1 = new Image(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png"))));
-        sep1.setColor(0,0,0,0.25f);
-        root.add(sep1).height(2).width(INNER_W).padTop(6).padBottom(6).row();
-
-        // título centrado
-        Label hsTitle = new Label("Mejores Puntuaciones", styleDark);
-        hsTitle.setFontScale(1.05f);
-        Table titleWrap = new Table(); titleWrap.add(hsTitle).center();
-        root.add(titleWrap).width(INNER_W).row();
-
-        // tabla de puntuaciones
         Table scoresTable = new Table();
         Map<Integer, Integer> highScores = userLogic.getHighScores(main.username);
         if (highScores.isEmpty()) {
-            scoresTable.add(new Label("No hay puntuaciones guardadas.", styleDark)).padTop(12).padBottom(12);
+            Label empty = new Label(gestorIdiomas.setTexto("amigos.no_amigos").replace("No tienes amigos agregados.", "No hay puntuaciones guardadas."), style);
+            empty.setAlignment(Align.center);
+            scoresTable.add(empty).pad(6);
         } else {
-            ArrayList<Integer> sorted = new ArrayList<Integer>(highScores.keySet());
-            Collections.sort(sorted);
-            for (Integer lvl : sorted) {
-                scoresTable.add(new Label("Nivel " + lvl + ":", styleDark)).right().padRight(8);
-                scoresTable.add(new Label(String.valueOf(highScores.get(lvl)), styleDark)).left().row();
+            ArrayList<Integer> sortedLevels = new ArrayList<>(highScores.keySet());
+            Collections.sort(sortedLevels);
+            for (Integer level : sortedLevels) {
+                scoresTable.add(new Label("Nivel " + level + ": ", style)).right().padRight(10);
+                scoresTable.add(new Label(String.valueOf(highScores.get(level)), style)).left().row();
             }
         }
         ScrollPane sp = new ScrollPane(scoresTable);
-        root.add(sp).width(INNER_W).height(160).padTop(4).row();
+        sp.setFadeScrollBars(false);
+        sp.setScrollingDisabled(true, false);
+        sp.setOverscroll(false, false);
+        root.add(sp).width(520).height(150).padTop(6).row();
 
-        // separador inferior
-        Image sep2 = new Image(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png"))));
-        sep2.setColor(0,0,0,0.25f);
-        root.add(sep2).height(2).width(INNER_W).padTop(6).padBottom(6).row();
+        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.font = pixelFont;
+        btnStyle.fontColor = Color.BLACK;
+        btnStyle.up = new TextureRegionDrawable(new Texture("ui/button1.png"));
 
-        // botones centrados (ancho dinámico para caber SIEMPRE)
-        TextButton.TextButtonStyle sBtn = new TextButton.TextButtonStyle();
-        sBtn.font = pixelFont; sBtn.fontColor = Color.BLACK;
-        sBtn.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        TextButton changeAvatarButton = new TextButton(gestorIdiomas.setTexto("profile.change_avatar"), btnStyle);
+        TextButton viewHistoryButton = new TextButton("Ver historial", btnStyle);
+        TextButton closeButton = new TextButton(gestorIdiomas.setTexto("profile.close"), btnStyle);
 
-        final float GAP = 8f;
-        final float BW = (INNER_W - 2*GAP) / 3f;  // 3 botones
+        Table btns = new Table();
+        btns.defaults().width(220).height(52).pad(8);
+        btns.add(changeAvatarButton);
+        btns.add(viewHistoryButton);
+        btns.add(closeButton);
+        root.add(btns).padTop(8).row();
 
-        TextButton change  = new TextButton(gestorIdiomas.setTexto("profile.change_avatar"), sBtn);
-        TextButton history = new TextButton("Ver historial", sBtn);
-        TextButton close   = new TextButton(gestorIdiomas.setTexto("profile.close"), sBtn);
-
-        Table actions = new Table();
-        actions.defaults().width(BW).height(50).space(GAP);
-        actions.add(change); actions.add(history); actions.add(close);
-        root.add(actions).center().width(INNER_W).row();
-
-        change.addListener(new ClickListener() {
+        changeAvatarButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
-                dlg.hide();
-                showAvatarSelectionDialog(new Runnable() { @Override public void run() { showProfileDialog(); }});
+                profileDialog.hide();
+                showAvatarSelectionDialog(profileAvatar);
             }
         });
-        history.addListener(new ClickListener() {
+
+        viewHistoryButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
-                dlg.hide();
-                showHistoryDialog(new Runnable() { @Override public void run() { showProfileDialog(); }});
+                profileDialog.hide();
+                showHistoryDialog(); // reabrimos perfil al volver
             }
         });
-        close.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){ dlg.hide(); }});
 
-        dlg.getContentTable().add(root).width(DW).height(DH);
-        dlg.show(stage);
-        dlg.setSize(DW, DH);
-        float cx = (stage.getViewport().getWorldWidth() - DW) / 2f;
-        float cy = (stage.getViewport().getWorldHeight() - DH) / 2f;
-        dlg.setPosition(cx, cy);
+        closeButton.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                profileDialog.hide();
+            }
+        });
+
+        profileDialog.getContentTable().add(root);
+        profileDialog.show(stage);
     }
 
-    // ===================== SELECTOR DE AVATAR =====================
-    private void showAvatarSelectionDialog(final Runnable onReturnToProfile) {
-        Window.WindowStyle ws = new Window.WindowStyle(
-                pixelFont, Color.BLACK,
-                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        final Dialog dlg = new Dialog("", ws);
-        dlg.setModal(true); dlg.setMovable(false);
+    private void showAvatarSelectionDialog(final Image profileAvatarImage) {
+        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
+        final Dialog avatarDialog = new Dialog("", windowStyle);
 
-        final float DW = 560f, DH = 480f;
-        final float PAD = 18f;
-        final float INNER_W = DW - 2*PAD;
+        Table avatarTable = new Table();
+        avatarTable.pad(18);
+        avatarTable.defaults().size(80, 80).pad(10);
 
-        Label.LabelStyle dark = new Label.LabelStyle(pixelFont, Color.BLACK);
+        final String[] avatarPaths = {
+                "avatares/south.png", "avatares/avatar1.png", "avatares/avatar2.png",
+                "avatares/avatar3.png", "avatares/avatar4.png", "avatares/avatar5.png", "avatares/avatar6.png"
+        };
 
-        Table root = new Table();
-        root.pad(PAD); root.defaults().space(6);
-
-        Label title = new Label("Seleccionar avatar", dark);
-        Table titleWrap = new Table(); titleWrap.add(title).center();
-        root.add(titleWrap).width(INNER_W).padTop(4).row();
-
-        final String[] selected = new String[]{ userLogic.getAvatar(main.username) };
-        final Image preview = new Image(new TextureRegionDrawable(avatarCache.get(selected[0])));
-        root.add(preview).size(128,128).padBottom(8).row();
-
-        Table grid = new Table();
         int col = 0;
-        final ArrayList<Container<Image>> cards = new ArrayList<Container<Image>>();
-        for (final String path : AVATARS) {
-            Image img = new Image(new TextureRegionDrawable(avatarCache.get(path)));
-            final Container<Image> card = new Container<Image>(img);
-            card.size(86, 86); card.pad(4);
-            card.background(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png"))));
-            if (path.equals(selected[0])) card.setColor(1f,1f,0.75f,1f);
-            card.addListener(new ClickListener(){
-                @Override public void clicked(InputEvent e, float x, float y){
-                    selected[0] = path;
-                    preview.setDrawable(new TextureRegionDrawable(avatarCache.get(path)));
-                    for (Container<Image> c : cards) c.setColor(Color.WHITE);
-                    card.setColor(1f,1f,0.75f,1f);
+        for (final String path : avatarPaths) {
+            Image img = new Image(new Texture(Gdx.files.internal(path)));
+            img.addListener(new ClickListener() {
+                @Override public void clicked(InputEvent event, float x, float y) {
+                    userLogic.setAvatar(main.username, path);
+                    Texture newAvatarTexture = new Texture(Gdx.files.internal(path));
+                    avatarImage.setDrawable(new TextureRegionDrawable(newAvatarTexture));
+                    profileAvatarImage.setDrawable(new TextureRegionDrawable(newAvatarTexture));
+                    avatarDialog.hide();
+                    showProfileDialog();
                 }
             });
-            cards.add(card);
-            grid.add(card).pad(8);
-            col++; if (col % 4 == 0) grid.row();
+            avatarTable.add(img);
+            col++;
+            if (col % 4 == 0) avatarTable.row();
         }
-        ScrollPane sp = new ScrollPane(grid);
-        root.add(sp).width(INNER_W).height(250).row();
 
-        TextButton.TextButtonStyle sBtn = new TextButton.TextButtonStyle();
-        sBtn.font = pixelFont; sBtn.fontColor = Color.BLACK;
-        sBtn.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        ScrollPane sp = new ScrollPane(avatarTable);
+        sp.setFadeScrollBars(false);
+        sp.setOverscroll(false, false);
+        sp.setScrollingDisabled(true, false);
 
-        final float GAP = 12f;
-        final float BW = (INNER_W - GAP) / 2f; // 2 botones
+        Table wrapper = new Table();
+        wrapper.add(sp).width(520).height(260).row();
 
-        TextButton save = new TextButton("Guardar", sBtn);
-        TextButton cancel = new TextButton("Cancelar", sBtn);
-
-        Table actions = new Table();
-        actions.defaults().width(BW).height(50).space(GAP);
-        actions.add(save); actions.add(cancel);
-        root.add(actions).center().width(INNER_W).row();
-
-        save.addListener(new ClickListener(){
-            @Override public void clicked(InputEvent e, float x, float y){
-                String path = selected[0];
-                userLogic.setAvatar(main.username, path);
-                avatarImage.setDrawable(new TextureRegionDrawable(avatarCache.get(path)));
-                dlg.hide();
-                if (onReturnToProfile != null) onReturnToProfile.run();
-            }
-        });
-        cancel.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){
-            dlg.hide(); if (onReturnToProfile != null) onReturnToProfile.run();
-        }});
-
-        dlg.getContentTable().add(root).width(DW).height(DH);
-        dlg.show(stage);
-        dlg.setSize(DW, DH);
-        float cx = (stage.getViewport().getWorldWidth() - DW) / 2f;
-        float cy = (stage.getViewport().getWorldHeight() - DH) / 2f;
-        dlg.setPosition(cx, cy);
+        avatarDialog.getContentTable().add(wrapper).pad(6);
+        avatarDialog.show(stage);
     }
 
-    // ===================== HISTORIAL =====================
-    private void showHistoryDialog(final Runnable onReturn) {
-        Window.WindowStyle ws = new Window.WindowStyle(
-                pixelFont, Color.BLACK,
-                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        final Dialog dlg = new Dialog("", ws);
-        dlg.setModal(true); dlg.setMovable(false);
+    private String t(String key, String fallback) {
+        String s = gestorIdiomas.setTexto(key);
+        if (s == null || s.startsWith("[")) return fallback;
+        return s;
+    }
 
-        final float DW = 600f, DH = 520f;
-        final float PAD = 22f;            // un poco más de margen arriba
-        final float INNER_W = DW - 2*PAD;
+    private void showHistoryDialog() {
+        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK, new TextureRegionDrawable(new Texture("ui/field 2.png")));
+        final Dialog dlg = new Dialog("", windowStyle);
 
-        Label.LabelStyle dark = new Label.LabelStyle(pixelFont, Color.BLACK);
+        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.BLACK);
 
         Table root = new Table();
-        root.pad(PAD); root.defaults().space(6);
+        root.pad(18);
+        root.defaults().pad(6);
 
-        // Título interno centrado
-        Label heading = new Label("Historial de partidas", dark);
-        Table headWrap = new Table(); headWrap.add(heading).center();
-        root.add(headWrap).width(INNER_W).padBottom(6).row();
+        Label title = new Label(t("history.title", "Historial de partidas"), labelStyle);
+        title.setAlignment(Align.center);
+        root.add(title).growX().center().padBottom(4).row();
 
-        // Cabecera de columnas (todo DENTRO del field)
-        Table header = new Table(); header.defaults().pad(2);
-        header.add(new Label("Fecha", dark)).left().width(160).padRight(6);
-        header.add(new Label("Nivel", dark)).left().width(60).padRight(6);
-        header.add(new Label("Score", dark)).left().width(80).padRight(6);
-        header.add(new Label("Intentos", dark)).left().width(90).padRight(6);
-        header.add(new Label("Duración", dark)).left().width(100).padRight(6);
-        header.add(new Label("Resultado", dark)).left().width(90);
-        root.add(header).width(INNER_W).row();
+        float W = 580f;
+        float[] colW = new float[]{150f, 70f, 80f, 90f, 100f, 90f};
 
-        Image sep = new Image(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png"))));
-        sep.setColor(0,0,0,0.25f);
-        root.add(sep).height(2).width(INNER_W).row();
+        Table header = new Table();
+        header.defaults().pad(4);
+        header.add(new Label(t("history.fecha", "Fecha"), labelStyle)).width(colW[0]).center();
+        header.add(new Label(t("history.nivel", "Nivel"), labelStyle)).width(colW[1]).center();
+        header.add(new Label(t("history.score", "Score"), labelStyle)).width(colW[2]).center();
+        header.add(new Label(t("history.intentos", "Intentos"), labelStyle)).width(colW[3]).center();
+        header.add(new Label(t("history.duracion", "Duración"), labelStyle)).width(colW[4]).center();
+        header.add(new Label(t("history.resultado", "Resultado"), labelStyle)).width(colW[5]).center();
 
-        // Cuerpo con scroll
-        Table body = new Table();
-        java.util.List<LogicaUsuarios.HistorialRegistro> registros = userLogic.leerHistorial(main.username);
-        if (registros.isEmpty()) {
-            body.add(new Label("No hay registros.", dark)).padTop(12).padBottom(12);
-        } else {
-            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
-            for (LogicaUsuarios.HistorialRegistro r : registros) {
-                body.add(new Label(sdf.format(new java.util.Date(r.fechaMs)), dark)).left().width(160).padRight(6);
-                body.add(new Label(String.valueOf(r.nivel), dark)).left().width(60).padRight(6);
-                body.add(new Label(String.valueOf(r.score), dark)).left().width(80).padRight(6);
-                body.add(new Label(String.valueOf(r.intentos), dark)).left().width(90).padRight(6);
-                body.add(new Label(formatDur(r.duracionMs), dark)).left().width(100).padRight(6);
-                body.add(new Label(r.exito ? "Éxito" : "Falló/Salió", dark)).left().width(90).row();
+        root.add(header).width(W).row();
+
+        Table rows = new Table();
+        rows.defaults().pad(4);
+        
+List<LogicaUsuarios.HistorialRegistro> lista = userLogic.leerHistorial(main.username);
+
+        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+for (LogicaUsuarios.HistorialRegistro r : lista) {
+    rows.add(new Label(fmt.format(new Date(r.fechaMs)), labelStyle)).width(colW[0]).left();
+    rows.add(new Label(String.valueOf(r.nivel), labelStyle)).width(colW[1]).center();
+    rows.add(new Label(String.valueOf(r.score), labelStyle)).width(colW[2]).center();
+    rows.add(new Label(String.valueOf(r.intentos), labelStyle)).width(colW[3]).center();
+    rows.add(new Label(formatDur(r.duracionMs), labelStyle)).width(colW[4]).center();
+    rows.add(new Label(r.exito ? "✓" : "✗", labelStyle)).width(colW[5]).center();
+    rows.row();
+}
+
+
+        ScrollPane sp = new ScrollPane(rows);
+        sp.setFadeScrollBars(false);
+        sp.setScrollingDisabled(true, false);
+        sp.setOverscroll(false, false);
+
+        root.add(sp).width(W).height(260).row();
+
+        TextButton.TextButtonStyle btn = new TextButton.TextButtonStyle();
+        btn.font = pixelFont;
+        btn.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
+        TextButton back = new TextButton(t("back.button", "Volver"), btn);
+
+        Table btnRow = new Table();
+        btnRow.add(back).width(220).height(52).padTop(6).center();
+        root.add(btnRow).center().padTop(6).row();
+
+        back.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                dlg.hide();
+                showProfileDialog();
             }
-        }
-        ScrollPane sp = new ScrollPane(body);
-        root.add(sp).width(INNER_W).height(DH - 200).row();
+        });
 
-        // Botón centrado
-        TextButton.TextButtonStyle sBtn = new TextButton.TextButtonStyle();
-        sBtn.font = pixelFont; sBtn.fontColor = Color.BLACK;
-        sBtn.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
-        TextButton back = new TextButton("Volver", sBtn);
-
-        Table actions = new Table();
-        actions.add(back).width(220).height(50).padTop(6);
-        root.add(actions).center().width(INNER_W);
-
-        back.addListener(new ClickListener(){ @Override public void clicked(InputEvent e, float x, float y){
-            dlg.hide(); if (onReturn != null) onReturn.run();
-        }});
-
-        dlg.getContentTable().add(root).width(DW).height(DH);
+        dlg.getContentTable().add(root);
         dlg.show(stage);
-        dlg.setSize(DW, DH);
-        float cx = (stage.getViewport().getWorldWidth() - DW) / 2f;
-        float cy = (stage.getViewport().getWorldHeight() - DH) / 2f;
-        dlg.setPosition(cx, cy);
     }
 
     private String formatDur(long ms) {
-        long totalSec = Math.max(0, ms / 1000);
-        long h = totalSec / 3600;
-        long m = (totalSec % 3600) / 60;
-        long s = totalSec % 60;
-        if (h > 0) return String.format("%d:%02d:%02d", h, m, s);
+        long sec = Math.max(0, ms / 1000);
+        long m = sec / 60;
+        long s = sec % 60;
         return String.format("%02d:%02d", m, s);
     }
 
-    // ===================== ciclo pantalla =====================
-    @Override public void show() { Gdx.input.setInputProcessor(stage); main.playLobbyMusic(); transicionSuave.fadeIn(stage); }
-    @Override public void render(float delta) {
+    @Override
+    public void show() {
+        Gdx.input.setInputProcessor(stage);
+        main.playLobbyMusic();
+        transicionSuave.fadeIn(stage);
+    }
+
+    @Override
+    public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -401,7 +373,8 @@ public class MenuScreen implements Screen {
         stage.act(delta);
         stage.draw();
     }
-    @Override public void resize(int w, int h) { stage.getViewport().update(w, h, true); }
+
+    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
@@ -410,7 +383,5 @@ public class MenuScreen implements Screen {
         backgroundTexture.dispose();
         pixelFont.dispose();
         titleFont.dispose();
-        // Si cierras toda la app, podrías liberar el cache:
-        // for (Texture t : avatarCache.values()) t.dispose();
     }
 }
