@@ -345,7 +345,7 @@ public class LevelSelectScreen implements Screen {
         public MapaActor(String username) {
             batch = new SpriteBatch();
             mapa = new MapaSelector(TILE, username);
-            selector = new SelectorNiveles(1, 4, TILE, mapa);
+            selector = new SelectorNiveles(7, 3, TILE, mapa);
 
             float worldWidth = mapa.getColumnas() * TILE;
             float worldHeight = mapa.getFilas() * TILE;
