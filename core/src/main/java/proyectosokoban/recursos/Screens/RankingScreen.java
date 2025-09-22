@@ -1,3 +1,4 @@
+// Ruta: core/src/main/java/proyectosokoban/recursos/Screens/RankingScreen.java
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
@@ -31,14 +32,16 @@ public class RankingScreen implements Screen {
     private GestorIdiomas gestorIdiomas;
     private Texture backgroundTexture;
     private BitmapFont font, titleFont;
-    
+
     private Table rankingContentTable;
     private Table levelSelectorTable;
 
     // Estados para controlar la vista actual
-    private enum RankingType { TOTAL, LEVEL_GLOBAL, LEVEL_FRIENDS }
+    private enum RankingType { TOTAL, LEVEL }
+    private enum RankingScope { GLOBAL, FRIENDS }
+
     private RankingType currentRankingType = RankingType.TOTAL;
-    private boolean isGlobalTotal = true; // Para el ranking total
+    private RankingScope currentRankingScope = RankingScope.GLOBAL;
     private int selectedLevel = 1;
 
     public RankingScreen(final Main main) {
@@ -58,7 +61,6 @@ public class RankingScreen implements Screen {
         generator.dispose();
 
         createUI();
-        // Cargar ranking total global por defecto
         populateRankingTable();
     }
 
@@ -72,14 +74,31 @@ public class RankingScreen implements Screen {
         Label titleLabel = new Label(t("ranking.title", "Ranking"), titleStyle);
         mainTable.add(titleLabel).padBottom(20).row();
 
-        // Botones para cambiar el tipo de ranking
         Table viewToggleTable = new Table();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
 
-        TextButton totalScoreButton = new TextButton(t("ranking.total_score", "Puntuación Total"), buttonStyle);
-        totalScoreButton.addListener(new ClickListener() {
+        TextButton globalButton = new TextButton(t("ranking.global", "Global"), buttonStyle);
+        globalButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                currentRankingScope = RankingScope.GLOBAL;
+                populateRankingTable();
+            }
+        });
+
+        TextButton friendsButton = new TextButton(t("ranking.friends", "Amigos"), buttonStyle);
+        friendsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                currentRankingScope = RankingScope.FRIENDS;
+                populateRankingTable();
+            }
+        });
+
+        TextButton totalButton = new TextButton(t("ranking.total", "Total"), buttonStyle);
+        totalButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 currentRankingType = RankingType.TOTAL;
@@ -88,43 +107,32 @@ public class RankingScreen implements Screen {
             }
         });
 
-        TextButton levelGlobalButton = new TextButton(t("ranking.level_global", "Nivel (Global)"), buttonStyle);
-        levelGlobalButton.addListener(new ClickListener() {
+        TextButton byLevelButton = new TextButton(t("ranking.by_level", "Por Nivel"), buttonStyle);
+        byLevelButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                currentRankingType = RankingType.LEVEL_GLOBAL;
-                levelSelectorTable.setVisible(true);
-                populateRankingTable();
-            }
-        });
-        
-        TextButton levelFriendsButton = new TextButton(t("ranking.level_friends", "Nivel (Amigos)"), buttonStyle);
-        levelFriendsButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                currentRankingType = RankingType.LEVEL_FRIENDS;
+                currentRankingType = RankingType.LEVEL;
                 levelSelectorTable.setVisible(true);
                 populateRankingTable();
             }
         });
 
-        viewToggleTable.add(totalScoreButton).width(350).height(60).pad(10);
-        viewToggleTable.add(levelGlobalButton).width(350).height(60).pad(10);
-        viewToggleTable.add(levelFriendsButton).width(350).height(60).pad(10);
+
+        viewToggleTable.add(globalButton).width(250).height(60).pad(10);
+        viewToggleTable.add(friendsButton).width(250).height(60).pad(10);
+        viewToggleTable.add(totalButton).width(250).height(60).pad(10);
+        viewToggleTable.add(byLevelButton).width(250).height(60).pad(10);
         mainTable.add(viewToggleTable).padBottom(10).row();
 
-        // Selector de nivel (inicialmente oculto)
         levelSelectorTable = new Table();
         levelSelectorTable.setVisible(false);
         populateLevelSelector();
         mainTable.add(levelSelectorTable).padBottom(10).row();
 
-        // Tabla de contenido del ranking
         rankingContentTable = new Table();
         ScrollPane scrollPane = new ScrollPane(rankingContentTable);
         mainTable.add(scrollPane).expand().fill().padBottom(20).row();
 
-        // Botón de Volver
         TextButton backButton = new TextButton(t("back.button", "Volver"), buttonStyle);
         backButton.addListener(new ClickListener() {
             @Override
@@ -141,7 +149,7 @@ public class RankingScreen implements Screen {
         levelButtonStyle.font = font;
         levelButtonStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/botonespeq.png")));
 
-        for (int i = 1; i <= 7; i++) { // Asumiendo que hay 7 niveles
+        for (int i = 1; i <= 7; i++) {
             final int level = i;
             TextButton levelButton = new TextButton(String.valueOf(level), levelButtonStyle);
             levelButton.addListener(new ClickListener() {
@@ -160,26 +168,26 @@ public class RankingScreen implements Screen {
         Label.LabelStyle headerStyle = new Label.LabelStyle(font, Color.WHITE);
         Label.LabelStyle rowStyle = new Label.LabelStyle(font, Color.LIGHT_GRAY);
 
-        // Cabeceras
         rankingContentTable.add(new Label(t("ranking.header.rank", "#"), headerStyle)).pad(10).width(100);
         rankingContentTable.add(new Label(t("ranking.header.user", "Usuario"), headerStyle)).pad(10).expandX();
         rankingContentTable.add(new Label(t("ranking.header.score", "Puntuación"), headerStyle)).pad(10).width(300).row();
 
         List<LogicaUsuarios.RankingEntry> rankingList = null;
-        
-        switch (currentRankingType) {
-            case TOTAL:
-                // Para el total, alternamos entre global y amigos con un botón (o podrías tener dos botones separados)
-                // Por simplicidad, lo basaremos en una variable booleana, como en la versión anterior.
-                rankingList = isGlobalTotal ? userLogic.getRankingGlobal() : userLogic.getRankingAmigos(main.username);
-                break;
-            case LEVEL_GLOBAL:
+
+        if (currentRankingType == RankingType.TOTAL) {
+            if (currentRankingScope == RankingScope.GLOBAL) {
+                rankingList = userLogic.getRankingGlobal();
+            } else {
+                rankingList = userLogic.getRankingAmigos(main.username);
+            }
+        } else { // LEVEL
+            if (currentRankingScope == RankingScope.GLOBAL) {
                 rankingList = userLogic.getRankingGlobalPorNivel(selectedLevel);
-                break;
-            case LEVEL_FRIENDS:
+            } else {
                 rankingList = userLogic.getRankingAmigosPorNivel(main.username, selectedLevel);
-                break;
+            }
         }
+
 
         if (rankingList == null || rankingList.isEmpty()) {
             rankingContentTable.add(new Label(t("ranking.empty", "No hay datos disponibles"), rowStyle)).colspan(3).pad(20);

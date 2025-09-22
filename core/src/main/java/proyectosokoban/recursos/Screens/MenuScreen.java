@@ -88,7 +88,7 @@ public class MenuScreen implements Screen {
         // --- CORRECCIÓN AQUÍ: Añadir el nombre de usuario al lado del avatar ---
         Label.LabelStyle nameStyle = new Label.LabelStyle(pixelFont, Color.WHITE);
         Label nameLabel = new Label(usuarioActual, nameStyle);
-        
+
         profileAccessTable.add(nameLabel).padRight(15);
         profileAccessTable.add(avatarImage).size(80, 80).padTop(10).padRight(20).padBottom(10);
         // --- FIN DE LA CORRECCIÓN ---
@@ -115,6 +115,11 @@ public class MenuScreen implements Screen {
 
         TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("menu.amigos"), buttonStyle);
         table.add(friendsButton).width(380).height(60).pad(10).row();
+        
+        // --- INICIO DEL CÓDIGO AÑADIDO ---
+        TextButton rankingButton = new TextButton(gestorIdiomas.setTexto("ranking.title"), buttonStyle);
+        table.add(rankingButton).width(380).height(60).pad(10).row();
+        // --- FIN DEL CÓDIGO AÑADIDO ---
 
         TextButton preferencesButton = new TextButton(gestorIdiomas.setTexto("menu.preferencias"), buttonStyle);
         table.add(preferencesButton).width(380).height(60).pad(10).row();
@@ -138,6 +143,18 @@ public class MenuScreen implements Screen {
             @Override public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) { Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand); }
             @Override public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) { Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow); }
         });
+
+        // --- INICIO DEL CÓDIGO AÑADIDO ---
+        rankingButton.addListener(new ClickListener() {
+            @Override public void clicked(InputEvent event, float x, float y) {
+                transicionSuave.fadeOutAndChangeScreen(main, stage, new RankingScreen(main));
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+            }
+            @Override public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) { Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand); }
+            @Override public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) { Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow); }
+        });
+        // --- FIN DEL CÓDIGO AÑADIDO ---
+
         preferencesButton.addListener(new ClickListener() {
             @Override public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new PreferenciasScreen(main));
@@ -384,7 +401,7 @@ public class MenuScreen implements Screen {
         ph.size = 28;
         ph.color = Color.valueOf("1E1E1E");
         BitmapFont headerFont = gen.generateFont(ph);
-        
+
         ph.size = 28;
         BitmapFont cellFont = gen.generateFont(ph);
         gen.dispose();
@@ -415,7 +432,7 @@ public class MenuScreen implements Screen {
             Table line = new Table();
             if (par) line.setBackground(solid(0,0,0,0.05f));
             par = !par;
-            
+
             line.defaults().pad(5);
             line.add(new Label(fmt.format(new Date(r.fechaMs)), cellStyle)).width(colW[0]).left().padLeft(15);
             line.add(new Label(String.valueOf(r.nivel), cellStyle)).width(colW[1]).center();
