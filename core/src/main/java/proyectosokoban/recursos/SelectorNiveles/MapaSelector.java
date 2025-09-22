@@ -29,8 +29,12 @@ public class MapaSelector {
 
     private void cargarEstadoDesbloqueo() {
         LogicaUsuarios lu = new LogicaUsuarios();
+
+        // Usar el nuevo método para determinar el último nivel desbloqueado
         ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(username);
-        if (ultimoNivelDesbloqueado == 0) {
+
+        // Asegurar que al menos el nivel 1 esté desbloqueado
+        if (ultimoNivelDesbloqueado < 1) {
             ultimoNivelDesbloqueado = 1;
         }
     }
@@ -79,16 +83,12 @@ public class MapaSelector {
     }
 
     private int obtenerNivelCorrespondiente(int x, int y) {
-        if (y == 6) {
-            if (x >= 1 && x <= 13 && x % 2 == 1) { // Columnas impares (1, 3, 5, 7, 9, 11, 13)
-                int nivelEnFilaDebajo = mapa[7][x];
-                if (nivelEnFilaDebajo >= 1 && nivelEnFilaDebajo <= 7) {
-                    return nivelEnFilaDebajo;
-                }
-            }
+        // Las paredes de bloqueo (valor 10) están en la fila 6 (índice 6)
+        // Los niveles (valores 1-7) están en la fila 7 (índice 7), justo debajo
+        if (y == 6 && x >= 1 && x < columnas - 1) {
+            return mapa[7][x]; // El nivel correspondiente está justo debajo
         }
-
-        return -1; // No corresponde a ningún nivel
+        return -1;
     }
 
     private void cargarTexturas() {
@@ -99,7 +99,7 @@ public class MapaSelector {
 
         // Cargar texturas para los niveles
         for (int i = 1; i <= 7; i++) {
-            texturasNiveles.put(i, new Texture("Juego/niveles/nivel"+i+".png"));
+            texturasNiveles.put(i, new Texture("Juego/niveles/nivel" + i + ".png"));
         }
 
         // Cargar texturas para los caminos
@@ -144,7 +144,8 @@ public class MapaSelector {
     }
 
     public boolean isNivelDesbloqueado(int nivel) {
-        return nivel <= ultimoNivelDesbloqueado;
+        LogicaUsuarios lu = new LogicaUsuarios();
+        return lu.isNivelDesbloqueado(username, nivel);
     }
 
     public void render(SpriteBatch batch) {

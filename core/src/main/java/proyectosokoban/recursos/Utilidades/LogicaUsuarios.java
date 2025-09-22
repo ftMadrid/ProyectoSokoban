@@ -26,13 +26,33 @@ public class LogicaUsuarios {
     }
 
     // --- MÉTODOS PRIVADOS PARA MANEJAR RUTAS (TU CÓDIGO ORIGINAL) ---
-    private File dirUsuario(String username) { return new File(raiz, username); }
-    private File dirScores(String username) { return new File(dirUsuario(username), "scores"); }
-    private File filePerfil(String username) { return new File(dirUsuario(username), "perfil.dat"); }
-    private File fileAmigos(String username) { return new File(dirUsuario(username), "amigos.dat"); }
-    private File filePrefs(String username) { return new File(dirUsuario(username), "preferencias.dat"); }
-    private File fileNivel(String username, int nivel) { return new File(dirScores(username), "nivel" + nivel + ".dat"); }
-    private File fileHistorial(String username) { return new File(dirUsuario(username), "historial.dat"); }
+    private File dirUsuario(String username) {
+        return new File(raiz, username);
+    }
+
+    private File dirScores(String username) {
+        return new File(dirUsuario(username), "scores");
+    }
+
+    private File filePerfil(String username) {
+        return new File(dirUsuario(username), "perfil.dat");
+    }
+
+    private File fileAmigos(String username) {
+        return new File(dirUsuario(username), "amigos.dat");
+    }
+
+    private File filePrefs(String username) {
+        return new File(dirUsuario(username), "preferencias.dat");
+    }
+
+    private File fileNivel(String username, int nivel) {
+        return new File(dirScores(username), "nivel" + nivel + ".dat");
+    }
+
+    private File fileHistorial(String username) {
+        return new File(dirUsuario(username), "historial.dat");
+    }
 
     // --- MÉTODOS PRIVADOS PARA LEER/ESCRIBIR (TU CÓDIGO ORIGINAL) ---
     private void writeString(RandomAccessFile raf, String s) throws IOException {
@@ -42,7 +62,7 @@ public class LogicaUsuarios {
     private String readString(RandomAccessFile raf) throws IOException {
         return raf.readUTF();
     }
-    
+
     // --- TU MÉTODO ORIGINAL, AHORA CON AVATAR ---
     public boolean CrearUsuario(String username, String nombreCompleto, String password) {
         if (username == null || username.trim().isEmpty() || dirUsuario(username).exists()) {
@@ -84,7 +104,7 @@ public class LogicaUsuarios {
             try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
                 raf.writeInt(0);
             }
-            
+
             fileHistorial(username).createNewFile();
             crearNivelSiNoExiste(username, 1);
             return true;
@@ -97,22 +117,26 @@ public class LogicaUsuarios {
                 new File(userDir, "amigos.dat").delete();
                 new File(userDir, "perfil.dat").delete();
                 File scoresDir = new File(userDir, "scores");
-                if (scoresDir.exists()) { scoresDir.delete(); }
+                if (scoresDir.exists()) {
+                    scoresDir.delete();
+                }
                 userDir.delete();
             }
             return false;
         }
     }
-    
+
     // --- MÉTODO CORREGIDO para evitar el error 'readLong' ---
     public boolean login(String username, String password) {
         File perfilFile = filePerfil(username);
-        if (!perfilFile.exists()) return false;
+        if (!perfilFile.exists()) {
+            return false;
+        }
 
         try (RandomAccessFile raf = new RandomAccessFile(perfilFile, "rw")) {
             String savedUsername = readString(raf);
             String savedPassword = readString(raf);
-            
+
             if (savedUsername.equals(username) && savedPassword.equals(password)) {
                 // Para actualizar 'ultima_sesion', saltamos los campos intermedios de forma segura
                 readString(raf); // Saltar nombreCompleto
@@ -128,12 +152,14 @@ public class LogicaUsuarios {
             return false;
         }
     }
-    
+
     // --- TU MÉTODO ORIGINAL, SIN CAMBIOS ---
     public String[] getPerfil(String username) {
         File perfilFile = filePerfil(username);
         String[] perfil = new String[3];
-        if (!perfilFile.exists()) return perfil;
+        if (!perfilFile.exists()) {
+            return perfil;
+        }
         try (RandomAccessFile raf = new RandomAccessFile(perfilFile, "r")) {
             perfil[0] = readString(raf);
             perfil[1] = readString(raf);
@@ -173,7 +199,7 @@ public class LogicaUsuarios {
             // se devuelve el avatar por defecto.
             return "avatares/south.png";
         }
-        
+
         // Si el archivo existe pero no tiene el campo de avatar, se devuelve el de por defecto.
         return "avatares/south.png";
     }
@@ -181,7 +207,9 @@ public class LogicaUsuarios {
     // --- NUEVO MÉTODO AÑADIDO para guardar el avatar de forma segura ---
     public boolean setAvatar(String username, String avatarPath) {
         File perfilFile = filePerfil(username);
-        if (!perfilFile.exists()) return false;
+        if (!perfilFile.exists()) {
+            return false;
+        }
 
         try {
             // Leer todos los datos existentes para no perderlos
@@ -218,14 +246,14 @@ public class LogicaUsuarios {
                 writer.writeBoolean(modoJuego);
                 writeString(writer, avatarPath); // Escribir el nuevo avatar
             }
-            
+
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
-    
+
     // --- NUEVO MÉTODO AÑADIDO para obtener las puntuaciones ---
     public Map<Integer, Integer> getHighScores(String username) {
         Map<Integer, Integer> scores = new HashMap<>();
@@ -238,7 +266,7 @@ public class LogicaUsuarios {
                         try {
                             int nivel = Integer.parseInt(scoreFile.getName().replaceAll("[^0-9]", ""));
                             int score = getScoreDeNivel(username, nivel);
-                            if (score > 1) { 
+                            if (score > 1) {
                                 scores.put(nivel, score);
                             }
                         } catch (NumberFormatException e) {
@@ -250,28 +278,31 @@ public class LogicaUsuarios {
         }
         return scores;
     }
+
     public List<String> listarAmigos(String username) {
-    List<String> amigos = new ArrayList<>();
-    File amigosFile = fileAmigos(username);
-    if (!amigosFile.exists()) return amigos;
-    try (RandomAccessFile raf = new RandomAccessFile(amigosFile, "r")) {
-        if (raf.length() < 4) {
+        List<String> amigos = new ArrayList<>();
+        File amigosFile = fileAmigos(username);
+        if (!amigosFile.exists()) {
             return amigos;
         }
-        int count = raf.readInt();
-        for (int i = 0; i < count && raf.getFilePointer() < raf.length(); i++) {
-            amigos.add(readString(raf));
+        try (RandomAccessFile raf = new RandomAccessFile(amigosFile, "r")) {
+            if (raf.length() < 4) {
+                return amigos;
+            }
+            int count = raf.readInt();
+            for (int i = 0; i < count && raf.getFilePointer() < raf.length(); i++) {
+                amigos.add(readString(raf));
+            }
+        } catch (IOException e) {
         }
-    } catch (IOException e) {
+        return amigos;
     }
-    return amigos;
-}
 
     public boolean agregarAmigo(String username, String amigo) {
         if (username.equals(amigo) || listarAmigos(username).contains(amigo) || !dirUsuario(amigo).exists()) {
             return false;
         }
-        
+
         try (RandomAccessFile raf = new RandomAccessFile(fileAmigos(username), "rw")) {
             int count = (raf.length() > 0) ? raf.readInt() : 0;
             raf.seek(raf.length());
@@ -284,7 +315,7 @@ public class LogicaUsuarios {
             return false;
         }
     }
-    
+
     private void crearNivelSiNoExiste(String username, int nivel) throws IOException {
         File nivelFile = fileNivel(username, nivel);
         if (!nivelFile.exists()) {
@@ -294,14 +325,16 @@ public class LogicaUsuarios {
             }
         }
     }
-    
+
     public boolean guardarScore(String username, int nivel, int score) {
         File nivelFile = fileNivel(username, nivel);
         try {
             crearNivelSiNoExiste(username, nivel);
             try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
                 int highscore = 0;
-                if (raf.length() > 0) { highscore = raf.readInt(); }
+                if (raf.length() > 0) {
+                    highscore = raf.readInt();
+                }
                 if (score > highscore) {
                     raf.seek(0);
                     raf.writeInt(score);
@@ -313,43 +346,89 @@ public class LogicaUsuarios {
             return false;
         }
     }
-    
+
     public boolean marcarNivelPasado(String username, int nivel) {
         File nivelFile = fileNivel(username, nivel);
         try {
-            crearNivelSiNoExiste(username, nivel);
-            try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
-                raf.seek(4);
-                raf.writeBoolean(true);
-                if (nivel < 7) {
-                    crearNivelSiNoExiste(username, nivel + 1);
+            // Solo crear el archivo si no existe, pero no crear el siguiente nivel automáticamente
+            if (!nivelFile.exists()) {
+                try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
+                    raf.writeInt(0); // highscore
+                    raf.writeBoolean(true); // completado
                 }
-                return true;
+            } else {
+                // Si ya existe, solo marcar como completado
+                try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "rw")) {
+                    if (raf.length() >= 5) {
+                        raf.seek(4);
+                        raf.writeBoolean(true);
+                    } else {
+                        raf.seek(raf.length());
+                        raf.writeBoolean(true);
+                    }
+                }
             }
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
-    
+
     public int ultimoNivelDesbloqueado(String username) {
-        for (int i = 7; i >= 1; i--) {
+        // Verificar secuencialmente qué niveles están desbloqueados
+        for (int i = 1; i <= 7; i++) {
             File nivelFile = fileNivel(username, i);
-            if(nivelFile.exists()){
-                try(RandomAccessFile raf = new RandomAccessFile(nivelFile, "r")){
-                    if(raf.length() > 4 && raf.readInt() > 0 && raf.readBoolean()){
-                        return Math.min(i + 1, 7);
+            if (!nivelFile.exists()) {
+                return i - 1; // El nivel anterior fue el último desbloqueado
+            }
+
+            try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "r")) {
+                if (raf.length() >= 5) {
+                    raf.readInt(); // saltar score
+                    boolean completado = raf.readBoolean();
+                    if (!completado) {
+                        return i - 1; // Este nivel no está completado
                     }
-                } catch(IOException e) { /* continue */ }
+                } else {
+                    return i - 1; // Archivo incompleto
+                }
+            } catch (IOException e) {
+                return i - 1; // Error al leer
             }
         }
-        return 1;
+        return 7; // Todos los niveles desbloqueados
+    }
+
+    public boolean isNivelDesbloqueado(String username, int nivel) {
+        if (nivel == 1) {
+            return true; // El nivel 1 siempre está desbloqueado
+        }
+
+        // Para niveles 2-7, verificar si el nivel anterior fue completado
+        File nivelAnteriorFile = fileNivel(username, nivel - 1);
+        if (!nivelAnteriorFile.exists()) {
+            return false;
+        }
+
+        try (RandomAccessFile raf = new RandomAccessFile(nivelAnteriorFile, "r")) {
+            if (raf.length() >= 5) {
+                raf.readInt(); // saltar score
+                return raf.readBoolean(); // true si el nivel anterior fue completado
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public int[] getPreferencias(String username) {
         int[] defaults = {100, 0, 0, 0, Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, 1};
         File prefsFile = filePrefs(username);
-        if (!prefsFile.exists()) return defaults;
+        if (!prefsFile.exists()) {
+            return defaults;
+        }
         try (RandomAccessFile raf = new RandomAccessFile(prefsFile, "r")) {
             int vol = raf.readInt();
             int idi = raf.readByte();
@@ -384,39 +463,47 @@ public class LogicaUsuarios {
             return false;
         }
     }
-    
-public static class HistorialRegistro {
-    public final long fechaMs;
-    public final int nivel;
-    public final int score;
-    public final int intentos;
-    public final long duracionMs;
-    public final boolean exito;
-    public HistorialRegistro(long fechaMs, int nivel, int score, int intentos, long duracionMs, boolean exito) {
-        this.fechaMs = fechaMs; this.nivel = nivel; this.score = score;
-        this.intentos = intentos; this.duracionMs = duracionMs; this.exito = exito;
-    }
-}
-public List<HistorialRegistro> leerHistorial(String username) {
-    List<HistorialRegistro> lista = new ArrayList<HistorialRegistro>();
-    File f = fileHistorial(username);
-    if (!f.exists()) return lista;
-    try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
-        while (raf.getFilePointer() < raf.length()) {
-            long fecha = raf.readLong();
-            int nivel = raf.readInt();
-            int score = raf.readInt();
-            int intentos = raf.readInt();
-            long dur = raf.readLong();
-            boolean exito = raf.readBoolean();
-            lista.add(new HistorialRegistro(fecha, nivel, score, intentos, dur, exito));
-        }
-    } catch (IOException e) {
-    }
-    return lista;
-}
 
-    
+    public static class HistorialRegistro {
+
+        public final long fechaMs;
+        public final int nivel;
+        public final int score;
+        public final int intentos;
+        public final long duracionMs;
+        public final boolean exito;
+
+        public HistorialRegistro(long fechaMs, int nivel, int score, int intentos, long duracionMs, boolean exito) {
+            this.fechaMs = fechaMs;
+            this.nivel = nivel;
+            this.score = score;
+            this.intentos = intentos;
+            this.duracionMs = duracionMs;
+            this.exito = exito;
+        }
+    }
+
+    public List<HistorialRegistro> leerHistorial(String username) {
+        List<HistorialRegistro> lista = new ArrayList<HistorialRegistro>();
+        File f = fileHistorial(username);
+        if (!f.exists()) {
+            return lista;
+        }
+        try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
+            while (raf.getFilePointer() < raf.length()) {
+                long fecha = raf.readLong();
+                int nivel = raf.readInt();
+                int score = raf.readInt();
+                int intentos = raf.readInt();
+                long dur = raf.readLong();
+                boolean exito = raf.readBoolean();
+                lista.add(new HistorialRegistro(fecha, nivel, score, intentos, dur, exito));
+            }
+        } catch (IOException e) {
+        }
+        return lista;
+    }
+
     public boolean registrarPartida(String username, int nivel, int score, int intentos, long duracionMs, boolean exito) {
         try (RandomAccessFile raf = new RandomAccessFile(fileHistorial(username), "rw")) {
             raf.seek(raf.length());
@@ -432,14 +519,25 @@ public List<HistorialRegistro> leerHistorial(String username) {
             return false;
         }
     }
-    
-    private static class ScoreEntry { String user; int score; ScoreEntry(String user, int score) { this.user = user; this.score = score; } }
-    
+
+    private static class ScoreEntry {
+
+        String user;
+        int score;
+
+        ScoreEntry(String user, int score) {
+            this.user = user;
+            this.score = score;
+        }
+    }
+
     private Comparator<ScoreEntry> scoreComparator = Comparator.comparingInt(s -> -s.score);
 
     private int getScoreDeNivel(String username, int nivel) {
         File nivelFile = fileNivel(username, nivel);
-        if (!nivelFile.exists()) return 0;
+        if (!nivelFile.exists()) {
+            return 0;
+        }
         try (RandomAccessFile raf = new RandomAccessFile(nivelFile, "r")) {
             return raf.readInt();
         } catch (IOException e) {
@@ -460,13 +558,15 @@ public List<HistorialRegistro> leerHistorial(String username) {
     public List<String> leaderboardNivelGlobal(int nivel, int topN) {
         List<ScoreEntry> scores = new ArrayList<>();
         File[] users = raiz.listFiles();
-        
+
         if (users != null) {
             for (File userDir : users) {
                 if (userDir.isDirectory()) {
                     String username = userDir.getName();
                     int score = getScoreDeNivel(username, nivel);
-                    if (score > 0) { scores.add(new ScoreEntry(username, score)); }
+                    if (score > 0) {
+                        scores.add(new ScoreEntry(username, score));
+                    }
                 }
             }
         }
@@ -477,40 +577,50 @@ public List<HistorialRegistro> leerHistorial(String username) {
     public List<String> leaderboardNivelAmigos(String username, int nivel, boolean incluirPropio, int topN) {
         List<ScoreEntry> scores = new ArrayList<>();
         List<String> amigos = listarAmigos(username);
-        if (incluirPropio && !amigos.contains(username)) { amigos.add(username); }
+        if (incluirPropio && !amigos.contains(username)) {
+            amigos.add(username);
+        }
 
         for (String amigo : amigos) {
             int score = getScoreDeNivel(amigo, nivel);
-            if (score > 0) { scores.add(new ScoreEntry(amigo, score)); }
+            if (score > 0) {
+                scores.add(new ScoreEntry(amigo, score));
+            }
         }
         scores.sort(scoreComparator);
         return formatLeaderboard(scores, topN);
     }
-    
+
     public int miPosicionEnLeaderBoardNivelAmigos(String username, int nivel) {
         List<String> leaderboard = leaderboardNivelAmigos(username, nivel, true, 0);
         for (int i = 0; i < leaderboard.size(); i++) {
-            if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) { return i + 1; }
+            if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) {
+                return i + 1;
+            }
         }
         return -1;
     }
 
     private int getTotalScore(String username) {
         int total = 0;
-        for (int i = 1; i <= 7; i++) { total += getScoreDeNivel(username, i); }
+        for (int i = 1; i <= 7; i++) {
+            total += getScoreDeNivel(username, i);
+        }
         return total;
     }
 
     public List<String> leaderboardGlobalTotal(int topN) {
         List<ScoreEntry> scores = new ArrayList<>();
         File[] users = raiz.listFiles();
-        
+
         if (users != null) {
             for (File userDir : users) {
                 if (userDir.isDirectory()) {
                     String username = userDir.getName();
                     int totalScore = getTotalScore(username);
-                    if (totalScore > 0) { scores.add(new ScoreEntry(username, totalScore)); }
+                    if (totalScore > 0) {
+                        scores.add(new ScoreEntry(username, totalScore));
+                    }
                 }
             }
         }
@@ -521,20 +631,23 @@ public List<HistorialRegistro> leerHistorial(String username) {
     public int miPosicionEnLeaderboardGlobalTotal(String username) {
         List<String> leaderboard = leaderboardGlobalTotal(0);
         for (int i = 0; i < leaderboard.size(); i++) {
-            if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) { return i + 1; }
+            if (leaderboard.get(i).matches("^\\d+\\. " + username + " - .*")) {
+                return i + 1;
+            }
         }
         return -1;
     }
-    
-    public byte getIdiomaGuardado(String username) {
-    int[] p = getPreferencias(username);
-    return (byte) p[1];
-}
 
-    
+    public byte getIdiomaGuardado(String username) {
+        int[] p = getPreferencias(username);
+        return (byte) p[1];
+    }
+
     public boolean actualizarMiRankingGeneralGlobalTotal(String username) {
         int ranking = miPosicionEnLeaderboardGlobalTotal(username);
-        if (ranking == -1) return false;
+        if (ranking == -1) {
+            return false;
+        }
 
         try (RandomAccessFile raf = new RandomAccessFile(filePerfil(username), "rw")) {
             readString(raf);
