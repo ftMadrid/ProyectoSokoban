@@ -1,4 +1,3 @@
-// Ruta: core/src/main/java/proyectosokoban/recursos/Screens/RankingScreen.java
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
@@ -91,12 +90,10 @@ public class RankingScreen implements Screen {
     }
 
     private void createUI() {
-        // Tabla raíz que ocupa toda la pantalla
         Table rootTable = new Table();
         rootTable.setFillParent(true);
         stage.addActor(rootTable);
 
-        // Panel principal con un tamaño proporcional a la pantalla
         panelTable = new Table();
         panelTable.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
         panelTable.pad(20, 40, 20, 40);
@@ -106,7 +103,6 @@ public class RankingScreen implements Screen {
 
         rootTable.add(panelTable).width(panelWidth).height(panelHeight);
 
-        // --- Título ---
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
         Label titleLabel = new Label(gestorIdiomas.setTexto("ranking.title"), titleStyle);
         panelTable.add(titleLabel).expandX().center().padTop(60).padBottom(15).row();
@@ -214,20 +210,17 @@ public class RankingScreen implements Screen {
         filtersTable.add(byLevelButton).height(45);
         panelTable.add(filtersTable).center().padBottom(10).row();
 
-        // --- Selector de Nivel ---
         levelSelectorTable = new Table();
         levelSelectorTable.setVisible(false);
         populateLevelSelector();
         panelTable.add(levelSelectorTable).center().padBottom(10).row();
 
-        // --- Contenido del Ranking (con Scroll) ---
         rankingContentTable = new Table();
         rankingContentTable.top();
         ScrollPane scrollPane = new ScrollPane(rankingContentTable, new ScrollPane.ScrollPaneStyle());
         scrollPane.setFadeScrollBars(false);
         panelTable.add(scrollPane).expand().fill().padBottom(15).row();
 
-        // --- Botón de Volver ---
         TextButton backButton = new TextButton(gestorIdiomas.setTexto("back.button"), buttonStyle);
         backButton.addListener(new ClickListener() {
             @Override
@@ -304,18 +297,15 @@ public class RankingScreen implements Screen {
         Label.LabelStyle headerStyle = new Label.LabelStyle(font, Color.valueOf("1E1E1E"));
         Label.LabelStyle rowStyle = new Label.LabelStyle(smallFont, Color.valueOf("2F2F2F"));
 
-        // Calcular el ancho disponible dentro del panel (restando padding)
-        float availableWidth = panelTable.getWidth() - 80; // 40 padding left + 40 padding right
+        float availableWidth = panelTable.getWidth() - 80;
         if (availableWidth <= 0) {
             availableWidth = Gdx.graphics.getWidth() * 0.9f - 80;
         }
-
-        // Distribución de anchos: 20% para rank, 50% para usuario, 30% para score
+        
         float rankWidth = availableWidth * 0.2f;
         float userWidth = availableWidth * 0.5f;
         float scoreWidth = availableWidth * 0.3f;
 
-        // --- Cabeceras ---
         Table headerTable = new Table();
         Label rankHeader = new Label(gestorIdiomas.setTexto("ranking.header.rank"), headerStyle);
         rankHeader.setAlignment(Align.center);
@@ -370,7 +360,6 @@ public class RankingScreen implements Screen {
         }
     }
 
-    // Métodos restantes (show, render, resize, etc.) sin cambios...
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -392,7 +381,6 @@ public class RankingScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
-        // Volvemos a construir la UI para que se ajuste al nuevo tamaño
         createUI();
         populateRankingTable();
     }

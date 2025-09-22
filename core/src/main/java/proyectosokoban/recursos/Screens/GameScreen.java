@@ -33,7 +33,7 @@ public class GameScreen implements Screen {
     private final Sokoban juegoSokoban;
     private Stage stage;
     private BitmapFont pixelFont;
-    private BitmapFont hudFont; // <-- Fuente para el HUD
+    private BitmapFont hudFont; // fuente del hud (referencia noma)
 
     private Label cantmoves, cantempujes, scoreLabel, timeLabel;
     private int score;
@@ -87,9 +87,7 @@ public class GameScreen implements Screen {
     private void initializeUI() {
         stage = new Stage(new ScreenViewport());
 
-        // --- CAMBIO: Un solo estilo para todo el HUD ---
         Label.LabelStyle hudLabelStyle = new Label.LabelStyle(hudFont, hudFont.getColor());
-        // --- FIN DEL CAMBIO ---
 
         Table root = new Table();
         root.setFillParent(true);
@@ -103,23 +101,21 @@ public class GameScreen implements Screen {
         bgPixmap.dispose();
 
         cantmoves = new Label(gestorIdiomas.setTexto("game.movimientos") + "0", hudLabelStyle);
-        cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", hudLabelStyle); // <-- Ahora usa el estilo grande
-        scoreLabel = new Label("", hudLabelStyle); // Oculto, pero mantenemos consistencia
+        cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", hudLabelStyle);
+        scoreLabel = new Label("", hudLabelStyle);
         scoreLabel.setVisible(false);
         timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", hudLabelStyle);
         Label nivelLabel = new Label(gestorIdiomas.setTexto("game.nivel") + nivelActual, hudLabelStyle);
 
-        // --- CAMBIO: Tabla interna para centrar los elementos ---
         Table hudElements = new Table();
-        hudElements.add(nivelLabel).padRight(60); // Nivel primero
-        hudElements.add(cantmoves).padRight(60); // Espacio entre elementos
+        hudElements.add(nivelLabel).padRight(60);
+        hudElements.add(cantmoves).padRight(60);
         hudElements.add(cantempujes).padRight(60);
         hudElements.add(timeLabel);
 
         panel.add(hudElements).expandX().center();
-        // --- FIN DEL CAMBIO ---
 
-        root.top().add(panel).expandX().fillX().height(70); // Un poco más de altura para la fuente grande
+        root.top().add(panel).expandX().fillX().height(70); // un poco mas de altura para la fuente grande
         buildPauseMenu();
     }
 
@@ -377,9 +373,9 @@ public class GameScreen implements Screen {
             }
         });
 
-        // AGREGAR LOS BOTONES AL CONTENEDOR (incluyendo el nuevo)
+        // AGREGAR LOS BOTONES AL CONTENEDOR (SIEMPRE QUE NO SE TE OLVIDE FERNANDO YEY)
         container.add(resumeButton).width(250).height(50).pad(10).row();
-        container.add(restartButton).width(250).height(50).pad(10).row(); // NUEVO BOTÓN
+        container.add(restartButton).width(250).height(50).pad(10).row();
         container.add(levelSelectButton).width(250).height(50).pad(10).row();
         container.add(menuButton).width(250).height(50).pad(10).row();
 
@@ -389,10 +385,8 @@ public class GameScreen implements Screen {
     }
 
     private void reiniciarNivel() {
-        // Registrar la partida actual como fallida antes de reiniciar
         registrarPartida(false);
 
-        // Crear una nueva instancia del nivel actual
         transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, nivelActual));
     }
 
@@ -486,7 +480,7 @@ public class GameScreen implements Screen {
         juegoSokoban.dispose();
         stage.dispose();
         pixelFont.dispose();
-        hudFont.dispose(); // Liberar la nueva fuente
+        hudFont.dispose();
         backgroundTexture.dispose();
     }
 }

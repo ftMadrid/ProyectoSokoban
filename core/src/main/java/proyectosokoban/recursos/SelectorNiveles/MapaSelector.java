@@ -24,16 +24,16 @@ public class MapaSelector {
         inicializarMapa();
         cargarTexturas();
         cargarEstadoDesbloqueo();
-        actualizarParedesABloqueos(); // Actualizar paredes según estado de desbloqueo
+        actualizarParedesABloqueos(); // actualizar paredes segun estado de desbloqueo
     }
 
     private void cargarEstadoDesbloqueo() {
         LogicaUsuarios lu = new LogicaUsuarios();
 
-        // Usar el nuevo método para determinar el último nivel desbloqueado
+        // usar el nuevo metodo para determinar el ultimo nivel desbloqueado
         ultimoNivelDesbloqueado = lu.ultimoNivelDesbloqueado(username);
 
-        // Asegurar que al menos el nivel 1 esté desbloqueado
+        // asegurar que al menos el nivel 1 este desbloqueado
         if (ultimoNivelDesbloqueado < 1) {
             ultimoNivelDesbloqueado = 1;
         }
@@ -59,13 +59,12 @@ public class MapaSelector {
     }
 
     private void actualizarParedesABloqueos() {
-        // Convertir paredes de bloqueo (10) a caminos (9) si el nivel correspondiente está desbloqueado
         for (int y = 0; y < filas; y++) {
             for (int x = 0; x < columnas; x++) {
                 if (mapa[y][x] == 10) {
                     int nivelCorrespondiente = obtenerNivelCorrespondiente(x, y);
                     if (nivelCorrespondiente != -1 && isNivelDesbloqueado(nivelCorrespondiente)) {
-                        mapa[y][x] = 9; // Convertir a camino
+                        mapa[y][x] = 9; // convertir a camino
                     }
                 }
             }
@@ -76,17 +75,14 @@ public class MapaSelector {
         int ultimoNivelAnterior = ultimoNivelDesbloqueado;
         cargarEstadoDesbloqueo();
 
-        // Si se desbloqueó un nuevo nivel, actualizar las paredes
         if (ultimoNivelDesbloqueado > ultimoNivelAnterior) {
             actualizarParedesABloqueos();
         }
     }
 
     private int obtenerNivelCorrespondiente(int x, int y) {
-        // Las paredes de bloqueo (valor 10) están en la fila 6 (índice 6)
-        // Los niveles (valores 1-7) están en la fila 7 (índice 7), justo debajo
         if (y == 6 && x >= 1 && x < columnas - 1) {
-            return mapa[7][x]; // El nivel correspondiente está justo debajo
+            return mapa[7][x]; // el nivel correspondiente esta justo abajo
         }
         return -1;
     }
@@ -95,16 +91,16 @@ public class MapaSelector {
         texturasNiveles = new HashMap<>();
         texturasCaminos = new HashMap<>();
         texturasParedes = new HashMap<>();
-        texturaBloqueado = new Texture("Juego/niveles/bloqueado.png"); // Textura para paredes de bloqueo
+        texturaBloqueado = new Texture("Juego/niveles/bloqueado.png"); // textura para paredes de bloqueo
 
-        // Cargar texturas para los niveles
+        // cargar texturas para los niveles
         for (int i = 1; i <= 7; i++) {
             texturasNiveles.put(i, new Texture("Juego/niveles/nivel" + i + ".png"));
         }
 
-        // Cargar texturas para los caminos
-        texturasCaminos.put(9, new Texture("Juego/niveles/camino.png")); // Camino (valor 9)
-        texturasParedes.put(0, new Texture("Juego/niveles/paredselector.png")); // Camino (valor 0)
+        // cargar texturas para los caminos
+        texturasCaminos.put(9, new Texture("Juego/niveles/camino.png"));
+        texturasParedes.put(0, new Texture("Juego/niveles/paredselector.png"));
     }
 
     public boolean esPosicionValida(int x, int y) {
@@ -114,17 +110,17 @@ public class MapaSelector {
 
         int valor = mapa[y][x];
 
-        // No se puede mover a posiciones vacías (0)
+        // bno se puede mover a posiciones vacías (0)
         if (valor == 0) {
             return false;
         }
 
-        // Si es un nivel (1-7), verificar si está desbloqueado
+        // si es un nivel (1-7), verificar si esta desbloqueado
         if (valor >= 1 && valor <= 7) {
             return isNivelDesbloqueado(valor);
         }
 
-        // Caminos (9) y paredes convertidas a caminos son válidos
+        // caminos (9) y paredes convertidas a caminos son validos
         return true;
     }
 
@@ -135,7 +131,7 @@ public class MapaSelector {
 
         int valor = mapa[y][x];
 
-        // Solo devuelve el nivel si es un número entre 1 y 7 y está desbloqueado
+        // solo devuelve el nivel si es un numero entre 1 y 7 y está desbloqueado (ya me quiero dormir pepepe)
         if (valor >= 1 && valor <= 7 && isNivelDesbloqueado(valor)) {
             return valor;
         }
@@ -157,16 +153,16 @@ public class MapaSelector {
                     Texture textura = null;
 
                     if (valor >= 1 && valor <= 7) {
-                        // Dibujar nivel
+                        // dibujar nivel
                         textura = texturasNiveles.get(valor);
                     } else if (valor == 9) {
-                        // Dibujar camino
+                        // dibujar camino
                         textura = texturasCaminos.get(valor);
                     } else if (valor == 0) {
-                        // Dibujar pared de bloqueo
+                        // dibujar pared de bloqueo
                         textura = texturasParedes.get(valor);
                     } else if (valor == 10) {
-                        // Dibujar pared de bloqueo
+                        // dibujar pared de bloqueo
                         textura = texturaBloqueado;
                     }
                     if (textura != null) {

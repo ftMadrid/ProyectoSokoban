@@ -1,4 +1,3 @@
-// Ruta: core/src/main/java/proyectosokoban/recursos/Screens/AmigosScreen.java
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;

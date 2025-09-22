@@ -627,10 +627,10 @@ public class PreferenciasScreen implements Screen {
         public CycleButton(String[] options, TextButtonStyle style) {
             super(options[0], style);
             this.options = options;
-            // REMOVER el listener automático aquí
+            // REMOVER el listener automatico aqui (tal vez se buguee :c)
         }
 
-        // Añadir este método público para ciclar manualmente
+        // añadir este metodo para ciclar manualmente
         public void cycle() {
             currentIndex = (currentIndex + 1) % options.length;
             setText(options[currentIndex]);

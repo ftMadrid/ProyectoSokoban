@@ -15,7 +15,7 @@ public class Objetivo {
     }
 
     public void render(SpriteBatch batch, int tileSize) {
-        float scale = 0.6f; // 80% del tile
+        float scale = 0.6f; // modifico el tile, para que no se buguee pepepe
         float renderX = x * tileSize + (tileSize * (1 - scale) / 2f);
         float renderY = y * tileSize + (tileSize * (1 - scale) / 2f);
         float renderSize = tileSize * scale;

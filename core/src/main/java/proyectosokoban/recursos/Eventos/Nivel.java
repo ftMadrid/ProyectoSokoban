@@ -393,12 +393,12 @@ public class Nivel {
                 break;
             }
         }
-        // La llamada a actualizarEstadoCajas se hará desde Sokoban para pasar el volumen
+        // llamada a actualizarEstadoCajas se hara desde Sokoban para pasar el volumen (tal vez no se buguea
     }
 
-    // Este método se deja por si lo usas en otro lado, pero no debería ser el principal
+    // NO USAR COMO PRINCIPAL OISTE SAID
     public void actualizarEstadoCajas() {
-        actualizarEstadoCajas(1.0f); // Llama al método principal con volumen por defecto
+        actualizarEstadoCajas(1.0f); // volumen por defecto
     }
 
     public void actualizarEstadoCajas(float volume) {
@@ -419,7 +419,7 @@ public class Nivel {
         for (Caja caja : cajas) {
             caja.actualizar(delta);
         }
-        // Se elimina la llamada a actualizarEstadoCajas() de aquí para centralizarla en Sokoban.
+        // elimina la llamada a actualizarEstadoCajas() de aqui para centralizarla en Sokoban
     }
 
     public void actualizarAnimacionCajas(float delta) {

@@ -51,7 +51,7 @@ public class LevelSelectScreen implements Screen {
     private Label pauseTitle;
     private TextButton resumeButton, backToMenuButton;
 
-    // Nuevos elementos para título y mensaje
+    // nuevos elementos para titulo y mensaje
     private Label titleLabel;
     private Label enterLevelMessage;
     private Table messagePanel;
@@ -84,13 +84,11 @@ public class LevelSelectScreen implements Screen {
     private void inicializarFuentes() {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
 
-        // Fuente normal para botones
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
         p.size = 24;
         p.color = Color.valueOf("1E1E1E");
         font = generator.generateFont(p);
 
-        // Fuente pixel para título
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
         titleParam.size = 40;
         titleParam.color = Color.WHITE;
@@ -100,7 +98,6 @@ public class LevelSelectScreen implements Screen {
         titleParam.minFilter = Texture.TextureFilter.Nearest;
         titleFont = generator.generateFont(titleParam);
 
-        // Fuente para mensaje de instrucción
         FreeTypeFontGenerator.FreeTypeFontParameter messageParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
         messageParam.size = 36;
         messageParam.color = Color.YELLOW;
@@ -119,22 +116,18 @@ public class LevelSelectScreen implements Screen {
         tablaPrincipal.setFillParent(true);
         stage.addActor(tablaPrincipal);
 
-        // Panel superior con título
         Table panelSuperior = new Table();
         panelSuperior.setFillParent(true);
         panelSuperior.top();
 
-        // Título "Selector de Niveles"
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.WHITE);
         titleLabel = new Label(gestorIdiomas.setTexto("level_selector.title"), titleStyle);
 
-        // Agregar título centrado en la parte superior
         panelSuperior.add(titleLabel).expandX().center().pad(20).top().row();
 
         stage.addActor(panelSuperior);
         tablaPrincipal.add(mapaActor).expand().fill();
 
-        // Crear panel para mensaje de instrucción
         createMessagePanel();
 
         buildPauseMenu();
@@ -236,7 +229,6 @@ public class LevelSelectScreen implements Screen {
         backToMenuButton.setText(gestorIdiomas.setTexto("pause.main_menu"));
     }
 
-    // Método para mostrar/ocultar el mensaje de instrucción
     public void showEnterLevelMessage(boolean show) {
         if (messagePanel != null) {
             messagePanel.setVisible(show && !isPaused);
@@ -294,7 +286,7 @@ public class LevelSelectScreen implements Screen {
             updatePauseMenuLanguage();
             pausePanel.setVisible(true);
         }
-        // Ocultar mensaje cuando está pausado
+        // ocultar mensaje cuando esta pausado (sisisis)
         showEnterLevelMessage(false);
     }
 

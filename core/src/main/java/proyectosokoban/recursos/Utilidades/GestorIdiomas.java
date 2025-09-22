@@ -1,4 +1,3 @@
-// Ruta: core/src/main/java/proyectosokoban/recursos/Utilidades/GestorIdiomas.java
 package proyectosokoban.recursos.Utilidades;
 
 import java.util.HashMap;
@@ -151,7 +150,7 @@ public class GestorIdiomas {
         es.put("level_selector.enter", "Apretar ENTER para entrar al nivel");
         diccionarios.put("es", es);
 
-        // ======= INGLÉS =======
+        // ======= INGLES =======
         Map<String, String> en = new HashMap<>();
         en.put("app.name", "SOKOMINE");
         en.put("menu.jugar", "Play");
@@ -403,6 +402,8 @@ public class GestorIdiomas {
         ita.put("level_selector.enter", "Premi INVIO per entrare nel livello");
         diccionarios.put("ita", ita);
     }
+    
+    // TENE SAID TE HICE TU TRABAJO >:c
 
     public String setTexto(String clave) {
         Map<String, String> textosIdioma = diccionarios.get(codigoIdioma);

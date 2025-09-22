@@ -7,19 +7,18 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class SelectorNiveles {
 
-    private Texture[] texturasNormales; // Arriba, abajo, izquierda, derecha
-    private Texture[][] texturasMovimiento; // Animaciones de movimiento [direccion][frame]
+    private Texture[] texturasNormales;
+    private Texture[][] texturasMovimiento;
 
-    private volatile int x, y; // posición en la cuadrícula del mapa
-    private volatile float renderX, renderY; // posición de renderizado
-    private volatile int direccion; // 0=abajo, 1=arriba, 2=izquierda, 3=derecha
+    private volatile int x, y;
+    private volatile float renderX, renderY;
+    private volatile int direccion;
 
     private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
     private volatile float tiempoAnimacion = 0f;
     private final float duracionAnimacion = 0.3f;
     private volatile float startX, startY, targetX, targetY;
 
-    // Animación de movimiento normal
     private volatile float tiempoAnimacionMovimiento = 0f;
     private volatile int frameActualMovimiento = 0;
 
@@ -39,12 +38,12 @@ public class SelectorNiveles {
 
     private void cargarTexturas() {
         texturasNormales = new Texture[4];
-        texturasNormales[0] = new Texture("Juego/muneco/south.png"); // abajo
-        texturasNormales[1] = new Texture("Juego/muneco/north.png"); // arriba
-        texturasNormales[2] = new Texture("Juego/muneco/west.png");  // izquierda
+        texturasNormales[0] = new Texture("Juego/muneco/south.png");
+        texturasNormales[1] = new Texture("Juego/muneco/north.png");
+        texturasNormales[2] = new Texture("Juego/muneco/west.png"); 
         texturasNormales[3] = new Texture("Juego/muneco/east.png"); 
 
-        texturasMovimiento = new Texture[4][4]; // 4 frames por dirección
+        texturasMovimiento = new Texture[4][4];
         for (int i = 0; i < 4; i++) {
             texturasMovimiento[0][i] = new Texture("Juego/muneco/moves/south_00" + i + ".png");
             texturasMovimiento[1][i] = new Texture("Juego/muneco/moves/north_00" + i + ".png");
@@ -61,12 +60,12 @@ public class SelectorNiveles {
         int nuevoX = x + dx;
         int nuevoY = y + dy;
 
-        // Verificar si la nueva posición es válida
+        // verificar si la nueva posicion es valida
         if (!mapa.esPosicionValida(nuevoX, nuevoY)) {
             return false;
         }
 
-        // Actualizar dirección
+        // actualizar direccion SISISJDISHDJISD
         if (dx > 0) {
             direccion = 3;
         } else if (dx < 0) {
@@ -97,11 +96,10 @@ public class SelectorNiveles {
         if (estaMoviendose.get()) {
             tiempoAnimacion += delta;
             float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1f);
-            progreso = 1f - (1f - progreso) * (1f - progreso); // easing
+            progreso = 1f - (1f - progreso) * (1f - progreso);
             renderX = MathUtils.lerp(startX, targetX, progreso);
             renderY = MathUtils.lerp(startY, targetY, progreso);
 
-            // Animación de movimiento
             tiempoAnimacionMovimiento += delta;
             if (tiempoAnimacionMovimiento >= duracionAnimacion / 4f) {
                 frameActualMovimiento = (frameActualMovimiento + 1) % texturasMovimiento[direccion].length;

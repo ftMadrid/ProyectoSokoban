@@ -13,26 +13,20 @@ public class UserManager {
     private static final String USERS_FILE_NAME = "usuarios.dat";
     private static final int USERNAME_LENGTH = 20;
     private static final int PASSWORD_LENGTH = 20;
-    private static final int AVATAR_LENGTH = 100; // Espacio para la ruta del avatar
-    // Se ajusta el tamaño total del registro para incluir el avatar
+    private static final int AVATAR_LENGTH = 100;
     private static final int RECORD_LENGTH = (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2) + (AVATAR_LENGTH * 2) + 4;
 
     private RandomAccessFile raf;
 
     public UserManager() {
         try {
-            // --- CORRECCIÓN DEL CRASH ---
-            // Asegura que el directorio exista antes de intentar crear el archivo
             File directory = new File(USERS_FILE_PATH);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
-            // --- FIN DE LA CORRECCIÓN ---
             raf = new RandomAccessFile(USERS_FILE_PATH + USERS_FILE_NAME, "rw");
         } catch (IOException e) {
             e.printStackTrace();
-            // Si hay un error, raf será null y causará NullPointerException.
-            // La creación del directorio debería prevenir esto.
         }
     }
 
@@ -61,9 +55,9 @@ public class UserManager {
             raf.seek(raf.length());
             writeFixedString(username, USERNAME_LENGTH);
             writeFixedString(password, PASSWORD_LENGTH);
-            // Al registrar, se guarda el avatar por defecto
+            // al registrar se guarda el avatar por defecto
             writeFixedString("avatares/south.png", AVATAR_LENGTH);
-            raf.writeInt(0); // Puntuación inicial
+            raf.writeInt(0); // puntuacion inicial
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -96,11 +90,11 @@ public class UserManager {
                 long startOfRecord = raf.getFilePointer();
                 String storedUser = readFixedString(USERNAME_LENGTH);
                 if (storedUser.equals(username)) {
-                    // Posicionarse justo antes del campo de puntuación
+                    // posicionarse justo antes del campo de puntuacion
                     raf.seek(startOfRecord + (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2) + (AVATAR_LENGTH * 2));
                     int oldScore = raf.readInt();
                     if (score > oldScore) {
-                        // Regresar a la misma posición para escribir
+                        // regresar a la misma posición para escribir
                         raf.seek(startOfRecord + (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2) + (AVATAR_LENGTH * 2));
                         raf.writeInt(score);
                     }
@@ -120,7 +114,7 @@ public class UserManager {
                 long startOfRecord = raf.getFilePointer();
                 String storedUser = readFixedString(USERNAME_LENGTH);
                 if (storedUser.equals(username)) {
-                    raf.seek(startOfRecord + (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2)); // Posicionarse después de user y pass
+                    raf.seek(startOfRecord + (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2)); // posicionarse después de user y pass
                     return readFixedString(AVATAR_LENGTH);
                 }
                 raf.seek(startOfRecord + RECORD_LENGTH);
@@ -128,7 +122,7 @@ public class UserManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "avatares/south.png"; // Avatar por defecto si hay error o no se encuentra
+        return "avatares/south.png"; // avatar por defecto si hay error o no se encuentra
     }
 
     public void actualizarAvatar(String username, String avatarPath) {
@@ -138,7 +132,7 @@ public class UserManager {
                 long startOfRecord = raf.getFilePointer();
                 String storedUser = readFixedString(USERNAME_LENGTH);
                 if (storedUser.equals(username)) {
-                    // Posicionarse justo donde empieza el campo del avatar
+                    // posicionarse justo donde empieza el campo del avatar
                     raf.seek(startOfRecord + (USERNAME_LENGTH * 2) + (PASSWORD_LENGTH * 2));
                     writeFixedString(avatarPath, AVATAR_LENGTH);
                     return;
@@ -152,9 +146,6 @@ public class UserManager {
     
     public Map<Integer, Integer> getHighScores(String username) {
         Map<Integer, Integer> scores = new HashMap<>();
-        // Este método asume que los scores se guardan en otro lugar, como en tu clase LogicaUsuarios.
-        // Si la puntuación total estuviera en usuarios.dat, se leería de ahí.
-        // Dejo la lógica que tenías en LogicaUsuarios para compatibilidad.
         File scoresDir = new File("assets/Usuarios/" + username + "/scores");
         if (scoresDir.exists() && scoresDir.isDirectory()) {
              File[] scoreFiles = scoresDir.listFiles();
