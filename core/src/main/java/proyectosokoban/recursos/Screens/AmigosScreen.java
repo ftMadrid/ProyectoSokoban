@@ -1,24 +1,25 @@
+// Ruta: core/src/main/java/proyectosokoban/recursos/Screens/AmigosScreen.java
 package proyectosokoban.recursos.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -34,11 +35,12 @@ public class AmigosScreen implements Screen {
     private Stage stage;
     private LogicaUsuarios userLogic;
     private GestorIdiomas gestorIdiomas;
-    private BitmapFont pixelFont, titleFont;
+    private BitmapFont pixelFont, titleFont, levelFont;
     private Texture backgroundTexture, btnTex, tfBgTex, cursorTex, panelBgTex;
     private Table listContainer;
     private TextField friendUsernameTextField;
     private Label messageLabel;
+    private Table panelTable;
 
     public AmigosScreen(final Main main) {
         this.main = main;
@@ -46,7 +48,7 @@ public class AmigosScreen implements Screen {
         this.userLogic = new LogicaUsuarios();
         this.gestorIdiomas = GestorIdiomas.obtenerInstancia();
 
-        backgroundTexture = new Texture(Gdx.files.internal("background3.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("background2.png"));
         btnTex = new Texture(Gdx.files.internal("ui/button1.png"));
         tfBgTex = new Texture(Gdx.files.internal("ui/txtfield.png"));
         cursorTex = new Texture(Gdx.files.internal("ui/cursor 1.png"));
@@ -61,142 +63,164 @@ public class AmigosScreen implements Screen {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        p.size = 72;
-        p.color = Color.valueOf("F5F5DC");
+        p.size = 48;
+        p.color = Color.valueOf("1E1E1E");
         titleFont = generator.generateFont(p);
 
-        p.size = 26;
-        p.color = Color.valueOf("F5F5DC");
+        p.size = 24;
+        p.color = Color.valueOf("1E1E1E");
         pixelFont = generator.generateFont(p);
+        
+        p.size = 22;
+        p.color = Color.valueOf("2E8B57");
+        levelFont = generator.generateFont(p);
 
         generator.dispose();
     }
 
+    private TextureRegionDrawable solid(float r, float g, float b, float a) {
+        Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pm.setColor(r, g, b, a);
+        pm.fill();
+        TextureRegionDrawable dr = new TextureRegionDrawable(new TextureRegion(new Texture(pm)));
+        pm.dispose();
+        return dr;
+    }
+
     private void createUI() {
+        // Tabla raíz que ocupa toda la pantalla
         Table root = new Table();
         root.setFillParent(true);
-        root.pad(22, 26, 26, 26);
         stage.addActor(root);
 
-        Label title = new Label(gestorIdiomas.setTexto("amigos.titulo"), new Label.LabelStyle(titleFont, Color.WHITE));
-        root.add(title).expandX().center().padBottom(16).row();
+        // Panel principal con un tamaño proporcional
+        panelTable = new Table();
+        panelTable.setBackground(new TextureRegionDrawable(new TextureRegion(panelBgTex)));
+        panelTable.pad(20, 40, 20, 40);
 
-        messageLabel = new Label("", new Label.LabelStyle(pixelFont, Color.WHITE));
-        root.add(messageLabel).padBottom(10).row();
+        float panelWidth = Gdx.graphics.getWidth() * 0.9f;
+        float panelHeight = Gdx.graphics.getHeight() * 0.9f;
+        
+        root.add(panelTable).width(panelWidth).height(panelHeight);
+        
+        // --- Título (dentro del panel) ---
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
+        Label title = new Label(gestorIdiomas.setTexto("amigos.titulo"), titleStyle);
+        panelTable.add(title).expandX().center().padTop(60).padBottom(15).row();
 
-        TextField.TextFieldStyle tfStyle = new TextField.TextFieldStyle();
-        tfStyle.font = pixelFont;
-        tfStyle.fontColor = Color.BLACK;
-        TextureRegionDrawable tfBackground = new TextureRegionDrawable(new TextureRegion(tfBgTex));
-        tfStyle.background = tfBackground;
-        tfStyle.cursor = new TextureRegionDrawable(new TextureRegion(cursorTex));
+        // --- Mensajes ---
+        Label.LabelStyle messageStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
+        messageLabel = new Label("", messageStyle);
+        panelTable.add(messageLabel).height(30).padBottom(10).row();
+        
+        // --- Fila para añadir amigos ---
+        Table topRow = new Table();
+        topRow.defaults().space(12).height(46);
+        
+        TextField.TextFieldStyle tfStyle = new TextField.TextFieldStyle(pixelFont, Color.BLACK, 
+                new TextureRegionDrawable(new TextureRegion(cursorTex)), null, 
+                new TextureRegionDrawable(new TextureRegion(tfBgTex)));
+                
         friendUsernameTextField = new TextField("", tfStyle);
         friendUsernameTextField.setAlignment(Align.center);
         friendUsernameTextField.setMessageText(gestorIdiomas.setTexto("amigos.username_message"));
+        topRow.add(friendUsernameTextField).width(300);
 
         TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
         btnStyle.up = new TextureRegionDrawable(new TextureRegion(btnTex));
-        btnStyle.down = new TextureRegionDrawable(new TextureRegion(btnTex)); // opcional, misma textura
-        btnStyle.over = new TextureRegionDrawable(new TextureRegion(btnTex)); // hover (usamos la opacidad más abajo)
         btnStyle.font = pixelFont;
         btnStyle.fontColor = Color.valueOf("1E1E1E");
-
+        
         TextButton addBtn = new TextButton(gestorIdiomas.setTexto("amigos.agregar"), btnStyle);
+        topRow.add(addBtn).width(150);
+        
+        panelTable.add(topRow).expandX().center().padBottom(15).row();
 
+        // --- Contenedor de la lista de amigos (con Scroll) ---
+        listContainer = new Table();
+        listContainer.top(); 
+
+        ScrollPane scroll = new ScrollPane(listContainer, new ScrollPane.ScrollPaneStyle());
+        scroll.setFadeScrollBars(false);
+        scroll.setScrollingDisabled(true, false);
+
+        panelTable.add(scroll).expand().fill().padBottom(15).row();
+        
+        // --- Botón de Volver ---
+        TextButton backBtn = new TextButton(gestorIdiomas.setTexto("amigos.volver_menu"), btnStyle);
+        panelTable.add(backBtn).width(200).height(50).center().padTop(10);
+        
         addBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 addFriend(friendUsernameTextField.getText());
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                addBtn.addAction(
-                        Actions.sequence(
-                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
-                                Actions.scaleTo(1f, 1f, 0.05f)
-                        )
-                );
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
 
-        TextButton backBtn = new TextButton(gestorIdiomas.setTexto("amigos.volver_menu"), btnStyle);
         backBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
-                backBtn.addAction(
-                        Actions.sequence(
-                                Actions.scaleTo(0.9f, 0.9f, 0.05f),
-                                Actions.scaleTo(1f, 1f, 0.05f)
-                        )
-                );
-            }
-
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Hand);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
             }
         });
-
-        Table topRow = new Table();
-        topRow.defaults().space(12).height(46);
-        topRow.add(friendUsernameTextField).width(380);
-        topRow.add(addBtn).width(180);
-        root.add(topRow).expandX().fillX().padBottom(14).row();
-
-        listContainer = new Table();
-        listContainer.top().defaults().pad(6);
-
-        ScrollPane scroll = new ScrollPane(listContainer);
-        scroll.setFadeScrollBars(false);
-
-        Table foreground = new Table();
-        foreground.setBackground(new TextureRegionDrawable(new TextureRegion(panelBgTex)));
-        foreground.pad(12);
-        foreground.add(scroll).expand().fill();
-
-        float desiredHeight = Math.max(280, Gdx.graphics.getHeight() * 0.50f);
-        root.add(foreground).expand().fillX().height(desiredHeight).padTop(6).row();
-
-        root.add(backBtn).width(300).height(50).padTop(20);
-        
-        addBtn.setTransform(true);
-        addBtn.setOrigin(Align.center);
-        addBtn.setScale(1f);
-        addBtn.getColor().a = 1f;
-        
-        backBtn.setTransform(true);
-        backBtn.setOrigin(Align.center);
-        backBtn.setScale(1f);
-        backBtn.getColor().a = 1f;
-        
     }
 
     private void loadFriends() {
         listContainer.clear();
-        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
+        Label.LabelStyle nameStyle = new Label.LabelStyle(pixelFont, Color.valueOf("1E1E1E"));
+        Label.LabelStyle levelStyle = new Label.LabelStyle(levelFont, Color.valueOf("2E8B57"));
+        
         List<String> amigos = userLogic.listarAmigos(main.username);
 
         if (amigos == null || amigos.isEmpty()) {
-            listContainer.add(new Label(gestorIdiomas.setTexto("amigos.no_amigos"), labelStyle)).padTop(4).row();
+            Label emptyLabel = new Label(gestorIdiomas.setTexto("amigos.no_amigos"), nameStyle);
+            emptyLabel.setAlignment(Align.center);
+            listContainer.add(emptyLabel).expandX().center().pad(20).row();
             return;
         }
+        
+        // Calcular el ancho disponible dentro del panel (restando padding)
+        float availableWidth = panelTable.getWidth() - 80; // 40 padding left + 40 padding right
+        if (availableWidth <= 0) {
+            availableWidth = Gdx.graphics.getWidth() * 0.9f - 80;
+        }
+        
+        // Distribución de anchos: 15% para avatar, 60% para nombre, 25% para nivel
+        float avatarWidth = availableWidth * 0.15f;
+        float nameWidth = availableWidth * 0.60f;
+        float levelWidth = availableWidth * 0.25f;
+        
+        Drawable rowBackground = solid(0, 0, 0, 0.08f);
+        
+        int index = 0;
         for (String amigo : amigos) {
-            listContainer.add(new Label(amigo, labelStyle)).expandX().fillX().left().padLeft(20).row();
+            Table friendRow = new Table();
+            
+            // Alternar color de fondo
+            if (index % 2 == 0) {
+                friendRow.setBackground(rowBackground);
+            }
+            
+            // Avatar
+            String avatarPath = userLogic.getAvatar(amigo);
+            Image avatar = new Image(new Texture(Gdx.files.internal(avatarPath)));
+            Table avatarCell = new Table();
+            avatarCell.add(avatar).size(40, 40);
+            friendRow.add(avatarCell).width(avatarWidth).center();
+            
+            // Nombre del usuario
+            Label nameLabel = new Label(amigo, nameStyle);
+            nameLabel.setAlignment(Align.center);
+            friendRow.add(nameLabel).width(nameWidth).center();
+            
+            // Nivel
+            int nivel = userLogic.ultimoNivelDesbloqueado(amigo) + 1;
+            Label levelLabel = new Label("Lvl " + nivel, levelStyle);
+            levelLabel.setAlignment(Align.center);
+            friendRow.add(levelLabel).width(levelWidth).center();
+            
+            listContainer.add(friendRow).width(availableWidth).center().padTop(8).padBottom(8).row();
+            index++;
         }
     }
 
@@ -216,7 +240,8 @@ public class AmigosScreen implements Screen {
             messageLabel.setColor(Color.RED);
         }
     }
-
+    
+    // Métodos restantes (show, render, etc.) sin cambios...
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -225,7 +250,7 @@ public class AmigosScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.getBatch().begin();
@@ -236,28 +261,24 @@ public class AmigosScreen implements Screen {
         stage.draw();
     }
 
-    @Override
-    public void resize(int width, int height) {
+    @Override 
+    public void resize(int width, int height) { 
         stage.getViewport().update(width, height, true);
+        // Volvemos a construir la UI para que se ajuste al nuevo tamaño
+        createUI();
+        loadFriends();
     }
 
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-    }
-
-    @Override
-    public void hide() {
-    }
+    @Override public void pause() { }
+    @Override public void resume() { }
+    @Override public void hide() { }
 
     @Override
     public void dispose() {
         stage.dispose();
         titleFont.dispose();
         pixelFont.dispose();
+        levelFont.dispose();
         backgroundTexture.dispose();
         btnTex.dispose();
         tfBgTex.dispose();

@@ -39,6 +39,7 @@ public class RankingScreen implements Screen {
 
     private Table rankingContentTable;
     private Table levelSelectorTable;
+    private Table panelTable;
 
     private enum RankingType { TOTAL, LEVEL }
     private enum RankingScope { GLOBAL, FRIENDS }
@@ -82,27 +83,27 @@ public class RankingScreen implements Screen {
     }
 
     private void createUI() {
-        Table outerTable = new Table();
-        outerTable.setFillParent(true);
-        outerTable.center();
-        stage.addActor(outerTable);
+        // Tabla raíz que ocupa toda la pantalla
+        Table rootTable = new Table();
+        rootTable.setFillParent(true);
+        stage.addActor(rootTable);
 
-        Table panelTable = new Table();
+        // Panel principal con un tamaño proporcional a la pantalla
+        panelTable = new Table();
         panelTable.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-
-        float panelWidth = Gdx.graphics.getWidth() * 0.85f;
-        float panelHeight = Gdx.graphics.getHeight() * 0.9f;
-
-        outerTable.add(panelTable).size(panelWidth, panelHeight);
         panelTable.pad(20, 40, 20, 40);
 
-        Table titleBand = new Table();
-        titleBand.setBackground(solid(0, 0, 0, 0.08f));
+        float panelWidth = Gdx.graphics.getWidth() * 0.9f;
+        float panelHeight = Gdx.graphics.getHeight() * 0.9f;
+        
+        rootTable.add(panelTable).width(panelWidth).height(panelHeight);
+
+        // --- Título ---
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
         Label titleLabel = new Label(gestorIdiomas.setTexto("ranking.title"), titleStyle);
-        titleBand.add(titleLabel).pad(10);
-        panelTable.add(titleBand).growX().padTop(25).padBottom(15).row();
+        panelTable.add(titleLabel).expandX().center().padTop(10).padBottom(15).row();
 
+        // --- Filtros ---
         Table filtersTable = new Table();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = smallFont;
@@ -118,8 +119,8 @@ public class RankingScreen implements Screen {
         TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("ranking.friends"), buttonStyle);
         friendsButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingScope = RankingScope.FRIENDS; populateRankingTable(); }});
 
-        filtersTable.add(globalButton).size(120, 50).padRight(5);
-        filtersTable.add(friendsButton).size(120, 50).padRight(30);
+        filtersTable.add(globalButton).height(45).padRight(5);
+        filtersTable.add(friendsButton).height(45).padRight(30);
 
         filtersTable.add(new Label(gestorIdiomas.setTexto("ranking.type"), sectionStyle)).padRight(10);
         TextButton totalButton = new TextButton(gestorIdiomas.setTexto("ranking.total"), buttonStyle);
@@ -128,23 +129,27 @@ public class RankingScreen implements Screen {
         TextButton byLevelButton = new TextButton(gestorIdiomas.setTexto("ranking.by_level"), buttonStyle);
         byLevelButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingType = RankingType.LEVEL; levelSelectorTable.setVisible(true); populateRankingTable(); }});
 
-        filtersTable.add(totalButton).size(120, 50).padRight(5);
-        filtersTable.add(byLevelButton).size(120, 50);
+        filtersTable.add(totalButton).height(45).padRight(5);
+        filtersTable.add(byLevelButton).height(45);
         panelTable.add(filtersTable).center().padBottom(10).row();
-
+        
+        // --- Selector de Nivel ---
         levelSelectorTable = new Table();
         levelSelectorTable.setVisible(false);
         populateLevelSelector();
         panelTable.add(levelSelectorTable).center().padBottom(10).row();
 
+        // --- Contenido del Ranking (con Scroll) ---
         rankingContentTable = new Table();
-        ScrollPane scrollPane = new ScrollPane(rankingContentTable);
+        rankingContentTable.top();
+        ScrollPane scrollPane = new ScrollPane(rankingContentTable, new ScrollPane.ScrollPaneStyle());
         scrollPane.setFadeScrollBars(false);
         panelTable.add(scrollPane).expand().fill().padBottom(15).row();
 
+        // --- Botón de Volver ---
         TextButton backButton = new TextButton(gestorIdiomas.setTexto("back.button"), buttonStyle);
         backButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main)); }});
-        panelTable.add(backButton).size(200, 50).center().padTop(10);
+        panelTable.add(backButton).width(200).height(50).center().padTop(10);
     }
 
     private void populateLevelSelector() {
@@ -167,13 +172,32 @@ public class RankingScreen implements Screen {
         Label.LabelStyle headerStyle = new Label.LabelStyle(font, Color.valueOf("1E1E1E"));
         Label.LabelStyle rowStyle = new Label.LabelStyle(smallFont, Color.valueOf("2F2F2F"));
 
-        // === CABECERAS DE LA TABLA (CON PADDING) ===
+        // Calcular el ancho disponible dentro del panel (restando padding)
+        float availableWidth = panelTable.getWidth() - 80; // 40 padding left + 40 padding right
+        if (availableWidth <= 0) {
+            availableWidth = Gdx.graphics.getWidth() * 0.9f - 80;
+        }
+        
+        // Distribución de anchos: 20% para rank, 50% para usuario, 30% para score
+        float rankWidth = availableWidth * 0.2f;
+        float userWidth = availableWidth * 0.5f;
+        float scoreWidth = availableWidth * 0.3f;
+
+        // --- Cabeceras ---
         Table headerTable = new Table();
-        // Se añade padLeft y padRight para que el texto no toque los bordes del panel.
-        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.rank"), headerStyle)).width(150).left().padLeft(15);
-        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.user"), headerStyle)).expandX().center();
-        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.score"), headerStyle)).width(150).right().padRight(15);
-        rankingContentTable.add(headerTable).expandX().fillX().padBottom(5).row();
+        Label rankHeader = new Label(gestorIdiomas.setTexto("ranking.header.rank"), headerStyle);
+        rankHeader.setAlignment(Align.center);
+        headerTable.add(rankHeader).width(rankWidth).center();
+        
+        Label userHeader = new Label(gestorIdiomas.setTexto("ranking.header.user"), headerStyle);
+        userHeader.setAlignment(Align.center);
+        headerTable.add(userHeader).width(userWidth).center();
+        
+        Label scoreHeader = new Label(gestorIdiomas.setTexto("ranking.header.score"), headerStyle);
+        scoreHeader.setAlignment(Align.center);
+        headerTable.add(scoreHeader).width(scoreWidth).center();
+        
+        rankingContentTable.add(headerTable).width(availableWidth).center().padBottom(10).row();
 
         List<LogicaUsuarios.RankingEntry> rankingList;
         if (currentRankingType == RankingType.TOTAL) {
@@ -185,27 +209,36 @@ public class RankingScreen implements Screen {
         Drawable rowBackground = solid(0, 0, 0, 0.08f);
 
         if (rankingList == null || rankingList.isEmpty()) {
-            rankingContentTable.add(new Label(gestorIdiomas.setTexto("ranking.empty"), rowStyle)).center().colspan(3).pad(20);
+            Label emptyLabel = new Label(gestorIdiomas.setTexto("ranking.empty"), rowStyle);
+            emptyLabel.setAlignment(Align.center);
+            rankingContentTable.add(emptyLabel).width(availableWidth).center().pad(20).row();
         } else {
             int rank = 1;
             for (LogicaUsuarios.RankingEntry entry : rankingList) {
-                // === FILAS DE DATOS (CON PADDING) ===
                 Table rowContent = new Table();
                 if (rank % 2 == 0) {
                     rowContent.setBackground(rowBackground);
                 }
                 
-                // Se añade el mismo padLeft y padRight que en las cabeceras para una alineación perfecta.
-                rowContent.add(new Label(String.valueOf(rank), rowStyle)).width(150).left().padLeft(15);
-                rowContent.add(new Label(entry.username, rowStyle)).expandX().center();
-                rowContent.add(new Label(String.valueOf(entry.totalScore), rowStyle)).width(150).right().padRight(15);
+                Label rankLabel = new Label(String.valueOf(rank), rowStyle);
+                rankLabel.setAlignment(Align.center);
+                rowContent.add(rankLabel).width(rankWidth).center();
+                
+                Label userLabel = new Label(entry.username, rowStyle);
+                userLabel.setAlignment(Align.center);
+                rowContent.add(userLabel).width(userWidth).center();
+                
+                Label scoreLabel = new Label(String.valueOf(entry.totalScore), rowStyle);
+                scoreLabel.setAlignment(Align.center);
+                rowContent.add(scoreLabel).width(scoreWidth).center();
 
-                rankingContentTable.add(rowContent).expandX().fillX().padTop(5).row();
+                rankingContentTable.add(rowContent).width(availableWidth).center().padTop(5).padBottom(5).row();
                 rank++;
             }
         }
     }
-
+    
+    // Métodos restantes (show, render, resize, etc.) sin cambios...
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -227,6 +260,9 @@ public class RankingScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        // Volvemos a construir la UI para que se ajuste al nuevo tamaño
+        createUI();
+        populateRankingTable();
     }
 
     @Override public void pause() {}

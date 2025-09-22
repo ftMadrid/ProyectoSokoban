@@ -726,6 +726,7 @@ public class LogicaUsuarios {
             return 0;
         }
     }
+    
 
     private int getTotalScore(String username) {
         int total = 0;
