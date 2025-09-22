@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport; 
 import com.badlogic.gdx.utils.viewport.Viewport;
 import proyectosokoban.recursos.Main;
 import java.util.concurrent.ExecutorService;
@@ -57,9 +57,10 @@ public class Sokoban extends Juego {
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();
+
         float worldWidth = nivelActual.getCOLUMNAS() * nivelActual.getTILE();
         float worldHeight = nivelActual.getFILAS() * nivelActual.getTILE();
-        viewport = new FitViewport(worldWidth, worldHeight, camera);
+        viewport = new StretchViewport(worldWidth, worldHeight, camera);
         
         FileHandle moveSoundFile = Gdx.files.internal("Juego/audios/movimiento.mp3");
         if (moveSoundFile.exists()) {

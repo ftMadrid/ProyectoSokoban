@@ -5,7 +5,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import proyectosokoban.recursos.Main;
 
 public class Launcher {
-    public static void main(String[] args) {
+public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return;
         createApplication();
     }

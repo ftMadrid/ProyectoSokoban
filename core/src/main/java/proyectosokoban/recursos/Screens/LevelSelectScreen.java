@@ -20,7 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport; // Cambio Importante
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import proyectosokoban.recursos.Main;
@@ -255,7 +255,8 @@ public class LevelSelectScreen implements Screen {
             float worldHeight = mapa.getFilas() * TILE;
 
             camera = new OrthographicCamera();
-            viewport = new FitViewport(worldWidth, worldHeight, camera);
+            // --- CORRECCIÓN AQUÍ: Se cambia a StretchViewport ---
+            viewport = new StretchViewport(worldWidth, worldHeight, camera);
         }
 
         public void resize(int width, int height) {

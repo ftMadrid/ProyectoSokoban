@@ -30,7 +30,6 @@ public class GameScreen implements Screen {
     private final Sokoban juegoSokoban;
     private Stage stage;
     private BitmapFont pixelFont;
-    private Skin skin;
 
     private Label cantmoves, cantempujes, scoreLabel, timeLabel;
     private int score;
@@ -47,7 +46,6 @@ public class GameScreen implements Screen {
     private Label pauseTitle;
     private TextButton resumeButton, levelSelectButton, menuButton;
 
-    // flag para evitar dobles escrituras en historial
     private boolean partidaRegistrada = false;
 
     public GameScreen(final Main main, int nivel) {
@@ -80,8 +78,6 @@ public class GameScreen implements Screen {
 
     private void initializeUI() {
         stage = new Stage(new ScreenViewport());
-
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
         Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
 
         Table root = new Table();
@@ -97,16 +93,12 @@ public class GameScreen implements Screen {
 
         cantmoves = new Label(gestorIdiomas.setTexto("game.movimientos") + "0", labelStyle);
         cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", labelStyle);
-
-        // score no se mostrará durante el juego: lo dejamos vacío y oculto visualmente.
         scoreLabel = new Label("", labelStyle);
         scoreLabel.setVisible(false);
-
         timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", labelStyle);
 
         panel.add(cantmoves).expandX().left().padLeft(20);
         panel.add(cantempujes).expandX().left().padLeft(20);
-        // dejamos el hueco del score para no romper el layout, pero invisible
         panel.add(scoreLabel).expandX().center();
         panel.add(timeLabel).expandX().right().padRight(20);
 
@@ -145,90 +137,82 @@ public class GameScreen implements Screen {
         }
     }
 
-    // Guardado en historial. Si no hubo victoria, score = 0.
     private void registrarPartida(boolean exitoFinal) {
         if (partidaRegistrada || main.username == null) return;
 
         LogicaUsuarios lu = new LogicaUsuarios();
-        int intentos = juegoSokoban.getEmpujes(); // tu métrica
+        int intentos = juegoSokoban.getEmpujes();
         long duracionMs = (long) (tiempoDeJuego * 1000L);
-
-        int puntajeFinal = exitoFinal
-                ? Math.max(0, score)  // score ya se calcula justo al ganar
-                : 0;                   // si no terminaste, no hay score
+        int puntajeFinal = exitoFinal ? Math.max(0, score) : 0;
 
         lu.registrarPartida(main.username, nivelActual, puntajeFinal, intentos, duracionMs, exitoFinal);
         partidaRegistrada = true;
     }
 
     private void mostrarDialogoVictoria() {
+        if (dialogoVictoriaMostrado) {
+            return;
+        }
+        dialogoVictoriaMostrado = true;
+
+        // --- FUENTES MÁS GRANDES PARA EL DIÁLOGO ---
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        p.size = 64; // Tamaño grande para el título
+        p.color = Color.valueOf("1E1E1E");
+        BitmapFont titleFont = generator.generateFont(p);
+
+        // --- CORRECCIÓN AQUÍ: Aumentamos el tamaño de la fuente del mensaje ---
+        p.size = 40; // Tamaño legible para el mensaje
+        BitmapFont messageFont = generator.generateFont(p);
+        generator.dispose();
+
+
+        Window.WindowStyle windowStyle = new Window.WindowStyle(pixelFont, Color.BLACK,
+                new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
+        final Dialog dialogo = new Dialog("", windowStyle);
+
+        Table wrapper = new Table();
+        wrapper.pad(26);
+        wrapper.defaults().pad(10);
+
+        // --- Título "VICTORIA" ---
+        Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
+        Label titleLabel = new Label(gestorIdiomas.setTexto("game.dialogo_victoria_titulo"), titleStyle);
+        wrapper.add(titleLabel).padBottom(25).row();
+
+        // --- Mensaje con estadísticas ---
         int minutos = (int) tiempoDeJuego / 60;
         int segundos = (int) tiempoDeJuego % 60;
         String tiempoFormateado = String.format("%02d:%02d", minutos, segundos);
         String mensaje = gestorIdiomas.setTexto("game.dialogo_victoria_mensaje", score, juegoSokoban.getMovimientos(), juegoSokoban.getEmpujes(), tiempoFormateado);
 
-        Label.LabelStyle titleStyle = new Label.LabelStyle();
-        titleStyle.font = pixelFont;
-        titleStyle.fontColor = Color.GREEN;
-
-        // Crear un estilo personalizado para el diálogo con fondo más ancho
-        Window.WindowStyle dialogStyle = new Window.WindowStyle();
-        dialogStyle.titleFont = pixelFont;
-        dialogStyle.titleFontColor = Color.WHITE;
-
-        // Crear fondo para el diálogo
-        Pixmap dialogBg = new Pixmap(500, 300, Pixmap.Format.RGBA8888);
-        dialogBg.setColor(0.1f, 0.1f, 0.1f, 0.95f); // Fondo oscuro semitransparente
-        dialogBg.fill();
-        dialogStyle.background = new TextureRegionDrawable(new TextureRegion(new Texture(dialogBg)));
-        dialogBg.dispose();
-
-        Dialog dialogo = new Dialog("", dialogStyle) {
-            @Override
-            protected void result(Object obj) {
-                if (obj != null) {
-                    boolean reintentar = (Boolean) obj;
-                    if (reintentar) {
-                        transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, nivelActual));
-                    } else {
-                        transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
-                    }
-                }
-            }
-        };
-
-        // Configurar padding y espaciado para hacerlo más amplio
-        dialogo.getContentTable().defaults().pad(15);
-        dialogo.getButtonTable().defaults().pad(15);
-
-        Label titleLabel = new Label(gestorIdiomas.setTexto("game.dialogo_victoria_titulo"), titleStyle);
-        titleLabel.setFontScale(2.0f); // Título un poco más grande
-        dialogo.getContentTable().add(titleLabel).colspan(2).center().padBottom(20);
-        dialogo.getContentTable().row();
-
-        // Crear estilo para el mensaje con wrap para texto largo
-        Label.LabelStyle messageStyle = new Label.LabelStyle(pixelFont, Color.WHITE);
+        Label.LabelStyle messageStyle = new Label.LabelStyle(messageFont, Color.valueOf("1E1E1E"));
         Label messageLabel = new Label(mensaje, messageStyle);
-        messageLabel.setFontScale(1.4f);
+        messageLabel.setWrap(true);
         messageLabel.setAlignment(Align.center);
-        messageLabel.setWrap(true); // Permitir que el texto se ajuste
+        wrapper.add(messageLabel).width(750).padBottom(30).row();
 
-        // Hacer el mensaje más ancho
-        dialogo.getContentTable().add(messageLabel).colspan(2).width(600).center().padBottom(20);
-        dialogo.getContentTable().row();
+        // --- Botones "Reintentar" y "Menú" ---
+        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.font = pixelFont;
+        btnStyle.fontColor = Color.valueOf("1E1E1E");
+        btnStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
 
-        TextButton reintentarBtn = new TextButton(gestorIdiomas.setTexto("game.dialogo_victoria_reintentar"), skin);
-        TextButton menuBtn = new TextButton(gestorIdiomas.setTexto("game.dialogo_victoria_menu"), skin);
+        TextButton reintentarBtn = new TextButton(gestorIdiomas.setTexto("game.dialogo_victoria_reintentar"), btnStyle);
+        TextButton menuBtn = new TextButton(gestorIdiomas.setTexto("game.dialogo_victoria_menu"), btnStyle);
 
-        // Hacer botones más grandes
-        reintentarBtn.getLabel().setFontScale(1.5f);
-        menuBtn.getLabel().setFontScale(1.5f);
+        Table buttonTable = new Table();
+        buttonTable.defaults().width(320).height(60).pad(10);
+        buttonTable.add(reintentarBtn);
+        buttonTable.add(menuBtn);
+        wrapper.add(buttonTable).row();
 
         reintentarBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dialogo.hide();
-                transicionSuave.fadeOutAndChangeScreen(main, stage, new GameScreen(main, nivelActual));
+                main.setScreen(new GameScreen(main, nivelActual));
             }
         });
 
@@ -236,27 +220,15 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dialogo.hide();
-                transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
+                main.setScreen(new MenuScreen(main));
             }
         });
 
-        // Añadir más espacio entre botones
-        dialogo.getButtonTable().defaults().pad(15).minWidth(150).minHeight(50);
-        dialogo.getButtonTable().add(reintentarBtn).padRight(30);
-        dialogo.getButtonTable().add(menuBtn).padLeft(30);
-
+        // --- HACER EL DIÁLOGO MÁS GRANDE ---
+        dialogo.getContentTable().add(wrapper).prefWidth(900).prefHeight(520);
         dialogo.show(stage);
-
-        // Hacer el diálogo más ancho y alto
-        dialogo.setSize(700, 350); // Aumentado el ancho y alto
-        dialogo.setPosition(
-                (Gdx.graphics.getWidth() - dialogo.getWidth()) / 2,
-                (Gdx.graphics.getHeight() - dialogo.getHeight()) / 2
-        );
-
-        stage.setKeyboardFocus(dialogo);
-        stage.setScrollFocus(dialogo);
     }
+
 
     private void buildPauseMenu() {
         if (pausePanel != null) {
@@ -297,7 +269,7 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 resume();
-                registrarPartida(false); // salida sin terminar
+                registrarPartida(false);
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new LevelSelectScreen(main));
             }
         });
@@ -307,7 +279,7 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 resume();
-                registrarPartida(false); // salida sin terminar
+                registrarPartida(false);
                 transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main));
             }
         });
@@ -346,21 +318,23 @@ public class GameScreen implements Screen {
 
         if (!isPaused) {
             if (!juegoSokoban.isJuegoGanado()) {
-                // durante el juego: solo tiempo y movimientos
                 tiempoDeJuego += delta;
                 cantmoves.setText(gestorIdiomas.setTexto("game.movimientos") + juegoSokoban.getMovimientos());
                 cantempujes.setText(gestorIdiomas.setTexto("game.empujes") + juegoSokoban.getEmpujes());
                 timeLabel.setText(String.format(gestorIdiomas.setTexto("game.tiempo") + "%.0fs", tiempoDeJuego));
-                // score NO se actualiza ni se muestra
             }
 
             juegoSokoban.render(delta);
 
-            if (juegoSokoban.isJuegoGanado()) {
-                // calcula el score SOLO cuando ganas, antes del diálogo
+            if (juegoSokoban.isJuegoGanado() && !dialogoVictoriaMostrado) {
+
                 score = scoreBase - (juegoSokoban.getMovimientos() * 5) - (int)(tiempoDeJuego * 2);
                 if (score < 0) score = 0;
-                // para el historial en hide/dispose, el flag usará este score
+
+                LogicaUsuarios lu = new LogicaUsuarios();
+                lu.guardarScore(main.username, nivelActual, score);
+                lu.marcarNivelPasado(main.username, nivelActual);
+
                 mostrarDialogoVictoria();
             }
         } else {
@@ -378,7 +352,6 @@ public class GameScreen implements Screen {
     }
 
     @Override public void hide() {
-        // Si se abandona la pantalla por otra vía, registra según estado
         if (!partidaRegistrada) {
             registrarPartida(juegoSokoban.isJuegoGanado());
         }
