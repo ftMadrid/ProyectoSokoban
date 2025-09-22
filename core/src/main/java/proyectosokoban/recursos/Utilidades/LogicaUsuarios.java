@@ -385,6 +385,39 @@ public class LogicaUsuarios {
         }
     }
     
+public static class HistorialRegistro {
+    public final long fechaMs;
+    public final int nivel;
+    public final int score;
+    public final int intentos;
+    public final long duracionMs;
+    public final boolean exito;
+    public HistorialRegistro(long fechaMs, int nivel, int score, int intentos, long duracionMs, boolean exito) {
+        this.fechaMs = fechaMs; this.nivel = nivel; this.score = score;
+        this.intentos = intentos; this.duracionMs = duracionMs; this.exito = exito;
+    }
+}
+public List<HistorialRegistro> leerHistorial(String username) {
+    List<HistorialRegistro> lista = new ArrayList<HistorialRegistro>();
+    File f = fileHistorial(username);
+    if (!f.exists()) return lista;
+    try (RandomAccessFile raf = new RandomAccessFile(f, "r")) {
+        while (raf.getFilePointer() < raf.length()) {
+            long fecha = raf.readLong();
+            int nivel = raf.readInt();
+            int score = raf.readInt();
+            int intentos = raf.readInt();
+            long dur = raf.readLong();
+            boolean exito = raf.readBoolean();
+            lista.add(new HistorialRegistro(fecha, nivel, score, intentos, dur, exito));
+        }
+    } catch (IOException e) {
+        // en caso de error, devolvemos lo leído hasta el momento
+    }
+    return lista;
+}
+
+    
     public boolean registrarPartida(String username, int nivel, int score, int intentos, long duracionMs, boolean exito) {
         try (RandomAccessFile raf = new RandomAccessFile(fileHistorial(username), "rw")) {
             raf.seek(raf.length());
