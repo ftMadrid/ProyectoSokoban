@@ -33,6 +33,7 @@ public class GameScreen implements Screen {
     private final Sokoban juegoSokoban;
     private Stage stage;
     private BitmapFont pixelFont;
+    private BitmapFont hudFont; // <-- Fuente para el HUD
 
     private Label cantmoves, cantempujes, scoreLabel, timeLabel;
     private int score;
@@ -66,6 +67,10 @@ public class GameScreen implements Screen {
         parameter.size = 24;
         parameter.color = Color.valueOf("F5F5DC");
         pixelFont = generator.generateFont(parameter);
+
+        parameter.size = 36; 
+        hudFont = generator.generateFont(parameter);
+
         generator.dispose();
 
         initializeUI();
@@ -81,7 +86,10 @@ public class GameScreen implements Screen {
 
     private void initializeUI() {
         stage = new Stage(new ScreenViewport());
-        Label.LabelStyle labelStyle = new Label.LabelStyle(pixelFont, pixelFont.getColor());
+        
+        // --- CAMBIO: Un solo estilo para todo el HUD ---
+        Label.LabelStyle hudLabelStyle = new Label.LabelStyle(hudFont, hudFont.getColor());
+        // --- FIN DEL CAMBIO ---
 
         Table root = new Table();
         root.setFillParent(true);
@@ -94,18 +102,22 @@ public class GameScreen implements Screen {
         panel.setBackground(new TextureRegionDrawable(new TextureRegion(new Texture(bgPixmap))));
         bgPixmap.dispose();
 
-        cantmoves = new Label(gestorIdiomas.setTexto("game.movimientos") + "0", labelStyle);
-        cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", labelStyle);
-        scoreLabel = new Label("", labelStyle);
+        cantmoves = new Label(gestorIdiomas.setTexto("game.movimientos") + "0", hudLabelStyle);
+        cantempujes = new Label(gestorIdiomas.setTexto("game.empujes") + "0", hudLabelStyle); // <-- Ahora usa el estilo grande
+        scoreLabel = new Label("", hudLabelStyle); // Oculto, pero mantenemos consistencia
         scoreLabel.setVisible(false);
-        timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", labelStyle);
+        timeLabel = new Label(gestorIdiomas.setTexto("game.tiempo") + "0s", hudLabelStyle);
 
-        panel.add(cantmoves).expandX().left().padLeft(20);
-        panel.add(cantempujes).expandX().left().padLeft(20);
-        panel.add(scoreLabel).expandX().center();
-        panel.add(timeLabel).expandX().right().padRight(20);
+        // --- CAMBIO: Tabla interna para centrar los elementos ---
+        Table hudElements = new Table();
+        hudElements.add(cantmoves).padRight(60); // Espacio entre elementos
+        hudElements.add(cantempujes).padRight(60);
+        hudElements.add(timeLabel);
+        
+        panel.add(hudElements).expandX().center();
+        // --- FIN DEL CAMBIO ---
 
-        root.top().add(panel).expandX().fillX().height(50);
+        root.top().add(panel).expandX().fillX().height(70); // Un poco más de altura para la fuente grande
         buildPauseMenu();
     }
 
@@ -164,9 +176,7 @@ public class GameScreen implements Screen {
         lu.guardarScore(main.username, nivelActual, score);
         lu.marcarNivelPasado(main.username, nivelActual);
         
-        // --- ÚNICO CAMBIO EN ESTE ARCHIVO ---
         lu.verificarYDesbloquearLogros(main.username);
-        // --- FIN DEL CAMBIO ---
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -174,7 +184,7 @@ public class GameScreen implements Screen {
         p.color = Color.valueOf("1E1E1E");
         BitmapFont titleFont = generator.generateFont(p);
 
-        p.size = 40; // Tamaño legible para el mensaje
+        p.size = 40;
         BitmapFont messageFont = generator.generateFont(p);
         generator.dispose();
 
@@ -443,6 +453,7 @@ public class GameScreen implements Screen {
         juegoSokoban.dispose();
         stage.dispose();
         pixelFont.dispose();
+        hudFont.dispose(); // Liberar la nueva fuente
         backgroundTexture.dispose();
     }
 }
