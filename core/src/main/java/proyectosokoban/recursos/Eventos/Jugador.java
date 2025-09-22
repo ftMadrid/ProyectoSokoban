@@ -19,7 +19,7 @@ public class Jugador {
     private final AtomicBoolean estaEmpujando = new AtomicBoolean(false);
 
     private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.4f;
+    private final float duracionAnimacion = 0.7f;
 
     private volatile float tiempoAnimacionMovimiento = 0f;
     private volatile int frameActualMovimiento = 0;
