@@ -28,8 +28,7 @@ public class LogicaUsuarios {
             raiz.mkdirs();
         }
     }
-
-    // --- MÉTODOS PRIVADOS PARA MANEJAR RUTAS (TU CÓDIGO ORIGINAL) ---
+    
     private File dirUsuario(String username) {
         return new File(raiz, username);
     }
@@ -58,7 +57,6 @@ public class LogicaUsuarios {
         return new File(dirUsuario(username), "historial.dat");
     }
 
-    // --- MÉTODOS PRIVADOS PARA LEER/ESCRIBIR (TU CÓDIGO ORIGINAL) ---
     private void writeString(RandomAccessFile raf, String s) throws IOException {
         raf.writeUTF(s != null ? s : "");
     }
@@ -67,7 +65,6 @@ public class LogicaUsuarios {
         return raf.readUTF();
     }
 
-    // --- TU MÉTODO ORIGINAL, AHORA CON AVATAR ---
     public boolean CrearUsuario(String username, String nombreCompleto, String password) {
         if (username == null || username.trim().isEmpty() || dirUsuario(username).exists()) {
             return false;

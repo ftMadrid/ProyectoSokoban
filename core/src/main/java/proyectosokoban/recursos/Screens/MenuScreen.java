@@ -625,7 +625,6 @@ public class MenuScreen implements Screen {
         final Dialog achievementsDialog = new Dialog(gestorIdiomas.setTexto("achievements.title"), windowStyle);
         achievementsDialog.getTitleLabel().setAlignment(Align.center);
 
-        // **CAMBIO 1: Bajar más el título**
         achievementsDialog.padTop(85);
 
         Table contentTable = new Table();
@@ -647,13 +646,11 @@ public class MenuScreen implements Screen {
             Table textTable = new Table();
             textTable.left();
 
-            // **CAMBIO 2: Añadir espacio entre nombre y descripción**
             textTable.add(new Label(gestorIdiomas.setTexto("achievement." + key + ".name"), nameStyle)).left().padBottom(5).row();
             textTable.add(new Label(gestorIdiomas.setTexto("achievement." + key + ".desc"), descStyle)).left();
 
             achievementRow.add(textTable).expandX().left();
 
-            // **CAMBIO 3: Mover la fila un poco a la derecha**
             contentTable.add(achievementRow).expandX().fillX().padLeft(20).padBottom(10).row();
         }
 
