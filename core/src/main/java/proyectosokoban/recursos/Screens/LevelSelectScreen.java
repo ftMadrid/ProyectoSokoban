@@ -277,7 +277,7 @@ public class LevelSelectScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        main.playMenuMusic();
+        main.playSelectorMusic();
         transicionSuave.fadeIn(stage);
         active = true;
     }

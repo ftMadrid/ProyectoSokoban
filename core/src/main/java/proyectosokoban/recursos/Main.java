@@ -18,6 +18,7 @@ public class Main extends Game {
     public Music menuMusic;
     public Music gameMusic;
     public Music lobbyMusic;
+    public Music selectorMusic;
     private float volume = 0.25f;
     public Stage transitionStage;
     public PantallaDeCarga transitionAnimation;
@@ -42,6 +43,11 @@ public class Main extends Game {
         if (Gdx.files.internal("lobby.mp3").exists()) {
             lobbyMusic = Gdx.audio.newMusic(Gdx.files.internal("lobby.mp3"));
             lobbyMusic.setLooping(true);
+        }
+        
+        if (Gdx.files.internal("Juego/audios/selector.mp3").exists()) {
+            selectorMusic = Gdx.audio.newMusic(Gdx.files.internal("Juego/audios/selector.mp3"));
+            selectorMusic.setLooping(true);
         }
 
         transitionStage = new Stage(new ScreenViewport());
@@ -151,6 +157,9 @@ public class Main extends Game {
         if (gameMusic != null && gameMusic.isPlaying()) {
             gameMusic.stop();
         }
+        if (selectorMusic != null && selectorMusic.isPlaying()) {
+            selectorMusic.stop();
+        }
         if (lobbyMusic != null && lobbyMusic.isPlaying()) {
             lobbyMusic.stop();
         }
@@ -167,6 +176,9 @@ public class Main extends Game {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();
         }
+        if (selectorMusic != null && selectorMusic.isPlaying()) {
+            selectorMusic.stop();
+        }
         if (lobbyMusic != null && !lobbyMusic.isPlaying()) {
             lobbyMusic.setVolume(this.volume);
             lobbyMusic.play();
@@ -177,12 +189,31 @@ public class Main extends Game {
         if (menuMusic != null && menuMusic.isPlaying()) {
             menuMusic.stop();
         }
+        if (selectorMusic != null && selectorMusic.isPlaying()) {
+            selectorMusic.stop();
+        }
         if (lobbyMusic != null && lobbyMusic.isPlaying()) {
             lobbyMusic.stop();
         }
         if (gameMusic != null && !gameMusic.isPlaying()) {
             gameMusic.setVolume(this.volume);
             gameMusic.play();
+        }
+    }
+    
+    public void playSelectorMusic() {
+        if (menuMusic != null && menuMusic.isPlaying()) {
+            menuMusic.stop();
+        }
+        if (gameMusic != null && gameMusic.isPlaying()) {
+            gameMusic.stop();
+        }
+        if (lobbyMusic != null && lobbyMusic.isPlaying()) {
+            lobbyMusic.stop();
+        }
+        if (selectorMusic != null && !selectorMusic.isPlaying()) {
+            selectorMusic.setVolume(this.volume);
+            selectorMusic.play();
         }
     }
 
@@ -196,6 +227,9 @@ public class Main extends Game {
         if (lobbyMusic != null) {
             lobbyMusic.stop();
         }
+        if (selectorMusic != null) {
+            selectorMusic.stop();
+        }
     }
 
     public void setVolume(float vol) {
@@ -208,6 +242,9 @@ public class Main extends Game {
         }
         if (lobbyMusic != null) {
             lobbyMusic.setVolume(this.volume);
+        }
+        if (selectorMusic != null) {
+            selectorMusic.setVolume(this.volume);
         }
     }
 
@@ -225,6 +262,9 @@ public class Main extends Game {
         }
         if (lobbyMusic != null) {
             lobbyMusic.dispose();
+        }
+        if (selectorMusic != null) {
+            selectorMusic.dispose();
         }
         if (transitionStage != null) {
             transitionStage.dispose();
