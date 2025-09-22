@@ -8,11 +8,11 @@ public class GestorIdiomas {
     private static GestorIdiomas instancia;
     private String codigoIdioma = "es";
     private Map<String, Map<String, String>> diccionarios;
-    private LogicaUsuarios userLogic;
+    private UserManager userManager; // Usamos UserManager
 
     private GestorIdiomas() {
         diccionarios = new HashMap<>();
-        userLogic = new LogicaUsuarios();
+        userManager = new UserManager(); // Usamos UserManager
         inicializarIdiomas();
     }
 
@@ -24,6 +24,7 @@ public class GestorIdiomas {
     }
 
     private void inicializarIdiomas() {
+        // --- IDIOMA ESPAÑOL ---
         Map<String, String> es = new HashMap<>();
         es.put("app.name", "SOKOMINE");
         es.put("menu.jugar", "Jugar");
@@ -85,12 +86,16 @@ public class GestorIdiomas {
         es.put("amigos.username_message", " Nombre de usuario");
         es.put("back.button", "VOLVER AL MENU");
         // --- Textos añadidos ---
-        es.put("pause.title", "Pausa");
-        es.put("pause.resume", "Reanudar");
-        es.put("pause.level_select", "Selector de Niveles");
-        es.put("pause.main_menu", "Menu Principal");
+        es.put("profile.title", "Perfil de Usuario");
+        es.put("profile.username", "Usuario: ");
+        es.put("profile.fullname", "Nombre: ");
+        es.put("profile.highscores", "Mejores Puntuaciones");
+        es.put("profile.change_avatar", "Cambiar Avatar");
+        es.put("profile.close", "Cerrar");
+        es.put("avatar.title", "Seleccionar Avatar");
         diccionarios.put("es", es);
 
+        // --- IDIOMA INGLÉS ---
         Map<String, String> en = new HashMap<>();
         en.put("app.name", "SOKOMINE");
         en.put("menu.jugar", "Play");
@@ -152,12 +157,16 @@ public class GestorIdiomas {
         en.put("amigos.username_message", " Username");
         en.put("back.button", "BACK TO MENU");
         // --- Textos añadidos ---
-        en.put("pause.title", "Pause");
-        en.put("pause.resume", "Resume");
-        en.put("pause.level_select", "Level Select");
-        en.put("pause.main_menu", "Main Menu");
+        en.put("profile.title", "User Profile");
+        en.put("profile.username", "Username: ");
+        en.put("profile.fullname", "Full Name: ");
+        en.put("profile.highscores", "High Scores");
+        en.put("profile.change_avatar", "Change Avatar");
+        en.put("profile.close", "Close");
+        en.put("avatar.title", "Select Avatar");
         diccionarios.put("en", en);
 
+        // --- IDIOMA ITALIANO ---
         Map<String, String> ita = new HashMap<>();
         ita.put("app.name", "SOKOMINE");
         ita.put("menu.jugar", "Gioca");
@@ -219,13 +228,16 @@ public class GestorIdiomas {
         ita.put("amigos.username_message", " Nome utente");
         ita.put("back.button", "TORNA AL MENU");
         // --- Textos añadidos ---
-        ita.put("pause.title", "Pausa");
-        ita.put("pause.resume", "Riprendere");
-        ita.put("pause.level_select", "Selezione Livello");
-        ita.put("pause.main_menu", "Menu Principale");
+        ita.put("profile.title", "Profilo Utente");
+        ita.put("profile.username", "Utente: ");
+        ita.put("profile.fullname", "Nome: ");
+        ita.put("profile.highscores", "Punteggi Migliori");
+        ita.put("profile.change_avatar", "Cambia Avatar");
+        ita.put("profile.close", "Chiudi");
+        ita.put("avatar.title", "Seleziona Avatar");
         diccionarios.put("ita", ita);
     }
-
+    
     public String setTexto(String clave) {
         Map<String, String> textosIdioma = diccionarios.get(codigoIdioma);
         if (textosIdioma != null && textosIdioma.containsKey(clave)) {
@@ -256,10 +268,7 @@ public class GestorIdiomas {
     public void cambiarIdioma(String nuevoIdioma) {
         if (diccionarios.containsKey(nuevoIdioma)) {
             codigoIdioma = nuevoIdioma;
-            if (LogicaUsuarios.usuarioLogged != null) {
-                int[] prefs = userLogic.getPreferencias(LogicaUsuarios.usuarioLogged);
-                userLogic.setPreferencias(LogicaUsuarios.usuarioLogged, prefs[0], (byte) getCodigoIdiomaByte(nuevoIdioma), (byte) prefs[2], prefs[3] == 1, prefs[4], prefs[5], prefs[6], prefs[7], prefs[8]);
-            }
+            // La lógica de guardar preferencias se centraliza en Main y UserManager/LogicaUsuarios.
         }
     }
 
@@ -307,20 +316,7 @@ public class GestorIdiomas {
     }
 
     public void cargarPreferenciasUsuario(String username) {
-        if (username != null) {
-            int[] prefs = userLogic.getPreferencias(username);
-            int idiomaIndex = prefs[1];
-            switch (idiomaIndex) {
-                case 0:
-                    cambiarIdioma("es");
-                    break;
-                case 1:
-                    cambiarIdioma("en");
-                    break;
-                case 2:
-                    cambiarIdioma("ita");
-                    break;
-            }
-        }
+        // Esta lógica necesitará adaptarse a cómo lees las preferencias de idioma
+        // desde tu archivo de preferencias central.
     }
 }
