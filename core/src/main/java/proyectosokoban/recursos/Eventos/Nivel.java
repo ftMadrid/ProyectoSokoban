@@ -183,7 +183,6 @@ public class Nivel {
                     {" ", " ", " ", "#", "#", "#", "#", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
                     {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
                     {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
-                    {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},
                     {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},};
 
                 cargarMapa(mapa, TILE);
@@ -382,10 +381,20 @@ public class Nivel {
                 break;
             }
         }
-        actualizarEstadoCajas();
+        // La llamada a actualizarEstadoCajas se hará desde Sokoban para pasar el volumen
+    }
+    
+    // Este método se deja por si lo usas en otro lado, pero no debería ser el principal
+    public void actualizarEstadoCajas() {
+        actualizarEstadoCajas(1.0f); // Llama al método principal con volumen por defecto
     }
 
-    public void actualizarEstadoCajas() {
+    /**
+     * ---- MÉTODO CORREGIDO ----
+     * Ahora acepta el volumen como parámetro y se lo pasa a cada caja.
+     * @param volume El volumen actual del juego.
+     */
+    public void actualizarEstadoCajas(float volume) {
         for (Caja caja : cajas) {
             boolean enObjetivo = false;
 
@@ -395,8 +404,7 @@ public class Nivel {
                     break;
                 }
             }
-
-            caja.setEnObjetivo(enObjetivo, 0.5f);
+            caja.setEnObjetivo(enObjetivo, volume);
         }
     }
 
@@ -404,7 +412,7 @@ public class Nivel {
         for (Caja caja : cajas) {
             caja.actualizar(delta);
         }
-        actualizarEstadoCajas();
+        // Se elimina la llamada a actualizarEstadoCajas() de aquí para centralizarla en Sokoban.
     }
 
     public void actualizarAnimacionCajas(float delta) {

@@ -1,103 +1,85 @@
 package proyectosokoban.recursos.Eventos;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.Gdx;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.badlogic.gdx.math.Interpolation;
 
 public class Caja {
 
+    private int x, y;
     private Texture textura;
-    private volatile int x, y;
-    private volatile float renderX, renderY;
-
-    private final AtomicBoolean estaMoviendose = new AtomicBoolean(false);
-    private volatile float tiempoAnimacion = 0f;
-    private final float duracionAnimacion = 0.7f;
-    private volatile float startX, startY, targetX, targetY;
-
-    private int TILE;
+    private Texture texturaEnObjetivo;
     private boolean enObjetivo = false;
-    private Sound sonidoObjetivo;
+
+    private float visualX, visualY;
+    private boolean isMoving = false;
+    private float moveTimer = 0f;
+    private static final float MOVE_DURATION = 0.2f; // Duración de la animación en segundos
+
+    private static Sound sonidoObjetivo; // Estático para cargar el sonido una sola vez
     private boolean sonidoReproducido = false;
 
-    public Caja(int x, int y, int tile) {
+    public Caja(int x, int y, int TILE) {
         this.x = x;
         this.y = y;
-        this.TILE = tile;
-        this.renderX = x * TILE;
-        this.renderY = y * TILE;
+        this.visualX = x * TILE;
+        this.visualY = y * TILE;
         this.textura = new Texture("Juego/caja.png");
-        
-        try {
-            this.sonidoObjetivo = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/caja_objetivo.mp3"));
-        } catch (Exception e) {
-            System.out.println("No se pudo cargar el sonido de caja en objetivo: " + e.getMessage());
-            this.sonidoObjetivo = null;
-        }
-    }
+        this.texturaEnObjetivo = new Texture("Juego/caja_objetivo.png");
 
-    public void mover(int nuevoX, int nuevoY) {
-        this.x = nuevoX;
-        this.y = nuevoY;
-
-        startX = renderX;
-        startY = renderY;
-        targetX = x * TILE;
-        targetY = y * TILE;
-
-        estaMoviendose.set(true);
-        tiempoAnimacion = 0f;
-        sonidoReproducido = false;
-    }
-
-    public void actualizar(float delta) {
-        if (estaMoviendose.get()) {
-            tiempoAnimacion += delta;
-
-            float progreso = Math.min(tiempoAnimacion / duracionAnimacion, 1.0f);
-            progreso = 1f - (1f - progreso) * (1f - progreso);
-
-            renderX = com.badlogic.gdx.math.MathUtils.lerp(startX, targetX, progreso);
-            renderY = com.badlogic.gdx.math.MathUtils.lerp(startY, targetY, progreso);
-
-            if (progreso >= 1.0f) {
-                estaMoviendose.set(false);
-                renderX = targetX;
-                renderY = targetY;
+        // Carga el sonido una sola vez para todas las cajas
+        if (sonidoObjetivo == null) {
+            try {
+                sonidoObjetivo = Gdx.audio.newSound(Gdx.files.internal("Juego/audios/correct.mp3"));
+            } catch (Exception e) {
+                Gdx.app.error("Caja", "No se pudo cargar el sonido 'correct.mp3'", e);
+                sonidoObjetivo = null;
             }
         }
     }
 
     public void render(SpriteBatch batch, int TILE) {
-        if (enObjetivo) {
-            batch.setColor(0.6f, 1f, 0.6f, 1f);
-        }
-
-        batch.draw(textura, renderX+2, renderY+2, TILE-5, TILE-5);
-        batch.setColor(Color.WHITE);
+        batch.draw(enObjetivo ? texturaEnObjetivo : textura, visualX, visualY, TILE, TILE);
     }
 
-    public void dispose() {
-        if (textura != null) {
-            textura.dispose();
-        }
-        if (sonidoObjetivo != null) {
-            sonidoObjetivo.dispose();
+    public void mover(int nuevoX, int nuevoY) {
+        this.x = nuevoX;
+        this.y = nuevoY;
+        isMoving = true;
+        moveTimer = 0f;
+    }
+
+    public void actualizar(float delta) {
+        if (isMoving) {
+            moveTimer += delta;
+            float progress = Math.min(1f, moveTimer / MOVE_DURATION);
+            visualX = Interpolation.linear.apply(visualX, x * 64, progress);
+            visualY = Interpolation.linear.apply(visualY, y * 64, progress);
+
+            if (progress >= 1f) {
+                isMoving = false;
+                visualX = x * 64;
+                visualY = y * 64;
+            }
         }
     }
 
+    /**
+     * Actualiza el estado de la caja y reproduce un sonido si llega a un objetivo.
+     * @param enObjetivo True si la caja está en un objetivo.
+     * @param volume El volumen al que se debe reproducir el sonido.
+     */
     public void setEnObjetivo(boolean enObjetivo, float volume) {
         boolean estabaEnObjetivo = this.enObjetivo;
         this.enObjetivo = enObjetivo;
-        
+
         if (enObjetivo && !estabaEnObjetivo && sonidoObjetivo != null && !sonidoReproducido) {
             sonidoObjetivo.play(volume);
             sonidoReproducido = true;
         }
-        
+
         if (!enObjetivo) {
             sonidoReproducido = false;
         }
@@ -111,15 +93,9 @@ public class Caja {
         return y;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public boolean estaEnObjetivo() {
-        return enObjetivo;
+    public void dispose() {
+        textura.dispose();
+        texturaEnObjetivo.dispose();
+        // El sonido estático no se libera aquí, sino al cerrar el juego si es necesario.
     }
 }

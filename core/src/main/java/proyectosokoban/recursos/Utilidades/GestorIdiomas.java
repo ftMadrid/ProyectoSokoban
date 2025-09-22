@@ -84,6 +84,11 @@ public class GestorIdiomas {
         es.put("preferences.idioma", "IDIOMA");
         es.put("amigos.username_message", " Nombre de usuario");
         es.put("back.button", "VOLVER AL MENU");
+        // --- Textos añadidos ---
+        es.put("pause.title", "Pausa");
+        es.put("pause.resume", "Reanudar");
+        es.put("pause.level_select", "Selector de Niveles");
+        es.put("pause.main_menu", "Menu Principal");
         diccionarios.put("es", es);
 
         Map<String, String> en = new HashMap<>();
@@ -146,6 +151,11 @@ public class GestorIdiomas {
         en.put("preferences.idioma", "LANGUAGE");
         en.put("amigos.username_message", " Username");
         en.put("back.button", "BACK TO MENU");
+        // --- Textos añadidos ---
+        en.put("pause.title", "Pause");
+        en.put("pause.resume", "Resume");
+        en.put("pause.level_select", "Level Select");
+        en.put("pause.main_menu", "Main Menu");
         diccionarios.put("en", en);
 
         Map<String, String> ita = new HashMap<>();
@@ -208,6 +218,11 @@ public class GestorIdiomas {
         ita.put("preferences.idioma", "LINGUA");
         ita.put("amigos.username_message", " Nome utente");
         ita.put("back.button", "TORNA AL MENU");
+        // --- Textos añadidos ---
+        ita.put("pause.title", "Pausa");
+        ita.put("pause.resume", "Riprendere");
+        ita.put("pause.level_select", "Selezione Livello");
+        ita.put("pause.main_menu", "Menu Principale");
         diccionarios.put("ita", ita);
     }
 
