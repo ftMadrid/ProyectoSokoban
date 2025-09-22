@@ -33,8 +33,23 @@ public class Nivel {
         objetivos = new ArrayList<>();
 
         switch (numero) {
-            case 1:  
-                FILAS = 19;
+            case 1:
+
+                FILAS = 6;
+                COLUMNAS = 6;
+                TILE = 50;
+                mapa = new String[][]{
+                    {"#", "#", "#", "#", "#", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", " ", "P", "C", "O", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", " ", " ", " ", " ", "#"},
+                    {"#", "#", "#", "#", "#", "#"},};
+
+                cargarMapa(mapa, TILE);
+                break;
+
+            /*FILAS = 19;
                 COLUMNAS = 20;
                 TILE = 50;
 
@@ -60,8 +75,7 @@ public class Nivel {
                     {" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "},};
 
                 cargarMapa(mapa, TILE);
-                break;
-
+                break;*/
             case 2:
                 FILAS = 21;
                 COLUMNAS = 24;
@@ -382,13 +396,12 @@ public class Nivel {
         }
         // La llamada a actualizarEstadoCajas se hará desde Sokoban para pasar el volumen
     }
-    
+
     // Este método se deja por si lo usas en otro lado, pero no debería ser el principal
     public void actualizarEstadoCajas() {
         actualizarEstadoCajas(1.0f); // Llama al método principal con volumen por defecto
     }
 
-    
     public void actualizarEstadoCajas(float volume) {
         for (Caja caja : cajas) {
             boolean enObjetivo = false;
@@ -434,11 +447,11 @@ public class Nivel {
     public int getTILE() {
         return TILE;
     }
-    
+
     public int getFILAS() {
         return FILAS;
     }
-    
+
     public int getCOLUMNAS() {
         return COLUMNAS;
     }
