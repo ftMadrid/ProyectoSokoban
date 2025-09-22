@@ -56,15 +56,14 @@ public class RankingScreen implements Screen {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Font/testing.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        
-        // --- Fuentes con color oscuro para que contrasten con el fondo claro del 'field' ---
+
         p.size = 24;
         p.color = Color.valueOf("1E1E1E");
         smallFont = generator.generateFont(p);
-        
+
         p.size = 28;
         font = generator.generateFont(p);
-        
+
         p.size = 48;
         titleFont = generator.generateFont(p);
         generator.dispose();
@@ -73,30 +72,37 @@ public class RankingScreen implements Screen {
         populateRankingTable();
     }
 
+    private TextureRegionDrawable solid(float r, float g, float b, float a) {
+        Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pm.setColor(r, g, b, a);
+        pm.fill();
+        TextureRegionDrawable dr = new TextureRegionDrawable(new TextureRegion(new Texture(pm)));
+        pm.dispose();
+        return dr;
+    }
+
     private void createUI() {
         Table outerTable = new Table();
         outerTable.setFillParent(true);
         outerTable.center();
         stage.addActor(outerTable);
 
-        // --- Usamos el asset "field 2.png" que ya existe en tu proyecto ---
         Table panelTable = new Table();
         panelTable.setBackground(new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/field 2.png"))));
-        
+
         float panelWidth = Gdx.graphics.getWidth() * 0.85f;
         float panelHeight = Gdx.graphics.getHeight() * 0.9f;
-        
+
         outerTable.add(panelTable).size(panelWidth, panelHeight);
+        panelTable.pad(20, 40, 20, 40);
 
-        // --- Contenido que irá DENTRO del panelTable ---
-        panelTable.pad(20, 40, 20, 40); // Padding interno
-
-        // 1. Título
+        Table titleBand = new Table();
+        titleBand.setBackground(solid(0, 0, 0, 0.08f));
         Label.LabelStyle titleStyle = new Label.LabelStyle(titleFont, Color.valueOf("1E1E1E"));
-        Label titleLabel = new Label(t("ranking.title", "Ranking"), titleStyle);
-        panelTable.add(titleLabel).center().padTop(10).padBottom(15).row();
+        Label titleLabel = new Label(gestorIdiomas.setTexto("ranking.title"), titleStyle);
+        titleBand.add(titleLabel).pad(10);
+        panelTable.add(titleBand).growX().padTop(25).padBottom(15).row();
 
-        // 2. Filtros
         Table filtersTable = new Table();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = smallFont;
@@ -104,46 +110,41 @@ public class RankingScreen implements Screen {
         buttonStyle.up = new TextureRegionDrawable(new Texture(Gdx.files.internal("ui/button1.png")));
 
         Label.LabelStyle sectionStyle = new Label.LabelStyle(smallFont, Color.valueOf("1E1E1E"));
-        filtersTable.add(new Label(t("ranking.view", "Vista"), sectionStyle)).padRight(10);
+        filtersTable.add(new Label(gestorIdiomas.setTexto("ranking.view"), sectionStyle)).padRight(10);
 
-        TextButton globalButton = new TextButton(t("ranking.global", "Global"), buttonStyle);
+        TextButton globalButton = new TextButton(gestorIdiomas.setTexto("ranking.global"), buttonStyle);
         globalButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingScope = RankingScope.GLOBAL; populateRankingTable(); }});
 
-        TextButton friendsButton = new TextButton(t("ranking.friends", "Amigos"), buttonStyle);
+        TextButton friendsButton = new TextButton(gestorIdiomas.setTexto("ranking.friends"), buttonStyle);
         friendsButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingScope = RankingScope.FRIENDS; populateRankingTable(); }});
 
         filtersTable.add(globalButton).size(120, 50).padRight(5);
         filtersTable.add(friendsButton).size(120, 50).padRight(30);
-        
-        filtersTable.add(new Label(t("ranking.type", "Tipo"), sectionStyle)).padRight(10);
-        TextButton totalButton = new TextButton(t("ranking.total", "Total"), buttonStyle);
+
+        filtersTable.add(new Label(gestorIdiomas.setTexto("ranking.type"), sectionStyle)).padRight(10);
+        TextButton totalButton = new TextButton(gestorIdiomas.setTexto("ranking.total"), buttonStyle);
         totalButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingType = RankingType.TOTAL; levelSelectorTable.setVisible(false); populateRankingTable(); }});
 
-        TextButton byLevelButton = new TextButton(t("ranking.by_level", "Por Nivel"), buttonStyle);
+        TextButton byLevelButton = new TextButton(gestorIdiomas.setTexto("ranking.by_level"), buttonStyle);
         byLevelButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { currentRankingType = RankingType.LEVEL; levelSelectorTable.setVisible(true); populateRankingTable(); }});
 
         filtersTable.add(totalButton).size(120, 50).padRight(5);
         filtersTable.add(byLevelButton).size(120, 50);
-
         panelTable.add(filtersTable).center().padBottom(10).row();
 
-        // 3. Selector de nivel
         levelSelectorTable = new Table();
         levelSelectorTable.setVisible(false);
         populateLevelSelector();
         panelTable.add(levelSelectorTable).center().padBottom(10).row();
 
-        // 4. Área del ranking con scroll
         rankingContentTable = new Table();
         ScrollPane scrollPane = new ScrollPane(rankingContentTable);
         scrollPane.setFadeScrollBars(false);
-        // La clave: .expand() fuerza a esta celda a ocupar el espacio vertical sobrante
         panelTable.add(scrollPane).expand().fill().padBottom(15).row();
 
-        // 5. Botón de volver
-        TextButton backButton = new TextButton(t("back.button", "BACK TO MENU"), buttonStyle);
+        TextButton backButton = new TextButton(gestorIdiomas.setTexto("back.button"), buttonStyle);
         backButton.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { transicionSuave.fadeOutAndChangeScreen(main, stage, new MenuScreen(main)); }});
-        panelTable.add(backButton).size(200, 50).align(Align.right);
+        panelTable.add(backButton).size(200, 50).center().padTop(10);
     }
 
     private void populateLevelSelector() {
@@ -166,47 +167,43 @@ public class RankingScreen implements Screen {
         Label.LabelStyle headerStyle = new Label.LabelStyle(font, Color.valueOf("1E1E1E"));
         Label.LabelStyle rowStyle = new Label.LabelStyle(smallFont, Color.valueOf("2F2F2F"));
 
-        rankingContentTable.add(new Label("#", headerStyle)).width(80).center();
-        rankingContentTable.add(new Label(t("ranking.header.user", "User"), headerStyle)).expandX().center();
-        rankingContentTable.add(new Label(t("ranking.header.score", "Score"), headerStyle)).width(150).center().row();
+        // === CABECERAS DE LA TABLA (CON PADDING) ===
+        Table headerTable = new Table();
+        // Se añade padLeft y padRight para que el texto no toque los bordes del panel.
+        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.rank"), headerStyle)).width(150).left().padLeft(15);
+        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.user"), headerStyle)).expandX().center();
+        headerTable.add(new Label(gestorIdiomas.setTexto("ranking.header.score"), headerStyle)).width(150).right().padRight(15);
+        rankingContentTable.add(headerTable).expandX().fillX().padBottom(5).row();
 
         List<LogicaUsuarios.RankingEntry> rankingList;
-
         if (currentRankingType == RankingType.TOTAL) {
             rankingList = (currentRankingScope == RankingScope.GLOBAL) ? userLogic.getRankingGlobal() : userLogic.getRankingAmigos(main.username);
         } else {
             rankingList = (currentRankingScope == RankingScope.GLOBAL) ? userLogic.getRankingGlobalPorNivel(selectedLevel) : userLogic.getRankingAmigosPorNivel(main.username, selectedLevel);
         }
-        
-        // --- LÓGICA PARA EL FONDO DE LAS FILAS ---
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(0, 0, 0, 0.08f); // Color negro semitransparente
-        pixmap.fill();
-        Drawable rowBackground = new TextureRegionDrawable(new TextureRegion(new Texture(pixmap)));
-        pixmap.dispose();
+
+        Drawable rowBackground = solid(0, 0, 0, 0.08f);
 
         if (rankingList == null || rankingList.isEmpty()) {
-            rankingContentTable.add(new Label(t("ranking.empty", "No data available"), rowStyle)).center().colspan(3).pad(20);
+            rankingContentTable.add(new Label(gestorIdiomas.setTexto("ranking.empty"), rowStyle)).center().colspan(3).pad(20);
         } else {
             int rank = 1;
             for (LogicaUsuarios.RankingEntry entry : rankingList) {
-                Table rowTable = new Table();
-                if(rank % 2 == 0){ // Si la fila es par, le ponemos fondo
-                    rowTable.setBackground(rowBackground);
+                // === FILAS DE DATOS (CON PADDING) ===
+                Table rowContent = new Table();
+                if (rank % 2 == 0) {
+                    rowContent.setBackground(rowBackground);
                 }
-                rowTable.add(new Label(String.valueOf(rank), rowStyle)).width(80).center();
-                rowTable.add(new Label(entry.username, rowStyle)).expandX().center();
-                rowTable.add(new Label(String.valueOf(entry.totalScore), rowStyle)).width(150).center();
                 
-                rankingContentTable.add(rowTable).expandX().fillX().padTop(5).row();
+                // Se añade el mismo padLeft y padRight que en las cabeceras para una alineación perfecta.
+                rowContent.add(new Label(String.valueOf(rank), rowStyle)).width(150).left().padLeft(15);
+                rowContent.add(new Label(entry.username, rowStyle)).expandX().center();
+                rowContent.add(new Label(String.valueOf(entry.totalScore), rowStyle)).width(150).right().padRight(15);
+
+                rankingContentTable.add(rowContent).expandX().fillX().padTop(5).row();
                 rank++;
             }
         }
-    }
-
-    private String t(String key, String fallback) {
-        String s = gestorIdiomas.setTexto(key);
-        return (s == null || s.startsWith("[")) ? fallback : s;
     }
 
     @Override
@@ -217,7 +214,9 @@ public class RankingScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();
